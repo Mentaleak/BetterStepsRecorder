@@ -27,6 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DocX" Version="3.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="UIAutomationClient">
       <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\8.0.6\ref\net8.0\UIAutomationClient.dll</HintPath>
     </Reference>
