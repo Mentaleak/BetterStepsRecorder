@@ -14,13 +14,15 @@ namespace Better_Steps_Recorder
 {
     internal static class Program
     {
+        public static ZipFileHandler zip;
         private static IntPtr _hookID = IntPtr.Zero;
         private static LowLevelMouseProc _proc = HookCallback;
         public static List<RecordEvent> _recordEvents = new List<RecordEvent>();
         private static Form1 _form1Instance;
         private static int EventCounter = 1;
         public static bool IsRecording = false;
-
+        
+        [STAThread]
         static void Main()
         {
             ApplicationConfiguration.Initialize();
@@ -82,16 +84,16 @@ namespace Better_Steps_Recorder
                             ID = EventCounter++,
                             WindowTitle = windowTitle,
                             ApplicationName=applicationName,
-                            WindowCoordinates = rect,
+                            WindowCoordinates = new WindowHelper.RECT { Left = rect.Left, Top = rect.Top, Bottom = rect.Bottom, Right = rect.Right },
                             WindowSize = new WindowHelper.Size { Width = windowWidth, Height = windowHeight },
-                            UICoordinates = UIrect,
+                            UICoordinates = new WindowHelper.RECT { Left = UIrect.Left, Top = UIrect.Top, Bottom = UIrect.Bottom, Right = UIrect.Right },
                             UISize = new WindowHelper.Size { Width= UIWidth, Height= UIHeight },
                             UIElement = element,
                             ElementName=element.Current.Name,
-                            ElementType=element.Current.ItemType,
-                            MouseCoordinates = cursorPos,
+                            ElementType=element.Current.LocalizedControlType,
+                            MouseCoordinates = new WindowHelper.POINT { X = cursorPos.X, Y = cursorPos.Y },
                             EventType = clickType,
-                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.ItemType} {element.Current.Name}"
+                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.LocalizedControlType} {element.Current.Name}"
                         };
                         _recordEvents.Add(recordEvent);
 
@@ -105,7 +107,7 @@ namespace Better_Steps_Recorder
 
                         // Update ListBox in Form1
                         _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
-
+                        zip.SaveToZip(_recordEvents);
                     }
                 }
             }

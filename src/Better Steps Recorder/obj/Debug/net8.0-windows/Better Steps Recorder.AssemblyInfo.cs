@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Better Steps Recorder")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+99d73c91629f63410579dcc58ab848adc655a0be")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9b3c86fe6099934b6038bd3e500b751d5e6ad15e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Better Steps Recorder")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Better Steps Recorder")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

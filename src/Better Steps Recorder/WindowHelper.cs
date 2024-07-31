@@ -19,8 +19,8 @@ namespace Better_Steps_Recorder
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
         {
-            public int X;
-            public int Y;
+            public int X { get; set; }
+            public int Y { get; set; }
             public override string ToString()
             {
                 // Customize the string representation for display in the ListBox
@@ -31,8 +31,8 @@ namespace Better_Steps_Recorder
         [StructLayout(LayoutKind.Sequential)]
         public struct Size
         {
-            public int Width;
-            public int Height;
+            public int Width { get; set; }
+            public int Height { get; set; }
             public override string ToString()
             {
                 // Customize the string representation for display in the ListBox
@@ -43,10 +43,10 @@ namespace Better_Steps_Recorder
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
+            public int Left { get; set; }
+            public int Top { get; set; }
+            public int Right { get; set; }
+            public int Bottom { get; set; }
 
             public override string ToString()
             {

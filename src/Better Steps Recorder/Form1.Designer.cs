@@ -28,12 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             Listbox_Events = new ListBox();
             propertyGrid_RecordEvent = new PropertyGrid();
             splitContainer1 = new SplitContainer();
             splitContainer2 = new SplitContainer();
+            splitContainer3 = new SplitContainer();
             pictureBox1 = new PictureBox();
+            richTextBox_stepText = new RichTextBox();
             menuStrip1 = new MenuStrip();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            newToolStripMenuItem = new ToolStripMenuItem();
+            openToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -43,6 +49,10 @@
             splitContainer2.Panel1.SuspendLayout();
             splitContainer2.Panel2.SuspendLayout();
             splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer3).BeginInit();
+            splitContainer3.Panel1.SuspendLayout();
+            splitContainer3.Panel2.SuspendLayout();
+            splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -62,6 +72,7 @@
             // 
             propertyGrid_RecordEvent.BackColor = SystemColors.Control;
             propertyGrid_RecordEvent.Dock = DockStyle.Fill;
+            propertyGrid_RecordEvent.Enabled = false;
             propertyGrid_RecordEvent.Location = new Point(0, 0);
             propertyGrid_RecordEvent.Name = "propertyGrid_RecordEvent";
             propertyGrid_RecordEvent.RightToLeft = RightToLeft.Yes;
@@ -108,12 +119,30 @@
             // splitContainer2.Panel2
             // 
             splitContainer2.Panel2.BackColor = SystemColors.Control;
-            splitContainer2.Panel2.Controls.Add(pictureBox1);
+            splitContainer2.Panel2.Controls.Add(splitContainer3);
             splitContainer2.Size = new Size(988, 517);
             splitContainer2.SplitterDistance = 378;
             splitContainer2.SplitterIncrement = 5;
             splitContainer2.SplitterWidth = 10;
             splitContainer2.TabIndex = 7;
+            // 
+            // splitContainer3
+            // 
+            splitContainer3.Dock = DockStyle.Fill;
+            splitContainer3.Location = new Point(0, 0);
+            splitContainer3.Name = "splitContainer3";
+            splitContainer3.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainer3.Panel1
+            // 
+            splitContainer3.Panel1.Controls.Add(pictureBox1);
+            // 
+            // splitContainer3.Panel2
+            // 
+            splitContainer3.Panel2.Controls.Add(richTextBox_stepText);
+            splitContainer3.Size = new Size(596, 513);
+            splitContainer3.SplitterDistance = 432;
+            splitContainer3.TabIndex = 2;
             // 
             // pictureBox1
             // 
@@ -121,22 +150,54 @@
             pictureBox1.Dock = DockStyle.Fill;
             pictureBox1.Location = new Point(0, 0);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(596, 513);
+            pictureBox1.Size = new Size(596, 432);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
+            // richTextBox_stepText
+            // 
+            richTextBox_stepText.Dock = DockStyle.Fill;
+            richTextBox_stepText.Location = new Point(0, 0);
+            richTextBox_stepText.Name = "richTextBox_stepText";
+            richTextBox_stepText.Size = new Size(596, 77);
+            richTextBox_stepText.TabIndex = 1;
+            richTextBox_stepText.Text = "";
+            richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
+            // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { ToolStripMenuItem_Recording });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(988, 24);
             menuStrip1.TabIndex = 8;
             menuStrip1.Text = "menuStrip1";
             // 
+            // fileToolStripMenuItem
+            // 
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Text = "File";
+            // 
+            // newToolStripMenuItem
+            // 
+            newToolStripMenuItem.Name = "newToolStripMenuItem";
+            newToolStripMenuItem.Size = new Size(103, 22);
+            newToolStripMenuItem.Text = "New";
+            newToolStripMenuItem.Click += newToolStripMenuItem_Click;
+            // 
+            // openToolStripMenuItem
+            // 
+            openToolStripMenuItem.Name = "openToolStripMenuItem";
+            openToolStripMenuItem.Size = new Size(103, 22);
+            openToolStripMenuItem.Text = "Open";
+            openToolStripMenuItem.Click += openToolStripMenuItem_Click;
+            // 
             // ToolStripMenuItem_Recording
             // 
+            ToolStripMenuItem_Recording.Enabled = false;
             ToolStripMenuItem_Recording.Name = "ToolStripMenuItem_Recording";
             ToolStripMenuItem_Recording.Size = new Size(100, 20);
             ToolStripMenuItem_Recording.Text = "Start Recording";
@@ -149,9 +210,11 @@
             ClientSize = new Size(988, 541);
             Controls.Add(splitContainer2);
             Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             Name = "Form1";
             Text = "Better Steps Recorder";
+            Load += Form1_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -160,6 +223,10 @@
             splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
             splitContainer2.ResumeLayout(false);
+            splitContainer3.Panel1.ResumeLayout(false);
+            splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
+            splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
@@ -175,5 +242,10 @@
         private MenuStrip menuStrip1;
         private ToolStripMenuItem ToolStripMenuItem_Recording;
         private PictureBox pictureBox1;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem newToolStripMenuItem;
+        private ToolStripMenuItem openToolStripMenuItem;
+        private RichTextBox richTextBox_stepText;
+        private SplitContainer splitContainer3;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Automation;
 
@@ -18,6 +19,8 @@ namespace Better_Steps_Recorder
         public WindowHelper.Size WindowSize { get; set; }
         public WindowHelper.RECT UICoordinates { get; set; }
         public WindowHelper.Size UISize { get; set; }
+        
+        [JsonIgnore] 
         public AutomationElement? UIElement { get; set; }
         public WindowHelper.POINT MouseCoordinates { get; set; }
         public string? EventType { get; set; }
