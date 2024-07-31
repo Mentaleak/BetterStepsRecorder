@@ -7,20 +7,39 @@ using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Automation;
 using System.Diagnostics.Tracing;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace Better_Steps_Recorder
 {
     public class WindowHelper
     {
         public const int SRCCOPY = 0x00CC0020;
+        private const uint GA_ROOT = 2;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT
         {
             public int X;
             public int Y;
+            public override string ToString()
+            {
+                // Customize the string representation for display in the ListBox
+                return $"({X}, {Y})";
+            }
         }
-       
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Size
+        {
+            public int Width;
+            public int Height;
+            public override string ToString()
+            {
+                // Customize the string representation for display in the ListBox
+                return $"({Width}, {Height})";
+            }
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
@@ -28,6 +47,12 @@ namespace Better_Steps_Recorder
             public int Top;
             public int Right;
             public int Bottom;
+
+            public override string ToString()
+            {
+                // Customize the string representation for display in the ListBox
+                return $"({Left}, {Top}, {Bottom}, {Right})";
+            }
         }
 
         public const int WH_MOUSE_LL = 14;
@@ -51,7 +76,26 @@ namespace Better_Steps_Recorder
             return IntPtr.Zero;
         }
 
-        public static string GetWindowText(IntPtr hWnd)
+        public static RECT GetTopLevelWindowRect(IntPtr hWnd)
+        {
+            // Get the top-level window handle
+            IntPtr topLevelHwnd = GetAncestor(hWnd, GA_ROOT);
+            RECT rect;
+            if (GetWindowRect(topLevelHwnd, out rect))
+            {
+                return rect;
+            }
+            throw new InvalidOperationException("Unable to retrieve window rectangle.");
+        }
+
+
+        public static string GetTopLevelWindowTitle(IntPtr hWnd)
+        {
+            // Get the top-level window handle
+            IntPtr rootHwnd = GetAncestor(hWnd, GA_ROOT);
+            return GetWindowText(rootHwnd);
+        }
+        public static string? GetWindowText(IntPtr hWnd)
         {
             const int nChars = 256;
             StringBuilder Buff = new StringBuilder(nChars);
@@ -61,7 +105,28 @@ namespace Better_Steps_Recorder
             }
             return null;
         }
+        public static string? GetApplicationName(IntPtr hWnd)
+        {
+            uint processId;
+            GetWindowThreadProcessId(hWnd, out processId);
 
+            try
+            {
+                Process process = Process.GetProcessById((int)processId);
+                return process.ProcessName;
+            }
+            catch (ArgumentException)
+            {
+                // This exception can occur if the process has exited since retrieving the process ID
+                return null;
+            }
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr GetWindowDC(IntPtr hWnd);

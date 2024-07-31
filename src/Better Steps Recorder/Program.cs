@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Automation;
+using static Better_Steps_Recorder.WindowHelper;
 
 namespace Better_Steps_Recorder
 {
@@ -54,15 +55,23 @@ namespace Better_Steps_Recorder
                     if (hwnd != IntPtr.Zero)
                     {
                         // Get window title
-                        string windowTitle = WindowHelper.GetWindowText(hwnd);
+                        string windowTitle = WindowHelper.GetTopLevelWindowTitle(hwnd);
+                        // Get ApplicationName
+                        string applicationName=WindowHelper.GetApplicationName(hwnd);
+
+                        // Get UI Elelment coordinates and size
+                        WindowHelper.GetWindowRect(hwnd, out WindowHelper.RECT UIrect);
+                        int UIWidth = UIrect.Right - UIrect.Left;
+                        int UIHeight = UIrect.Bottom - UIrect.Top;
 
                         // Get window coordinates and size
-                        WindowHelper.GetWindowRect(hwnd, out WindowHelper.RECT rect);
+                       
+                        WindowHelper.RECT rect = WindowHelper.GetTopLevelWindowRect(hwnd);
                         int windowWidth = rect.Right - rect.Left;
                         int windowHeight = rect.Bottom - rect.Top;
 
                         // Get UI element under cursor
-                        string elementInfo = GetElementFromCursor(new System.Windows.Point(cursorPos.X, cursorPos.Y));
+                        AutomationElement element = GetElementFromCursor(new System.Windows.Point(cursorPos.X, cursorPos.Y));
 
                         // Determine click type
                         string clickType = WindowHelper.MouseMessages.WM_LBUTTONDOWN == (WindowHelper.MouseMessages)wParam ? "Left Click" : "Right Click";
@@ -72,16 +81,23 @@ namespace Better_Steps_Recorder
                         {
                             ID = EventCounter++,
                             WindowTitle = windowTitle,
-                            WindowCoordinates = (rect.Left, rect.Top, rect.Right, rect.Bottom),
-                            WindowSize = (windowWidth, windowHeight),
-                            UIElement = elementInfo,
-                            MouseCoordinates = (cursorPos.X, cursorPos.Y),
-                            EventType = clickType
+                            ApplicationName=applicationName,
+                            WindowCoordinates = rect,
+                            WindowSize = new WindowHelper.Size { Width = windowWidth, Height = windowHeight },
+                            UICoordinates = UIrect,
+                            UISize = new WindowHelper.Size { Width= UIWidth, Height= UIHeight },
+                            UIElement = element,
+                            ElementName=element.Current.Name,
+                            ElementType=element.Current.ItemType,
+                            MouseCoordinates = cursorPos,
+                            EventType = clickType,
+                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.ItemType} {element.Current.Name}"
                         };
                         _recordEvents.Add(recordEvent);
 
                         // Take screenshot of the window
-                        string screenshotPath = SaveWindowScreenshot(hwnd, recordEvent.ID);
+                        //string screenshotPath = SaveWindowScreenshot(hwnd, recordEvent.ID);
+                        string screenshotPath = SaveScreenRegionScreenshot(rect.Left, rect.Top, windowWidth, windowHeight, recordEvent.ID);
                         if (screenshotPath != null)
                         {
                             recordEvent.ScreenshotPath = screenshotPath;
@@ -90,38 +106,27 @@ namespace Better_Steps_Recorder
                         // Update ListBox in Form1
                         _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
 
-                        // Output the details
-                        Debug.WriteLine($"ID: {recordEvent.ID}");
-                        Debug.WriteLine($"Window Title: {windowTitle}");
-                        Debug.WriteLine($"Window Coordinates: Left={rect.Left}, Top={rect.Top}, Right={rect.Right}, Bottom={rect.Bottom}");
-                        Debug.WriteLine($"Window Size: Width={windowWidth}, Height={windowHeight}");
-                        Debug.WriteLine($"UI Element: {elementInfo}");
-                        Debug.WriteLine($"Mouse Coordinates: X={cursorPos.X}, Y={cursorPos.Y}");
-                        Debug.WriteLine($"Click Type: {clickType}");
-                        Debug.WriteLine($"Screenshot Path: {screenshotPath}");
                     }
                 }
             }
             return WindowHelper.CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-        private static string GetElementFromCursor(System.Windows.Point point)
+        private static AutomationElement? GetElementFromCursor(System.Windows.Point point)
         {
             AutomationElement element = AutomationElement.FromPoint(new System.Windows.Point(point.X, point.Y));
             if (element != null)
             {
-                string elementType = element.Current.LocalizedControlType;
-                string elementName = element.Current.Name;
-                return $"{elementType}: {elementName}";
+                return element;
             }
-            return "No UI element found";
+            return null;
         }
 
         private static string SaveWindowScreenshot(IntPtr hwnd, int eventId)
         {
             try
             {
-                WindowHelper.GetWindowRect(hwnd, out WindowHelper.RECT rect);
+                WindowHelper.RECT rect = WindowHelper.GetTopLevelWindowRect(hwnd);
                 int width = rect.Right - rect.Left;
                 int height = rect.Bottom - rect.Top;
 
@@ -147,6 +152,74 @@ namespace Better_Steps_Recorder
                 return null;
             }
         }
+
+        public static string SaveScreenRegionScreenshot(int x, int y, int width, int height, int eventId)
+        {
+            try
+            {
+                // Create a bitmap of the specified size
+                Bitmap bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+
+                // Create graphics object from the bitmap
+                using (Graphics gfx = Graphics.FromImage(bmp))
+                {
+                    // Copy the specified screen area to the bitmap
+                    gfx.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height), CopyPixelOperation.SourceCopy);
+
+                    // Draw an arrow pointing at the cursor
+                    DrawArrowAtCursor(gfx, width, height, x, y);
+                }
+
+                // Save the bitmap to a file
+                string screenshotPath = $"screenshot_{eventId}.png";
+                bmp.Save(screenshotPath, ImageFormat.Png);
+                bmp.Dispose();
+
+                return screenshotPath;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to capture screenshot: {ex.Message}");
+                return null;
+            }
+        }
+        private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY)
+        {
+            // Define the arrow properties
+            Pen arrowPen = new Pen(Color.Magenta, 5);
+            arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.Custom;
+            arrowPen.CustomEndCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5); // Bigger arrow head
+
+            // Define the length of the arrow
+            int arrowLength = 200;
+
+            // Get the current cursor position
+            WindowHelper.POINT cursorPos;
+            WindowHelper.GetCursorPos(out cursorPos);
+
+            // Convert the screen coordinates to bitmap coordinates
+            int cursorX = cursorPos.X - offsetX;
+            int cursorY = cursorPos.Y - offsetY;
+
+            // Determine arrow direction: down if in top half, up if in bottom half
+            int endX, endY;
+            if (cursorY < height / 2)
+            {
+                // Cursor is in the top half, arrow points down
+                endX = cursorX;
+                endY = cursorY + arrowLength;
+            }
+            else
+            {
+                // Cursor is in the bottom half, arrow points up
+                endX = cursorX;
+                endY = cursorY - arrowLength;
+            }
+
+            // Draw the arrow
+            gfx.DrawLine(arrowPen, endX, endY, cursorX, cursorY);
+        }
+
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);

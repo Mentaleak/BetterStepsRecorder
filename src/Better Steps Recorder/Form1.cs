@@ -1,3 +1,5 @@
+using System.Windows.Forms;
+
 namespace Better_Steps_Recorder
 {
     public partial class Form1 : Form
@@ -11,25 +13,36 @@ namespace Better_Steps_Recorder
 
         public void AddRecordEventToListBox(RecordEvent recordEvent)
         {
-            // Format the RecordEvent details to display in the ListBox
-            string displayText = $"{recordEvent.ID}: {recordEvent.EventType} - {recordEvent.WindowTitle}";
-            Listbox_Events.Items.Add(displayText);
+            Listbox_Events.Items.Add(recordEvent);
         }
 
-        private void RecordingButton_Click(object sender, EventArgs e)
+   
+
+        private void Listbox_Events_SelectedIndexChanged(object sender, EventArgs e)
         {
-                if (Program.IsRecording)
-                {
-                    Program.IsRecording = false;
-                    RecordingButton.Text = "Start Recording";
-                }
-                else
-                {
-                    Program.IsRecording = true;
-                    RecordingButton.Text = "Stop Recording";
-                }
+            if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+            {
+                propertyGrid_RecordEvent.SelectedObject = selectedEvent;
+                string filePath = selectedEvent.ScreenshotPath;
+                pictureBox1.Image = new Bitmap(filePath);
+
+            }
         }
 
-        
+        private void ToolStripMenuItem_Recording_Click(object sender, EventArgs e)
+        {
+            if (Program.IsRecording)
+            {
+                Program.IsRecording = false;
+                ToolStripMenuItem_Recording.Text = "Start Recording";
+                ToolStripMenuItem_Recording.BackColor = SystemColors.Control;
+            }
+            else
+            {
+                Program.IsRecording = true;
+                ToolStripMenuItem_Recording.Text = "Stop Recording";
+                ToolStripMenuItem_Recording.BackColor = Color.IndianRed;
+            }
+        }
     }
 }
