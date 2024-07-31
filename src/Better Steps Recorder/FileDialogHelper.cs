@@ -30,5 +30,25 @@ namespace Better_Steps_Recorder
 
             return zipFilePath;
         }
+
+        public static string ShowOpenFileDialog()
+        {
+            string filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Filter = "Better Step Recorder Files|*.BSR";
+                openFileDialog.Title = "Open Better Step Recorder File";
+                openFileDialog.DefaultExt = "BSR";
+                openFileDialog.AddExtension = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    filePath = openFileDialog.FileName;
+                }
+            }
+
+            return filePath;
+        }
     }
 }

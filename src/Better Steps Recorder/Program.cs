@@ -9,6 +9,8 @@ using System.Windows.Forms;
 using System.Windows;
 using System.Windows.Automation;
 using static Better_Steps_Recorder.WindowHelper;
+using System.Text.Json;
+using System.IO.Compression;
 
 namespace Better_Steps_Recorder
 {
@@ -19,7 +21,7 @@ namespace Better_Steps_Recorder
         private static LowLevelMouseProc _proc = HookCallback;
         public static List<RecordEvent> _recordEvents = new List<RecordEvent>();
         private static Form1 _form1Instance;
-        private static int EventCounter = 1;
+        public static int EventCounter = 1;
         public static bool IsRecording = false;
         
         [STAThread]
@@ -30,6 +32,58 @@ namespace Better_Steps_Recorder
             _hookID = SetHook(_proc);
             Application.Run(_form1Instance);
             WindowHelper.UnhookWindowsHookEx(_hookID);
+        }
+        public static void LoadRecordEventsFromFile(string filePath)
+        {
+
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    using (ZipArchive archive = ZipFile.OpenRead(filePath))
+                    {
+                        _recordEvents = new List<RecordEvent>();
+                        _form1Instance.Invoke((Action)(() => _form1Instance.ClearListBox()));
+                        foreach (ZipArchiveEntry entry in archive.Entries)
+                        {
+                            if (Path.GetDirectoryName(entry.FullName) == "events" && entry.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                            {
+                                using (StreamReader reader = new StreamReader(entry.Open()))
+                                {
+                                    string jsonContent = reader.ReadToEnd();
+                                    var recordEvent = JsonSerializer.Deserialize<RecordEvent>(jsonContent);
+                                    // If using Newtonsoft.Json, replace the above line with:
+                                    // var recordEvents = JsonConvert.DeserializeObject<List<RecordEvent>>(jsonContent);
+
+                                    if (recordEvent != null)
+                                    {
+                                        _recordEvents.Add(recordEvent);
+                                        _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
+                                        EventCounter++;
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    MessageBox.Show($"Invalid JSON format: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (IOException ex)
+                {
+                    MessageBox.Show($"File I/O error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("File does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private static IntPtr SetHook(LowLevelMouseProc proc)
@@ -99,15 +153,15 @@ namespace Better_Steps_Recorder
 
                         // Take screenshot of the window
                         //string screenshotPath = SaveWindowScreenshot(hwnd, recordEvent.ID);
-                        string screenshotPath = SaveScreenRegionScreenshot(rect.Left, rect.Top, windowWidth, windowHeight, recordEvent.ID);
-                        if (screenshotPath != null)
+                        string screenshotb64 = SaveScreenRegionScreenshot(rect.Left, rect.Top, windowWidth, windowHeight, recordEvent.ID);
+                        if (screenshotb64 != null)
                         {
-                            recordEvent.ScreenshotPath = screenshotPath;
+                            recordEvent.Screenshotb64 = screenshotb64;
                         }
 
                         // Update ListBox in Form1
                         _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
-                        zip.SaveToZip(_recordEvents);
+                        zip.SaveToZip();
                     }
                 }
             }
@@ -172,12 +226,21 @@ namespace Better_Steps_Recorder
                     DrawArrowAtCursor(gfx, width, height, x, y);
                 }
 
-                // Save the bitmap to a file
-                string screenshotPath = $"screenshot_{eventId}.png";
-                bmp.Save(screenshotPath, ImageFormat.Png);
-                bmp.Dispose();
+                // Convert the bitmap to a memory stream
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    bmp.Save(ms, ImageFormat.Png);
+                    byte[] imageBytes = ms.ToArray();
 
-                return screenshotPath;
+                    // Convert byte array to Base64 string
+                    string base64String = Convert.ToBase64String(imageBytes);
+
+                    // Dispose of the bitmap
+                    bmp.Dispose();
+
+                    // Return the Base64 string
+                    return base64String;
+                }
             }
             catch (Exception ex)
             {
@@ -185,6 +248,10 @@ namespace Better_Steps_Recorder
                 return null;
             }
         }
+
+
+
+
         private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY)
         {
             // Define the arrow properties

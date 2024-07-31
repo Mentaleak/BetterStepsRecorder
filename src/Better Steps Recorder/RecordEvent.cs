@@ -24,7 +24,7 @@ namespace Better_Steps_Recorder
         public AutomationElement? UIElement { get; set; }
         public WindowHelper.POINT MouseCoordinates { get; set; }
         public string? EventType { get; set; }
-        public string? ScreenshotPath { get; set; }
+        public string? Screenshotb64 { get; set; }
 
         public string _StepText { get; set; }
 

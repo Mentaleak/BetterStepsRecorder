@@ -12,39 +12,48 @@ namespace Better_Steps_Recorder
     public class ZipFileHandler
     {
         private string zipFilePath;
+        private ZipArchive zipArchive;
 
         public ZipFileHandler(string zipFilePath)
         {
             this.zipFilePath = zipFilePath;
+            //zipArchive = ZipFile.Open(zipFilePath, ZipArchiveMode.Update);
         }
+        /* public Stream CreateEntry(string entryName)
+         {
+             var entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
+             return entry.Open();
+         }
 
-        public void SaveToZip(List<RecordEvent> events)
+         public Stream GetEntryStream(string entryName)
+         {
+             var entry = zipArchive.GetEntry(entryName);
+             return entry?.Open();
+         }
+        */
+        public void SaveToZip()
         {
             using (var zip = ZipFile.Open(zipFilePath, ZipArchiveMode.Update))
             {
                 var existingEntries = new HashSet<string>(zip.Entries.Select(e => e.FullName));
 
-                for (int i = 0; i < events.Count; i++)
+                for (int i = 0; i < Program._recordEvents.Count; i++)
                 {
-                    var eventEntryName = $"events/event_{events[i].ID}.json";
-                    if (existingEntries.Contains(eventEntryName))
-                    {
-                        continue; // Skip this event if it already exists in the zip
-                    }
+                    var eventEntryName = $"events/event_{Program._recordEvents[i].ID}.json";
 
-                    var options = new JsonSerializerOptions
+                    // Check if the entry already exists and remove it
+                    var existingEntry = zip.GetEntry(eventEntryName);
+                    if (existingEntry != null)
                     {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        IgnoreNullValues = true,
-                        WriteIndented = true // For readability
-                    };
+                        existingEntry.Delete(); // Remove the existing entry
+                    }
 
                     // Serialize the RecordEvent object to JSON
                     var eventEntry = zip.CreateEntry(eventEntryName);
                     using (var entryStream = eventEntry.Open())
                     using (var writer = new StreamWriter(entryStream))
                     {
-                        string json = JsonSerializer.Serialize(events[i], options);
+                        string json = JsonSerializer.Serialize(Program._recordEvents[i]);
                         writer.Write(json);
                     }
 
@@ -52,15 +61,6 @@ namespace Better_Steps_Recorder
                     existingEntries.Add(eventEntryName);
 
                     // Check for and add screenshot if not already processed
-                    if (!string.IsNullOrEmpty(events[i].ScreenshotPath))
-                    {
-                        var screenshotEntryName = $"screenshots/{Path.GetFileName(events[i].ScreenshotPath)}";
-                        if (!existingEntries.Contains(screenshotEntryName))
-                        {
-                            zip.CreateEntryFromFile(events[i].ScreenshotPath, screenshotEntryName);
-                            existingEntries.Add(screenshotEntryName);
-                        }
-                    }
                 }
             }
         }
