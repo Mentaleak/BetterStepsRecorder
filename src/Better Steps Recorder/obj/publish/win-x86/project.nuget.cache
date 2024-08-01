@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "7ZQXeVSIuIYro3i/dqqovX3PzRLPET/77B5qhe38LjDAr+OdvxLrhk5o+vgnnZVGTjDNfvsXkzpz+lXlsEI/AQ==",
+  "success": true,
+  "projectFilePath": "F:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zfischer\\.nuget\\packages\\docx\\3.0.1\\docx.3.0.1.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\system.io.packaging\\4.5.0\\system.io.packaging.4.5.0.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\8.0.6\\microsoft.netcore.app.runtime.win-x86.8.0.6.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\8.0.6\\microsoft.windowsdesktop.app.runtime.win-x86.8.0.6.nupkg.sha512",
+    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\8.0.6\\microsoft.aspnetcore.app.runtime.win-x86.8.0.6.nupkg.sha512"
+  ],
+  "logs": []
+}
