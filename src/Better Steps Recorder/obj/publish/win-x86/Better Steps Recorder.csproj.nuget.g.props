@@ -14,7 +14,4 @@
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft\Xamarin\NuGet\" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgDocX Condition=" '$(PkgDocX)' == '' ">C:\Users\zfischer\.nuget\packages\docx\3.0.1</PkgDocX>
-  </PropertyGroup>
 </Project>

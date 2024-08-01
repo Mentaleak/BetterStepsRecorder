@@ -89,7 +89,7 @@ namespace Better_Steps_Recorder
         }
 
 
-        public static string GetTopLevelWindowTitle(IntPtr hWnd)
+        public static string? GetTopLevelWindowTitle(IntPtr hWnd)
         {
             // Get the top-level window handle
             IntPtr rootHwnd = GetAncestor(hWnd, GA_ROOT);

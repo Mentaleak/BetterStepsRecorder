@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows.Automation;
+
 
 namespace Better_Steps_Recorder
 {
@@ -13,7 +16,15 @@ namespace Better_Steps_Recorder
 
 
         public Guid ID { get; set; } = Guid.NewGuid();
-        public DateTime CreationTime { get; set; } = DateTime.Now;
+        private DateTime _CreationTime = DateTime.Now;
+
+        [TypeConverter(typeof(DateTimeWithSecondsConverter))]
+        public DateTime CreationTime 
+        {
+            get { return _CreationTime; }
+            set { _CreationTime = value; }
+        }
+        
         public string? WindowTitle { get; set; }
         public string? ApplicationName { get; set; }
         public WindowHelper.RECT WindowCoordinates { get; set; }
@@ -27,7 +38,7 @@ namespace Better_Steps_Recorder
         public string? EventType { get; set; }
         public string? Screenshotb64 { get; set; }
 
-        public string _StepText { get; set; }
+        public string? _StepText { get; set; }
 
         public override string ToString()
         {
@@ -46,5 +57,29 @@ namespace Better_Steps_Recorder
         */
         public string? ElementName { get; set; }
         public string? ElementType { get; set; }
+    }
+
+    public class DateTimeWithSecondsConverter : DateTimeConverter
+    {
+        public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is DateTime dt)
+            {
+                return dt.ToString("yyyy-MM-dd HH:mm:ss", culture);
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        {
+            if (value is string s)
+            {
+                if (DateTime.TryParseExact(s, "yyyy-MM-dd HH:mm:ss", culture, DateTimeStyles.None, out DateTime dt))
+                {
+                    return dt;
+                }
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
     }
 }

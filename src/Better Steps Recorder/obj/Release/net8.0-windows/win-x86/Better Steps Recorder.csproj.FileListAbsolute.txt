@@ -3,8 +3,6 @@ F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windo
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Better Steps Recorder.runtimeconfig.json
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Better Steps Recorder.dll
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Better Steps Recorder.pdb
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Xceed.Document.NET.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Xceed.Words.NET.dll
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Microsoft.CSharp.dll
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Microsoft.VisualBasic.Core.dll
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Release\net8.0-windows\win-x86\Microsoft.Win32.Primitives.dll
