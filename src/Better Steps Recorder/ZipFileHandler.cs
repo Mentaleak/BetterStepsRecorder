@@ -11,7 +11,7 @@ namespace Better_Steps_Recorder
 
     public class ZipFileHandler
     {
-        private string zipFilePath;
+        public string zipFilePath;
         //private ZipArchive zipArchive;
 
         public ZipFileHandler(string zipFilePath)

@@ -11,16 +11,23 @@ using System.Windows.Automation;
 using static Better_Steps_Recorder.WindowHelper;
 using System.Text.Json;
 using System.IO.Compression;
+//using Xceed.Document.NET;
+//using Xceed.Words.NET;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Better_Steps_Recorder
 {
     internal static class Program
     {
-        public static ZipFileHandler zip;
+        public static ZipFileHandler? zip;
         private static IntPtr _hookID = IntPtr.Zero;
         private static LowLevelMouseProc _proc = HookCallback;
         public static List<RecordEvent> _recordEvents = new List<RecordEvent>();
-        private static Form1 _form1Instance;
+        private static Form1? _form1Instance;
         public static int EventCounter = 1;
         public static bool IsRecording = false;
         
@@ -42,7 +49,7 @@ namespace Better_Steps_Recorder
                     using (ZipArchive archive = ZipFile.OpenRead(filePath))
                     {
                         _recordEvents = new List<RecordEvent>();
-                        _form1Instance.Invoke((Action)(() => _form1Instance.ClearListBox()));
+                        _form1Instance?.Invoke((Action)(() => _form1Instance.ClearListBox()));
                         foreach (ZipArchiveEntry entry in archive.Entries)
                         {
                             if (Path.GetDirectoryName(entry.FullName) == "events" && entry.Name.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
@@ -67,7 +74,7 @@ namespace Better_Steps_Recorder
                         // Update the UI with the sorted list
                         foreach (var recordEvent in _recordEvents)
                         {
-                            _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
+                            _form1Instance?.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
                         }
                     }
                 }
@@ -94,9 +101,18 @@ namespace Better_Steps_Recorder
         private static IntPtr SetHook(LowLevelMouseProc proc)
         {
             using (Process curProcess = Process.GetCurrentProcess())
-            using (ProcessModule curModule = curProcess.MainModule)
+            using (ProcessModule? curModule = curProcess.MainModule)
             {
-                return SetWindowsHookEx(WindowHelper.WH_MOUSE_LL, proc, WindowHelper.GetModuleHandle(curModule.ModuleName), 0);
+                if (curModule != null)
+                {
+                    return SetWindowsHookEx(WindowHelper.WH_MOUSE_LL, proc, WindowHelper.GetModuleHandle(curModule.ModuleName), 0);
+                }
+                else
+                {
+                    // Handle the case where MainModule is null
+                    // You can either return an error code, throw an exception, or handle it appropriately
+                    throw new InvalidOperationException("The process does not have a main module.");
+                }
             }
         }
 
@@ -116,9 +132,9 @@ namespace Better_Steps_Recorder
                     if (hwnd != IntPtr.Zero)
                     {
                         // Get window title
-                        string windowTitle = WindowHelper.GetTopLevelWindowTitle(hwnd);
+                        string? windowTitle = WindowHelper.GetTopLevelWindowTitle(hwnd);
                         // Get ApplicationName
-                        string applicationName=WindowHelper.GetApplicationName(hwnd);
+                        string? applicationName=WindowHelper.GetApplicationName(hwnd);
 
                         // Get UI Elelment coordinates and size
                         WindowHelper.GetWindowRect(hwnd, out WindowHelper.RECT UIrect);
@@ -132,41 +148,53 @@ namespace Better_Steps_Recorder
                         int windowHeight = rect.Bottom - rect.Top;
 
                         // Get UI element under cursor
-                        AutomationElement element = GetElementFromCursor(new System.Windows.Point(cursorPos.X, cursorPos.Y));
-
+                        AutomationElement? element = GetElementFromCursor(new System.Windows.Point(cursorPos.X, cursorPos.Y));
+                        string? elementName = null;
+                        string? elementType = null;
+                        if (element != null)
+                        {
+                            elementName = element.Current.Name;
+                            elementType = element.Current.LocalizedControlType;
+                        }
                         // Determine click type
                         string clickType = WindowHelper.MouseMessages.WM_LBUTTONDOWN == (WindowHelper.MouseMessages)wParam ? "Left Click" : "Right Click";
 
-                        // Create a record event object and add it to the list
-                        RecordEvent recordEvent = new RecordEvent
+                        //Skip record if its to pause recording
+                        if (elementName != "Pause Recording" && applicationName != "Better Steps Recorder")
                         {
-                            WindowTitle = windowTitle,
-                            ApplicationName=applicationName,
-                            WindowCoordinates = new WindowHelper.RECT { Left = rect.Left, Top = rect.Top, Bottom = rect.Bottom, Right = rect.Right },
-                            WindowSize = new WindowHelper.Size { Width = windowWidth, Height = windowHeight },
-                            UICoordinates = new WindowHelper.RECT { Left = UIrect.Left, Top = UIrect.Top, Bottom = UIrect.Bottom, Right = UIrect.Right },
-                            UISize = new WindowHelper.Size { Width= UIWidth, Height= UIHeight },
-                            UIElement = element,
-                            ElementName=element.Current.Name,
-                            ElementType=element.Current.LocalizedControlType,
-                            MouseCoordinates = new WindowHelper.POINT { X = cursorPos.X, Y = cursorPos.Y },
-                            EventType = clickType,
-                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.LocalizedControlType} {element.Current.Name}",
-                            Step = _recordEvents.Count + 1
-                        };
-                        _recordEvents.Add(recordEvent);
+                         
+                    
+                            // Create a record event object and add it to the list
+                            RecordEvent recordEvent = new RecordEvent
+                            {
+                                WindowTitle = windowTitle,
+                                ApplicationName=applicationName,
+                                WindowCoordinates = new WindowHelper.RECT { Left = rect.Left, Top = rect.Top, Bottom = rect.Bottom, Right = rect.Right },
+                                WindowSize = new WindowHelper.Size { Width = windowWidth, Height = windowHeight },
+                                UICoordinates = new WindowHelper.RECT { Left = UIrect.Left, Top = UIrect.Top, Bottom = UIrect.Bottom, Right = UIrect.Right },
+                                UISize = new WindowHelper.Size { Width= UIWidth, Height= UIHeight },
+                                UIElement = element,
+                                ElementName= elementName,
+                                ElementType= elementType,
+                                MouseCoordinates = new WindowHelper.POINT { X = cursorPos.X, Y = cursorPos.Y },
+                                EventType = clickType,
+                                _StepText = $"In {applicationName}, {clickType} on  {elementType} {elementName}",
+                                Step = _recordEvents.Count + 1
+                            };
+                            _recordEvents.Add(recordEvent);
 
-                        // Take screenshot of the window
-                        //string screenshotPath = SaveWindowScreenshot(hwnd, recordEvent.ID);
-                        string screenshotb64 = SaveScreenRegionScreenshot(rect.Left, rect.Top, windowWidth, windowHeight, recordEvent.ID);
-                        if (screenshotb64 != null)
-                        {
-                            recordEvent.Screenshotb64 = screenshotb64;
+                            // Take screenshot of the window
+                            //string screenshotPath = SaveWindowScreenshot(hwnd, recordEvent.ID);
+                            string? screenshotb64 = SaveScreenRegionScreenshot(rect.Left, rect.Top, windowWidth, windowHeight, recordEvent.ID);
+                            if (screenshotb64 != null)
+                            {
+                                recordEvent.Screenshotb64 = screenshotb64;
+                            }
+
+                            // Update ListBox in Form1
+                            _form1Instance?.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
+                            zip?.SaveToZip();
                         }
-
-                        // Update ListBox in Form1
-                        _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
-                        zip.SaveToZip();
                     }
                 }
             }
@@ -175,15 +203,24 @@ namespace Better_Steps_Recorder
 
         private static AutomationElement? GetElementFromCursor(System.Windows.Point point)
         {
-            AutomationElement element = AutomationElement.FromPoint(new System.Windows.Point(point.X, point.Y));
-            if (element != null)
+            try
             {
-                return element;
+                AutomationElement element = AutomationElement.FromPoint(new System.Windows.Point(point.X, point.Y));
+                if (element != null)
+                {
+                    return element;
+                }
+                return null;
             }
-            return null;
+            catch (System.Runtime.InteropServices.COMException ex)
+            {
+                // Handle the specific COM exception that may occur
+                Console.WriteLine($"COM Exception: {ex.Message}");
+                return null;
+            }
         }
 
-        private static string SaveWindowScreenshot(IntPtr hwnd, int eventId)
+        private static string? SaveWindowScreenshot(IntPtr hwnd, int eventId)
         {
             try
             {
@@ -214,7 +251,7 @@ namespace Better_Steps_Recorder
             }
         }
 
-        public static string SaveScreenRegionScreenshot(int x, int y, int width, int height, Guid eventId)
+        public static string? SaveScreenRegionScreenshot(int x, int y, int width, int height, Guid eventId)
         {
             try
             {
@@ -256,8 +293,102 @@ namespace Better_Steps_Recorder
 
 
 
+    public static void ExportToRTF(string docPath)
+    {
+        try
+        {
+            using (var writer = new StreamWriter(docPath))
+            {
+                // Start the RTF document
+                writer.WriteLine("{\\rtf1\\ansi\\deff0");
 
-        private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY)
+                // Initialize the list index
+                int stepNumber = 1;
+
+                // Iterate through each record event and add to the RTF document
+                foreach (var recordEvent in Program._recordEvents)
+                {
+                    // Write the step number and text
+                    writer.WriteLine($"\\b Step {stepNumber}: \\b0 {recordEvent._StepText}\\par");
+
+                    // Increment the step number for the next item
+                    stepNumber++;
+
+                    // Decode the base64 screenshot
+                    if (!string.IsNullOrEmpty(recordEvent.Screenshotb64))
+                    {
+                        byte[] imageBytes = Convert.FromBase64String(recordEvent.Screenshotb64);
+                        using (MemoryStream ms = new MemoryStream(imageBytes))
+                        {
+                            using (Image image = Image.FromStream(ms))
+                            {
+                                // Scale the image if necessary to fit the page width
+                                float maxWidth = 500; // Adjust as needed
+                                float scaleFactor = Math.Min(maxWidth / image.Width, 1);
+                                int scaledWidth = (int)(image.Width * scaleFactor);
+                                int scaledHeight = (int)(image.Height * scaleFactor);
+
+                                // Convert the image to a byte array in RTF format
+                                string rtfImage = GetRtfImage(image, scaledWidth, scaledHeight);
+
+                                // Insert the image into the document
+                                writer.WriteLine(rtfImage);
+                            }
+                        }
+                    }
+
+                    // Add two line breaks after each event
+                    writer.WriteLine("\\par");
+                    writer.WriteLine("\\par");
+                 }
+
+                // End the RTF document
+                writer.WriteLine("}");
+            }
+
+            MessageBox.Show("Export completed successfully.", "Export to RTF", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (IOException ioEx)
+        {
+            MessageBox.Show($"Failed to save the document. {ioEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private static string GetRtfImage(Image image, int width, int height)
+    {
+        using (MemoryStream stream = new MemoryStream())
+        {
+            image.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            byte[] bytes = stream.ToArray();
+            int hexLength = bytes.Length;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(@"{\pict\pngblip\picw");
+            sb.Append((int)(image.Width * 20)); // Image width in twips
+            sb.Append(@"\pich");
+            sb.Append((int)(image.Height * 20)); // Image height in twips
+            sb.Append(@"\picwgoal");
+            sb.Append(width * 20); // Target width in twips
+            sb.Append(@"\pichgoal");
+            sb.Append(height * 20); // Target height in twips
+            sb.Append(" ");
+            for (int i = 0; i < hexLength; i++)
+            {
+                sb.AppendFormat("{0:X2}", bytes[i]);
+            }
+            sb.Append("}");
+
+            return sb.ToString();
+        }
+    }
+
+
+
+    private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY)
         {
             // Define the arrow properties
             Pen arrowPen = new Pen(Color.Magenta, 5);

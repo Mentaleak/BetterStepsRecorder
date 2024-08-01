@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PictureBoxTools.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <COMReference Include="UIAutomationClient">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>0</VersionMinor>
@@ -24,10 +28,6 @@
 
   <ItemGroup>
     <Content Include="stepsrecorder_r2p_icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="DocX" Version="3.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,8 +3,6 @@ using System.Drawing.Imaging;
 using System.Text.Json;
 using System.Windows.Automation;
 using System.Windows.Forms;
-using Xceed.Document.NET;
-using Xceed.Words.NET;
 
 namespace Better_Steps_Recorder
 {
@@ -115,18 +113,24 @@ namespace Better_Steps_Recorder
 
         }
 
-
-
-
-
         private void richTextBox_stepText_TextChanged(object sender, EventArgs e)
         {
             if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
             {
-                Program._recordEvents.Find(e => e.ID == selectedEvent.ID)._StepText = richTextBox_stepText.Text;
-                Program.zip.SaveToZip();
+                var recordEvent = Program._recordEvents.Find(ev => ev.ID == selectedEvent.ID);
+                if (recordEvent != null)
+                {
+                    recordEvent._StepText = richTextBox_stepText.Text;
+                    Program.zip?.SaveToZip();
+                }
+                else
+                {
+                    // Handle the case where the event is not found, if necessary
+                    // This might be logging an error, notifying the user, etc.
+                }
             }
         }
+
 
 
         private void EnableRecording()
@@ -165,86 +169,21 @@ namespace Better_Steps_Recorder
             // Set up the save file dialog to specify the output path for the Word document
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
-                saveFileDialog.Filter = "Word Document|*.docx";
-                saveFileDialog.Title = "Export to Word Document";
-                saveFileDialog.FileName = "ExportedEvents.docx";
+                saveFileDialog.Filter = "Rich Text Format|*.rtf";
+                saveFileDialog.Title = "Export to RTF Document";
+                if (Program.zip?.zipFilePath != null)
+                {
+                    saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".rtf";
+                }
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string docPath = saveFileDialog.FileName;
-                    ExportToWord(docPath);
+                    Program.ExportToRTF(docPath);
                 }
             }
         }
 
-        private void ExportToWord(string docPath)
-        {
-            try
-            {
-                using (var doc = DocX.Create(docPath))
-                {
-                    // Initialize the list index
-                    int stepNumber = 1;
 
-                    // Iterate through each record event and add to the Word document
-                    foreach (var recordEvent in Program._recordEvents)
-                    {
-                        // Create a numbered list item for the StepText
-                        var listItem = doc.AddList($"{recordEvent._StepText}", stepNumber, ListItemType.Numbered);
-                        doc.InsertList(listItem);
-
-                        // Increment the step number for the next item
-                        stepNumber++;
-
-                        // Add a line break
-                        doc.InsertParagraph(Environment.NewLine);
-
-                        // Decode the base64 screenshot
-                        if (!string.IsNullOrEmpty(recordEvent.Screenshotb64))
-                        {
-                            byte[] imageBytes = Convert.FromBase64String(recordEvent.Screenshotb64);
-                            using (MemoryStream ms = new MemoryStream(imageBytes))
-                            {
-                                using (System.Drawing.Image image = System.Drawing.Image.FromStream(ms))
-                                {
-                                    // Scale the image if necessary to fit the page width
-                                    float maxWidth = 500; // Adjust as needed
-                                    float scaleFactor = Math.Min(maxWidth / image.Width, 1);
-                                    int scaledWidth = (int)(image.Width * scaleFactor);
-                                    int scaledHeight = (int)(image.Height * scaleFactor);
-
-                                    // Save the image to a temporary file
-                                    string tempImagePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".png");
-                                    image.Save(tempImagePath, ImageFormat.Png);
-
-                                    // Insert the image into the document
-                                    var picture = doc.AddImage(tempImagePath).CreatePicture(scaledHeight, scaledWidth);
-                                    doc.InsertParagraph().AppendPicture(picture);
-
-                                    // Clean up the temporary file
-                                    File.Delete(tempImagePath);
-                                }
-                            }
-                        }
-
-                        // Add a line break after each event
-                        doc.InsertParagraph(Environment.NewLine);
-                    }
-
-                    // Save the document
-                    doc.Save();
-                }
-
-                MessageBox.Show("Export completed successfully.", "Export to Word", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (IOException ioEx)
-            {
-                MessageBox.Show($"Failed to save the document. {ioEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -253,11 +192,23 @@ namespace Better_Steps_Recorder
                 if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
                 {
                     Listbox_Events.Items.Remove(Listbox_Events.SelectedItem);
-                    Program._recordEvents.Find(e => e.ID == selectedEvent.ID)._StepText = richTextBox_stepText.Text;
-                    Program.zip.SaveToZip();
+
+                    var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
+                    if (recordEvent != null)
+                    {
+                        recordEvent._StepText = richTextBox_stepText.Text;
+                    }
+                    else
+                    {
+                        // Handle the case where the event is not found, if necessary
+                        MessageBox.Show("The selected event was not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
+                    Program.zip?.SaveToZip();
                 }
             }
         }
+
 
         private void Listbox_Events_MouseDown(object sender, MouseEventArgs e)
         {

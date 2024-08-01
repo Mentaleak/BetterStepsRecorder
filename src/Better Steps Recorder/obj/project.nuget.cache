@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gc6vvpeMhuJlxFciD1xvLpuSt4pXLKxitgpztAGpFqzSpoen+8164nwhMpDtX15CaMYQLiep7wOYjdTrieFbsA==",
+  "dgSpecHash": "SyFkOOAmDtc9e02UzmD2mY5/XoDElV0RFxat8F7tcIT/RdRbOE25dEqcLRJH/iSkNuDlv3WtuDvcqkitSAmRPA==",
   "success": true,
   "projectFilePath": "F:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\zfischer\\.nuget\\packages\\docx\\3.0.1\\docx.3.0.1.nupkg.sha512",
-    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
-    "C:\\Users\\zfischer\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
-    "C:\\Users\\zfischer\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512",
-    "C:\\Users\\zfischer\\.nuget\\packages\\system.io.packaging\\4.5.0\\system.io.packaging.4.5.0.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
