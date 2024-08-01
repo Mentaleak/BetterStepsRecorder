@@ -28,8 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             Listbox_Events = new ListBox();
+            contextMenu_ListBox_Events = new ContextMenuStrip(components);
+            moveUpToolStripMenuItem = new ToolStripMenuItem();
+            moveDownToolStripMenuItem = new ToolStripMenuItem();
+            deleteToolStripMenuItem = new ToolStripMenuItem();
             propertyGrid_RecordEvent = new PropertyGrid();
             splitContainer1 = new SplitContainer();
             splitContainer2 = new SplitContainer();
@@ -40,8 +45,11 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1_SaveAs = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
             exportToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
+            contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -68,6 +76,34 @@
             Listbox_Events.Size = new Size(374, 224);
             Listbox_Events.TabIndex = 1;
             Listbox_Events.SelectedIndexChanged += Listbox_Events_SelectedIndexChanged;
+            Listbox_Events.MouseDown += Listbox_Events_MouseDown;
+            // 
+            // contextMenu_ListBox_Events
+            // 
+            contextMenu_ListBox_Events.Items.AddRange(new ToolStripItem[] { moveUpToolStripMenuItem, moveDownToolStripMenuItem, deleteToolStripMenuItem });
+            contextMenu_ListBox_Events.Name = "contextMenuStrip1";
+            contextMenu_ListBox_Events.Size = new Size(181, 92);
+            // 
+            // moveUpToolStripMenuItem
+            // 
+            moveUpToolStripMenuItem.Name = "moveUpToolStripMenuItem";
+            moveUpToolStripMenuItem.Size = new Size(180, 22);
+            moveUpToolStripMenuItem.Text = "Move Up";
+            moveUpToolStripMenuItem.Click += moveUpToolStripMenuItem_Click;
+            // 
+            // moveDownToolStripMenuItem
+            // 
+            moveDownToolStripMenuItem.Name = "moveDownToolStripMenuItem";
+            moveDownToolStripMenuItem.Size = new Size(180, 22);
+            moveDownToolStripMenuItem.Text = "Move Down";
+            moveDownToolStripMenuItem.Click += moveDownToolStripMenuItem_Click;
+            // 
+            // deleteToolStripMenuItem
+            // 
+            deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            deleteToolStripMenuItem.Size = new Size(180, 22);
+            deleteToolStripMenuItem.Text = "Delete";
+            deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
             // propertyGrid_RecordEvent
             // 
@@ -177,7 +213,7 @@
             // 
             // fileToolStripMenuItem
             // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, exportToolStripMenuItem });
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, toolStripMenuItem1_SaveAs, toolStripSeparator1, exportToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "File";
@@ -185,30 +221,46 @@
             // newToolStripMenuItem
             // 
             newToolStripMenuItem.Name = "newToolStripMenuItem";
-            newToolStripMenuItem.Size = new Size(180, 22);
+            newToolStripMenuItem.Size = new Size(114, 22);
             newToolStripMenuItem.Text = "New";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(180, 22);
+            openToolStripMenuItem.Size = new Size(114, 22);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem1_SaveAs
+            // 
+            toolStripMenuItem1_SaveAs.Enabled = false;
+            toolStripMenuItem1_SaveAs.Name = "toolStripMenuItem1_SaveAs";
+            toolStripMenuItem1_SaveAs.Size = new Size(114, 22);
+            toolStripMenuItem1_SaveAs.Text = "Save As";
+            toolStripMenuItem1_SaveAs.Click += toolStripMenuItem1_SaveAs_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(111, 6);
             // 
             // exportToolStripMenuItem
             // 
             exportToolStripMenuItem.Enabled = false;
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(180, 22);
+            exportToolStripMenuItem.Size = new Size(114, 22);
             exportToolStripMenuItem.Text = "Export";
             exportToolStripMenuItem.Click += exportToolStripMenuItem_Click;
             // 
             // ToolStripMenuItem_Recording
             // 
+            ToolStripMenuItem_Recording.Alignment = ToolStripItemAlignment.Right;
             ToolStripMenuItem_Recording.Enabled = false;
+            ToolStripMenuItem_Recording.Image = Properties.Resources.RecordTiny;
             ToolStripMenuItem_Recording.Name = "ToolStripMenuItem_Recording";
-            ToolStripMenuItem_Recording.Size = new Size(100, 20);
+            ToolStripMenuItem_Recording.RightToLeft = RightToLeft.No;
+            ToolStripMenuItem_Recording.Size = new Size(116, 20);
             ToolStripMenuItem_Recording.Text = "Start Recording";
             ToolStripMenuItem_Recording.Click += ToolStripMenuItem_Recording_Click;
             // 
@@ -224,6 +276,7 @@
             Name = "Form1";
             Text = "Better Steps Recorder";
             Load += Form1_Load;
+            contextMenu_ListBox_Events.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -257,5 +310,11 @@
         private RichTextBox richTextBox_stepText;
         private SplitContainer splitContainer3;
         private ToolStripMenuItem exportToolStripMenuItem;
+        private ContextMenuStrip contextMenu_ListBox_Events;
+        private ToolStripMenuItem moveUpToolStripMenuItem;
+        private ToolStripMenuItem moveDownToolStripMenuItem;
+        private ToolStripMenuItem deleteToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem1_SaveAs;
+        private ToolStripSeparator toolStripSeparator1;
     }
 }

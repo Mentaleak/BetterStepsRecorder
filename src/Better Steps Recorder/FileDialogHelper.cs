@@ -50,5 +50,28 @@ namespace Better_Steps_Recorder
 
             return filePath;
         }
+
+        public static void SaveAs()
+        {
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+            {
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                saveFileDialog.Filter = "BSR Files|*.BSR";
+                saveFileDialog.Title = "Save As";
+                saveFileDialog.DefaultExt = "BSR";
+                saveFileDialog.AddExtension = true;
+                saveFileDialog.FileName = $"{timestamp}.BSR";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string newZipFilePath = saveFileDialog.FileName;
+
+                    // Assume zipHandler is an instance of ZipFileHandler
+                    Program.zip = new ZipFileHandler(newZipFilePath);
+                    Program.zip.SaveToZip();
+                    MessageBox.Show("File saved successfully.", "Save As", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
     }
 }

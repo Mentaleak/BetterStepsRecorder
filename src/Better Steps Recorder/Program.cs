@@ -35,7 +35,6 @@ namespace Better_Steps_Recorder
         }
         public static void LoadRecordEventsFromFile(string filePath)
         {
-
             if (File.Exists(filePath))
             {
                 try
@@ -52,18 +51,23 @@ namespace Better_Steps_Recorder
                                 {
                                     string jsonContent = reader.ReadToEnd();
                                     var recordEvent = JsonSerializer.Deserialize<RecordEvent>(jsonContent);
-                                    // If using Newtonsoft.Json, replace the above line with:
-                                    // var recordEvents = JsonConvert.DeserializeObject<List<RecordEvent>>(jsonContent);
 
                                     if (recordEvent != null)
                                     {
                                         _recordEvents.Add(recordEvent);
-                                        _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
                                         EventCounter++;
-
                                     }
                                 }
                             }
+                        }
+
+                        // Sort the events by the Step attribute
+                        _recordEvents.Sort((x, y) => x.Step.CompareTo(y.Step));
+
+                        // Update the UI with the sorted list
+                        foreach (var recordEvent in _recordEvents)
+                        {
+                            _form1Instance.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
                         }
                     }
                 }
@@ -85,6 +89,7 @@ namespace Better_Steps_Recorder
                 MessageBox.Show("File does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private static IntPtr SetHook(LowLevelMouseProc proc)
         {
@@ -135,7 +140,6 @@ namespace Better_Steps_Recorder
                         // Create a record event object and add it to the list
                         RecordEvent recordEvent = new RecordEvent
                         {
-                            ID = EventCounter++,
                             WindowTitle = windowTitle,
                             ApplicationName=applicationName,
                             WindowCoordinates = new WindowHelper.RECT { Left = rect.Left, Top = rect.Top, Bottom = rect.Bottom, Right = rect.Right },
@@ -147,7 +151,8 @@ namespace Better_Steps_Recorder
                             ElementType=element.Current.LocalizedControlType,
                             MouseCoordinates = new WindowHelper.POINT { X = cursorPos.X, Y = cursorPos.Y },
                             EventType = clickType,
-                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.LocalizedControlType} {element.Current.Name}"
+                            _StepText = $"In {applicationName}, {clickType} on  {element.Current.LocalizedControlType} {element.Current.Name}",
+                            Step = _recordEvents.Count + 1
                         };
                         _recordEvents.Add(recordEvent);
 
@@ -209,7 +214,7 @@ namespace Better_Steps_Recorder
             }
         }
 
-        public static string SaveScreenRegionScreenshot(int x, int y, int width, int height, int eventId)
+        public static string SaveScreenRegionScreenshot(int x, int y, int width, int height, Guid eventId)
         {
             try
             {

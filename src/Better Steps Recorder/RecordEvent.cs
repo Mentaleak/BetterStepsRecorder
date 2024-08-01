@@ -12,14 +12,15 @@ namespace Better_Steps_Recorder
     {
 
 
-        public int ID { get; set; }
+        public Guid ID { get; set; } = Guid.NewGuid();
+        public DateTime CreationTime { get; set; } = DateTime.Now;
         public string? WindowTitle { get; set; }
         public string? ApplicationName { get; set; }
         public WindowHelper.RECT WindowCoordinates { get; set; }
         public WindowHelper.Size WindowSize { get; set; }
         public WindowHelper.RECT UICoordinates { get; set; }
         public WindowHelper.Size UISize { get; set; }
-        
+        public int Step { get; set; }
         [JsonIgnore] 
         public AutomationElement? UIElement { get; set; }
         public WindowHelper.POINT MouseCoordinates { get; set; }
@@ -31,7 +32,7 @@ namespace Better_Steps_Recorder
         public override string ToString()
         {
             // Customize the string representation for display in the ListBox
-            return $"{ID}: {ApplicationName} {EventType} -  {ElementName}";
+            return $"{Step}: {_StepText}";
         }
         /*
         public string ElementName {

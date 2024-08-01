@@ -12,7 +12,7 @@ namespace Better_Steps_Recorder
     public class ZipFileHandler
     {
         private string zipFilePath;
-        private ZipArchive zipArchive;
+        //private ZipArchive zipArchive;
 
         public ZipFileHandler(string zipFilePath)
         {
@@ -39,6 +39,9 @@ namespace Better_Steps_Recorder
 
                 for (int i = 0; i < Program._recordEvents.Count; i++)
                 {
+                    // Update the Step based on the list position
+                    Program._recordEvents[i].Step = i + 1;
+
                     var eventEntryName = $"events/event_{Program._recordEvents[i].ID}.json";
 
                     // Check if the entry already exists and remove it
@@ -64,5 +67,9 @@ namespace Better_Steps_Recorder
                 }
             }
         }
+
+
+
+
     }
 }

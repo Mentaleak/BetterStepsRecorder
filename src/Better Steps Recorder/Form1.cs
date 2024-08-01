@@ -26,6 +26,7 @@ namespace Better_Steps_Recorder
         {
             Listbox_Events.Items.Clear();
             EnableDisable_exportToolStripMenuItem();
+
         }
 
 
@@ -74,12 +75,15 @@ namespace Better_Steps_Recorder
                 Program.IsRecording = false;
                 ToolStripMenuItem_Recording.Text = "Start Recording";
                 ToolStripMenuItem_Recording.BackColor = SystemColors.Control;
+                ToolStripMenuItem_Recording.Image = Properties.Resources.RecordTiny;
+
             }
             else
             {
                 Program.IsRecording = true;
-                ToolStripMenuItem_Recording.Text = "Stop Recording";
+                ToolStripMenuItem_Recording.Text = "Pause Recording";
                 ToolStripMenuItem_Recording.BackColor = Color.IndianRed;
+                ToolStripMenuItem_Recording.Image = Properties.Resources.RecordPauseTiny;
             }
         }
 
@@ -143,15 +147,17 @@ namespace Better_Steps_Recorder
 
         private void EnableDisable_exportToolStripMenuItem()
         {
-            if(Listbox_Events.Items.Count > 0)
+            if (Listbox_Events.Items.Count > 0)
             {
                 exportToolStripMenuItem.Enabled = true;
+                toolStripMenuItem1_SaveAs.Enabled = true;
             }
             else
             {
                 exportToolStripMenuItem.Enabled = false;
+                toolStripMenuItem1_SaveAs.Enabled = true;
             }
-            
+
         }
 
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)
@@ -240,9 +246,95 @@ namespace Better_Steps_Recorder
             }
         }
 
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Listbox_Events.SelectedItem != null)
+            {
+                if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                {
+                    Listbox_Events.Items.Remove(Listbox_Events.SelectedItem);
+                    Program._recordEvents.Find(e => e.ID == selectedEvent.ID)._StepText = richTextBox_stepText.Text;
+                    Program.zip.SaveToZip();
+                }
+            }
+        }
 
+        private void Listbox_Events_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                // Get the index of the item under the mouse cursor
+                int index = Listbox_Events.IndexFromPoint(e.Location);
+                if (index != ListBox.NoMatches)
+                {
+                    // Select the item
+                    Listbox_Events.SelectedIndex = index;
 
+                    // Show the context menu at the mouse position
+                    contextMenu_ListBox_Events.Show(Listbox_Events, e.Location);
+                }
+            }
+        }
 
+        private void toolStripMenuItem1_SaveAs_Click(object sender, EventArgs e)
+        {
+            FileDialogHelper.SaveAs();
+        }
 
+        private void moveUpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int selectedIndex = Listbox_Events.SelectedIndex;
+            if (selectedIndex > 0)
+            {
+                // Swap the selected item with the one above it
+                var temp = Program._recordEvents[selectedIndex];
+                Program._recordEvents[selectedIndex] = Program._recordEvents[selectedIndex - 1];
+                Program._recordEvents[selectedIndex - 1] = temp;
+
+                // Update the ListBox
+                Listbox_Events.Items[selectedIndex] = Program._recordEvents[selectedIndex];
+                Listbox_Events.Items[selectedIndex - 1] = Program._recordEvents[selectedIndex - 1];
+
+                // Set the new selected index
+                Listbox_Events.SelectedIndex = selectedIndex - 1;
+
+                // Update steps
+                UpdateStepNumbers();
+            }
+        }
+
+        private void moveDownToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int selectedIndex = Listbox_Events.SelectedIndex;
+            if (selectedIndex < Program._recordEvents.Count - 1)
+            {
+                // Swap the selected item with the one below it
+                var temp = Program._recordEvents[selectedIndex];
+                Program._recordEvents[selectedIndex] = Program._recordEvents[selectedIndex + 1];
+                Program._recordEvents[selectedIndex + 1] = temp;
+
+                // Update the ListBox
+                Listbox_Events.Items[selectedIndex] = Program._recordEvents[selectedIndex];
+                Listbox_Events.Items[selectedIndex + 1] = Program._recordEvents[selectedIndex + 1];
+
+                // Set the new selected index
+                Listbox_Events.SelectedIndex = selectedIndex + 1;
+
+                // Update steps
+                UpdateStepNumbers();
+            }
+        }
+
+        private void UpdateStepNumbers()
+        {
+            // Update the Step property based on the new order in the list
+            for (int i = 0; i < Program._recordEvents.Count; i++)
+            {
+                Program._recordEvents[i].Step = i + 1;
+            }
+
+            // Optionally, update the display to reflect new step numbers if shown
+            Listbox_Events.Refresh();
+        }
     }
 }
