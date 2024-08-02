@@ -5,7 +5,6 @@ The "Better Steps Recorder" is a modern alternative to the now-deprecated PSR.ex
 ! Requires dotnet 8 (it will prompt for download)
 ```
 
-
 ## Usage
 
 ### Starting a Project:
