@@ -3,6 +3,12 @@ The "Better Steps Recorder" is a modern alternative to the now-deprecated PSR.ex
 
 ```diff
 ! Requires dotnet 8 (it will prompt for download)
+
+- Advance Anti-Virus such as Crowd Strike may mark this application as suspicious.
+- This is because it records user click data.
+- Feel free to view and build from source if you have any cyber concerns.
+
+
 ```
 ## Usage
 
@@ -28,3 +34,4 @@ rom the File menu, use "Save As" to create a copy of your project, preserving th
 
 #### The Exported File will look similar to this
 ![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/Export_Example.png)
+
