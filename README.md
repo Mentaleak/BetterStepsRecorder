@@ -5,7 +5,7 @@ The "Better Steps Recorder" is a modern alternative to the now-deprecated PSR.ex
 
 ### Starting a Project:
 Open the File menu and select "New" or "Open" to begin a new recording session.
-![image](https://github.com/Mentaleak/BetterStepsRecorder/Docs/2024-08-02_09-36-06.png)
+![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/2024-08-02_09-36-06.png)
 
 ### Recording Steps:
 Click the "Start Recording" button to begin capturing steps. When finished, click the "Pause Recording" button.
