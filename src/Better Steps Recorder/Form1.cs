@@ -13,8 +13,16 @@ namespace Better_Steps_Recorder
 
             InitializeComponent();
             System.Diagnostics.Debug.WriteLine("Loaded");
+            Listbox_Events.KeyDown += new KeyEventHandler(ListBox1_KeyDown);
         }
-
+        private void ListBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Check if the Delete key was pressed
+            if (e.KeyCode == Keys.Delete)
+            {
+                deleteToolStripMenuItem_Click(sender, e);
+            }
+        }
         public void AddRecordEventToListBox(RecordEvent recordEvent)
         {
             Listbox_Events.Items.Add(recordEvent);
@@ -24,7 +32,9 @@ namespace Better_Steps_Recorder
         {
             Listbox_Events.Items.Clear();
             EnableDisable_exportToolStripMenuItem();
-
+            propertyGrid_RecordEvent.SelectedObject = null;
+            pictureBox1.Image = null;
+            richTextBox_stepText.Text = null;
         }
 
 
@@ -63,6 +73,10 @@ namespace Better_Steps_Recorder
                 // Set the step text
                 richTextBox_stepText.Text = selectedEvent._StepText;
             }
+            else
+            {
+                // if not a record event
+            }
         }
 
 
@@ -96,6 +110,9 @@ namespace Better_Steps_Recorder
                 Listbox_Events.Items.Clear();
                 Program.EventCounter = 1;
                 EnableDisable_exportToolStripMenuItem();
+                propertyGrid_RecordEvent.SelectedObject = null;
+                pictureBox1.Image = null;
+                richTextBox_stepText.Text = null;
             }
         }
 
@@ -104,6 +121,9 @@ namespace Better_Steps_Recorder
             string zipFilePath = FileDialogHelper.ShowOpenFileDialog();
             if (zipFilePath != null && zipFilePath != "")
             {
+                propertyGrid_RecordEvent.SelectedObject = null;
+                pictureBox1.Image = null;
+                richTextBox_stepText.Text = null;
                 EnableRecording();
                 Program.zip = new ZipFileHandler(zipFilePath);
                 Program.LoadRecordEventsFromFile(zipFilePath);
@@ -197,17 +217,20 @@ namespace Better_Steps_Recorder
                     if (recordEvent != null)
                     {
                         recordEvent._StepText = richTextBox_stepText.Text;
+                        Program._recordEvents.Remove(recordEvent);
                     }
                     else
                     {
                         // Handle the case where the event is not found, if necessary
                         MessageBox.Show("The selected event was not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-
+                    UpdateStepNumbers();
                     Program.zip?.SaveToZip();
                 }
             }
         }
+
+
 
 
         private void Listbox_Events_MouseDown(object sender, MouseEventArgs e)
@@ -278,14 +301,25 @@ namespace Better_Steps_Recorder
 
         private void UpdateStepNumbers()
         {
+            ClearListBox();
             // Update the Step property based on the new order in the list
             for (int i = 0; i < Program._recordEvents.Count; i++)
             {
                 Program._recordEvents[i].Step = i + 1;
+                AddRecordEventToListBox(Program._recordEvents[i]);
+                Debug.WriteLine(Program._recordEvents[i].ToString());
             }
 
             // Optionally, update the display to reflect new step numbers if shown
             Listbox_Events.Refresh();
         }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HelpPopup helpPopup = new HelpPopup();
+            helpPopup.Show();
+        }
+
+
     }
 }

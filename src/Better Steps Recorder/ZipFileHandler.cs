@@ -36,13 +36,14 @@ namespace Better_Steps_Recorder
             using (var zip = ZipFile.Open(zipFilePath, ZipArchiveMode.Update))
             {
                 var existingEntries = new HashSet<string>(zip.Entries.Select(e => e.FullName));
+                var validEntries = new HashSet<string>();
 
                 for (int i = 0; i < Program._recordEvents.Count; i++)
                 {
                     // Update the Step based on the list position
                     Program._recordEvents[i].Step = i + 1;
 
-                    var eventEntryName = $"events/event_{Program._recordEvents[i].ID}.json";
+                    var eventEntryName = $"events/event_{Program._recordEvents[i].Step}.json";
 
                     // Check if the entry already exists and remove it
                     var existingEntry = zip.GetEntry(eventEntryName);
@@ -60,10 +61,20 @@ namespace Better_Steps_Recorder
                         writer.Write(json);
                     }
 
-                    // Add the new entry to the set of existing entries
-                    existingEntries.Add(eventEntryName);
+                    // Add the new entry to the set of valid entries
+                    validEntries.Add(eventEntryName);
 
                     // Check for and add screenshot if not already processed
+                }
+
+                // Remove entries from the zip archive that are not in validEntries
+                foreach (var entryName in existingEntries)
+                {
+                    if (!validEntries.Contains(entryName))
+                    {
+                        var entryToDelete = zip.GetEntry(entryName);
+                        entryToDelete?.Delete();
+                    }
                 }
             }
         }
