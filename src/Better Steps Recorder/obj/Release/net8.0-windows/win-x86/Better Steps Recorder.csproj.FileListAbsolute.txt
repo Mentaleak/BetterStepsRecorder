@@ -479,3 +479,4 @@ F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Release\net8.0-windo
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Release\net8.0-windows\win-x86\Better Steps Recorder.pdb
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Release\net8.0-windows\win-x86\Better Steps Recorder.genruntimeconfig.cache
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Release\net8.0-windows\win-x86\ref\Better Steps Recorder.dll
+F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Release\net8.0-windows\win-x86\Better_Steps_Recorder.HelpPopup.resources
