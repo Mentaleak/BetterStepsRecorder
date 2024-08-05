@@ -13,11 +13,11 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Better Steps Recorder")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("2024.8.5.1528")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2024.08.05.1528+9fa40a28a7f3df5cbdeb1ef819a01e5559629913")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("2024.8.5.1545")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2024.08.05.1545+a38401c08e05da7fadd18181cfe148bde2dc8e6e")]
 [assembly: System.Reflection.AssemblyProductAttribute("Better Steps Recorder")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Better Steps Recorder")]
-[assembly: System.Reflection.AssemblyVersionAttribute("2024.8.5.1528")]
+[assembly: System.Reflection.AssemblyVersionAttribute("2024.8.5.1545")]
 [assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows7.0")]
 [assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
 

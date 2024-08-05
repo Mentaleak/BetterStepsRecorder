@@ -244,27 +244,42 @@ namespace Better_Steps_Recorder
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Listbox_Events.SelectedItem != null)
+            if (Listbox_Events.SelectedItems.Count > 0)
             {
-                if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                // Create a list to store the selected events to remove them safely
+                List<RecordEvent> selectedEvents = new List<RecordEvent>();
+
+                // Collect all selected events
+                foreach (var item in Listbox_Events.SelectedItems)
                 {
-                    Listbox_Events.Items.Remove(Listbox_Events.SelectedItem);
+                    if (item is RecordEvent selectedEvent)
+                    {
+                        selectedEvents.Add(selectedEvent);
+                    }
+                }
+
+                // Remove each selected event
+                foreach (var selectedEvent in selectedEvents)
+                {
+                    Listbox_Events.Items.Remove(selectedEvent);
 
                     var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
                     if (recordEvent != null)
                     {
-                        recordEvent._StepText = richTextBox_stepText.Text;
                         Program._recordEvents.Remove(recordEvent);
                     }
                     else
                     {
                         // Handle the case where the event is not found, if necessary
-                        MessageBox.Show("The selected event was not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("One or more selected events were not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                    UpdateListItems();
                 }
+
+                // Update the display of list items after removal
+                UpdateListItems();
             }
         }
+
 
 
 
@@ -298,46 +313,69 @@ namespace Better_Steps_Recorder
 
         private void moveUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int selectedIndex = Listbox_Events.SelectedIndex;
-            if (selectedIndex > 0)
+            // Get the selected indices and sort them
+            var selectedIndices = Listbox_Events.SelectedIndices.Cast<int>().ToList();
+            selectedIndices.Sort();
+
+            // Move selected items up
+            foreach (int index in selectedIndices)
             {
-                // Swap the selected item with the one above it
-                var temp = Program._recordEvents[selectedIndex];
-                Program._recordEvents[selectedIndex] = Program._recordEvents[selectedIndex - 1];
-                Program._recordEvents[selectedIndex - 1] = temp;
+                if (index > 0) // Ensure there's an item above to swap with
+                {
+                    // Swap the selected item with the one above it
+                    var temp = Program._recordEvents[index];
+                    Program._recordEvents[index] = Program._recordEvents[index - 1];
+                    Program._recordEvents[index - 1] = temp;
 
-                // Update the ListBox
-                Listbox_Events.Items[selectedIndex] = Program._recordEvents[selectedIndex];
-                Listbox_Events.Items[selectedIndex - 1] = Program._recordEvents[selectedIndex - 1];
-
-                // Set the new selected index
-                Listbox_Events.SelectedIndex = selectedIndex - 1;
-
-                // Update steps
-                UpdateListItems();
+                    // Update the ListBox
+                    Listbox_Events.Items[index] = Program._recordEvents[index];
+                    Listbox_Events.Items[index - 1] = Program._recordEvents[index - 1];
+                }
             }
+
+            // Update the selected indices
+            Listbox_Events.ClearSelected();
+            foreach (var index in selectedIndices)
+            {
+                Listbox_Events.SetSelected(index - 1, true);
+            }
+
+            // Update the display
+            UpdateListItems();
         }
+
 
         private void moveDownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int selectedIndex = Listbox_Events.SelectedIndex;
-            if (selectedIndex < Program._recordEvents.Count - 1)
+            // Get the selected indices and sort them in descending order
+            var selectedIndices = Listbox_Events.SelectedIndices.Cast<int>().ToList();
+            selectedIndices.Sort((x, y) => y.CompareTo(x));
+
+            // Move selected items down
+            foreach (int index in selectedIndices)
             {
-                // Swap the selected item with the one below it
-                var temp = Program._recordEvents[selectedIndex];
-                Program._recordEvents[selectedIndex] = Program._recordEvents[selectedIndex + 1];
-                Program._recordEvents[selectedIndex + 1] = temp;
+                if (index < Program._recordEvents.Count - 1) // Ensure there's an item below to swap with
+                {
+                    // Swap the selected item with the one below it
+                    var temp = Program._recordEvents[index];
+                    Program._recordEvents[index] = Program._recordEvents[index + 1];
+                    Program._recordEvents[index + 1] = temp;
 
-                // Update the ListBox
-                Listbox_Events.Items[selectedIndex] = Program._recordEvents[selectedIndex];
-                Listbox_Events.Items[selectedIndex + 1] = Program._recordEvents[selectedIndex + 1];
-
-                // Set the new selected index
-                Listbox_Events.SelectedIndex = selectedIndex + 1;
-
-                // Update steps
-                UpdateListItems();
+                    // Update the ListBox
+                    Listbox_Events.Items[index] = Program._recordEvents[index];
+                    Listbox_Events.Items[index + 1] = Program._recordEvents[index + 1];
+                }
             }
+
+            // Update the selected indices
+            Listbox_Events.ClearSelected();
+            foreach (var index in selectedIndices)
+            {
+                Listbox_Events.SetSelected(index + 1, true);
+            }
+
+            // Update the display
+            UpdateListItems();
         }
 
         private void UpdateListItems()

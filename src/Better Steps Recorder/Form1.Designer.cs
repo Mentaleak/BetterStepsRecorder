@@ -75,6 +75,7 @@
             Listbox_Events.ItemHeight = 15;
             Listbox_Events.Location = new Point(0, 0);
             Listbox_Events.Name = "Listbox_Events";
+            Listbox_Events.SelectionMode = SelectionMode.MultiExtended;
             Listbox_Events.Size = new Size(354, 156);
             Listbox_Events.TabIndex = 1;
             Listbox_Events.SelectedIndexChanged += Listbox_Events_SelectedIndexChanged;
