@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Better_Steps_Recorder
 {
@@ -30,7 +31,9 @@ namespace Better_Steps_Recorder
         private static Form1? _form1Instance;
         public static int EventCounter = 1;
         public static bool IsRecording = false;
-        
+
+       
+
         [STAThread]
         static void Main()
         {
@@ -39,6 +42,8 @@ namespace Better_Steps_Recorder
             _hookID = SetHook(_proc);
             Application.Run(_form1Instance);
             WindowHelper.UnhookWindowsHookEx(_hookID);
+
+    
         }
         public static void LoadRecordEventsFromFile(string filePath)
         {
@@ -193,7 +198,10 @@ namespace Better_Steps_Recorder
 
                             // Update ListBox in Form1
                             _form1Instance?.Invoke((Action)(() => _form1Instance.AddRecordEventToListBox(recordEvent)));
-                            zip?.SaveToZip();
+                            _form1Instance?.Invoke((Action)(() => _form1Instance.activityTimer.Stop()));
+                            _form1Instance?.Invoke((Action)(() => _form1Instance.activityTimer.Start()));
+                            //zip?.SaveToZip();
+
                         }
                     }
                 }

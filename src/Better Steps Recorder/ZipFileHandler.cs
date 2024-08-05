@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -33,6 +34,7 @@ namespace Better_Steps_Recorder
         */
         public void SaveToZip()
         {
+            Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "_SAVED");
             using (var zip = ZipFile.Open(zipFilePath, ZipArchiveMode.Update))
             {
                 var existingEntries = new HashSet<string>(zip.Entries.Select(e => e.FullName));
@@ -43,7 +45,7 @@ namespace Better_Steps_Recorder
                     // Update the Step based on the list position
                     Program._recordEvents[i].Step = i + 1;
 
-                    var eventEntryName = $"events/event_{Program._recordEvents[i].Step}.json";
+                    var eventEntryName = $"events/event_{Program._recordEvents[i].ID}.json";
 
                     // Check if the entry already exists and remove it
                     var existingEntry = zip.GetEntry(eventEntryName);

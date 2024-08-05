@@ -8,12 +8,20 @@ namespace Better_Steps_Recorder
 {
     public partial class Form1 : Form
     {
+        public System.Windows.Forms.Timer activityTimer;
+        private int ActivityDelay = 2000;
         public Form1()
         {
 
             InitializeComponent();
             System.Diagnostics.Debug.WriteLine("Loaded");
             Listbox_Events.KeyDown += new KeyEventHandler(ListBox1_KeyDown);
+
+            activityTimer = new System.Windows.Forms.Timer();
+            activityTimer.Interval = ActivityDelay;
+            activityTimer.Tick += activityTimer_Tick;
+            
+           
         }
         private void ListBox1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -88,7 +96,7 @@ namespace Better_Steps_Recorder
                 ToolStripMenuItem_Recording.Text = "Start Recording";
                 ToolStripMenuItem_Recording.BackColor = SystemColors.Control;
                 ToolStripMenuItem_Recording.Image = Properties.Resources.RecordTiny;
-
+                ActivityDelay = 1000;
             }
             else
             {
@@ -96,6 +104,7 @@ namespace Better_Steps_Recorder
                 ToolStripMenuItem_Recording.Text = "Pause Recording";
                 ToolStripMenuItem_Recording.BackColor = Color.IndianRed;
                 ToolStripMenuItem_Recording.Image = Properties.Resources.RecordPauseTiny;
+                ActivityDelay = 15000;
             }
         }
 
@@ -135,22 +144,38 @@ namespace Better_Steps_Recorder
 
         private void richTextBox_stepText_TextChanged(object sender, EventArgs e)
         {
+
+
             if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
             {
                 var recordEvent = Program._recordEvents.Find(ev => ev.ID == selectedEvent.ID);
                 if (recordEvent != null)
                 {
-                    recordEvent._StepText = richTextBox_stepText.Text;
-                    Program.zip?.SaveToZip();
+                    if (recordEvent._StepText != richTextBox_stepText.Text)
+                    {
+                        recordEvent._StepText = richTextBox_stepText.Text;
+                        activityTimer.Stop();
+                        activityTimer.Start();
+                    }
+
+
+
                 }
                 else
                 {
                     // Handle the case where the event is not found, if necessary
                     // This might be logging an error, notifying the user, etc.
                 }
+                // UpdateListItems();
             }
-        }
 
+
+        }
+        private void activityTimer_Tick(object sender, EventArgs e)
+        {
+            Program.zip?.SaveToZip();
+            activityTimer.Stop();
+        }
 
 
         private void EnableRecording()
@@ -224,8 +249,7 @@ namespace Better_Steps_Recorder
                         // Handle the case where the event is not found, if necessary
                         MessageBox.Show("The selected event was not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                    UpdateStepNumbers();
-                    Program.zip?.SaveToZip();
+                    UpdateListItems();
                 }
             }
         }
@@ -246,6 +270,7 @@ namespace Better_Steps_Recorder
 
                     // Show the context menu at the mouse position
                     contextMenu_ListBox_Events.Show(Listbox_Events, e.Location);
+                    Listbox_Events.DoDragDrop(Listbox_Events.Items[index], DragDropEffects.Move);
                 }
             }
         }
@@ -273,7 +298,7 @@ namespace Better_Steps_Recorder
                 Listbox_Events.SelectedIndex = selectedIndex - 1;
 
                 // Update steps
-                UpdateStepNumbers();
+                UpdateListItems();
             }
         }
 
@@ -295,11 +320,11 @@ namespace Better_Steps_Recorder
                 Listbox_Events.SelectedIndex = selectedIndex + 1;
 
                 // Update steps
-                UpdateStepNumbers();
+                UpdateListItems();
             }
         }
 
-        private void UpdateStepNumbers()
+        private void UpdateListItems()
         {
             ClearListBox();
             // Update the Step property based on the new order in the list
@@ -307,11 +332,14 @@ namespace Better_Steps_Recorder
             {
                 Program._recordEvents[i].Step = i + 1;
                 AddRecordEventToListBox(Program._recordEvents[i]);
-                Debug.WriteLine(Program._recordEvents[i].ToString());
+                //Debug.WriteLine(Program._recordEvents[i].ToString());
+
             }
 
             // Optionally, update the display to reflect new step numbers if shown
             Listbox_Events.Refresh();
+            activityTimer.Stop();
+            activityTimer.Start();
         }
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
@@ -320,6 +348,44 @@ namespace Better_Steps_Recorder
             helpPopup.Show();
         }
 
+        private void Listbox_Events_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
 
+        private void Listbox_Events_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(string)))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Listbox_Events_DragDrop(object sender, DragEventArgs e)
+        {
+            Point point = Listbox_Events.PointToClient(new Point(e.X, e.Y));
+            int index = Listbox_Events.IndexFromPoint(point);
+
+            if (index < 0) index = Listbox_Events.Items.Count - 1;
+
+            object data = e.Data.GetData(typeof(string));
+
+            Listbox_Events.Items.Remove(data);
+            Listbox_Events.Items.Insert(index, data);
+        }
+
+        private void richTextBox_stepText_Leave(object sender, EventArgs e)
+        {
+            UpdateListItems();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Program.zip?.SaveToZip();
+        }
     }
 }

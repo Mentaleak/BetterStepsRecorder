@@ -69,14 +69,19 @@
             // 
             // Listbox_Events
             // 
+            Listbox_Events.AllowDrop = true;
             Listbox_Events.Dock = DockStyle.Fill;
             Listbox_Events.FormattingEnabled = true;
             Listbox_Events.ItemHeight = 15;
             Listbox_Events.Location = new Point(0, 0);
             Listbox_Events.Name = "Listbox_Events";
+            Listbox_Events.SelectionMode = SelectionMode.MultiExtended;
             Listbox_Events.Size = new Size(354, 156);
             Listbox_Events.TabIndex = 1;
             Listbox_Events.SelectedIndexChanged += Listbox_Events_SelectedIndexChanged;
+            Listbox_Events.DragDrop += Listbox_Events_DragDrop;
+            Listbox_Events.DragEnter += Listbox_Events_DragEnter;
+            Listbox_Events.DragOver += Listbox_Events_DragOver;
             Listbox_Events.MouseDown += Listbox_Events_MouseDown;
             // 
             // contextMenu_ListBox_Events
@@ -202,6 +207,7 @@
             richTextBox_stepText.TabIndex = 1;
             richTextBox_stepText.Text = "";
             richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
+            richTextBox_stepText.Leave += richTextBox_stepText_Leave;
             // 
             // menuStrip1
             // 
@@ -283,6 +289,7 @@
             MainMenuStrip = menuStrip1;
             Name = "Form1";
             Text = "Better Steps Recorder";
+            FormClosing += Form1_FormClosing;
             Load += Form1_Load;
             contextMenu_ListBox_Events.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
