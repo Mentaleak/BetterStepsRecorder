@@ -8,7 +8,6 @@ The "Better Steps Recorder" is a modern alternative to the now-deprecated PSR.ex
 - This is because it records user click data.
 - Feel free to view and build from source if you have any cyber concerns.
 
-
 ```
 ## Usage
 
