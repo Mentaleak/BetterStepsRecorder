@@ -8,6 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>stepsrecorder_r2p_icon.ico</ApplicationIcon>
+	<Version>2024.08.05.1528</Version>
   </PropertyGroup>
 
   <ItemGroup>

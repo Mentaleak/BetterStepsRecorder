@@ -75,7 +75,6 @@
             Listbox_Events.ItemHeight = 15;
             Listbox_Events.Location = new Point(0, 0);
             Listbox_Events.Name = "Listbox_Events";
-            Listbox_Events.SelectionMode = SelectionMode.MultiExtended;
             Listbox_Events.Size = new Size(354, 156);
             Listbox_Events.TabIndex = 1;
             Listbox_Events.SelectedIndexChanged += Listbox_Events_SelectedIndexChanged;
@@ -83,6 +82,7 @@
             Listbox_Events.DragEnter += Listbox_Events_DragEnter;
             Listbox_Events.DragOver += Listbox_Events_DragOver;
             Listbox_Events.MouseDown += Listbox_Events_MouseDown;
+            Listbox_Events.MouseMove += Listbox_Events_MouseMove;
             // 
             // contextMenu_ListBox_Events
             // 

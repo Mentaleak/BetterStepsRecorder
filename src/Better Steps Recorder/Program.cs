@@ -39,12 +39,24 @@ namespace Better_Steps_Recorder
         {
             ApplicationConfiguration.Initialize();
             _form1Instance = new Form1();
-            _hookID = SetHook(_proc);
+
             Application.Run(_form1Instance);
-            WindowHelper.UnhookWindowsHookEx(_hookID);
+
 
     
         }
+
+        public static void HookMouseOperations()
+        {
+            _hookID = SetHook(_proc);
+            IsRecording = true;
+        }
+        public static void UnHookMouseOperations()
+        {
+            WindowHelper.UnhookWindowsHookEx(_hookID);
+            IsRecording = false;
+        }
+
         public static void LoadRecordEventsFromFile(string filePath)
         {
             if (File.Exists(filePath))

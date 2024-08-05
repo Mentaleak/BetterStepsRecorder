@@ -64,7 +64,6 @@ namespace Better_Steps_Recorder
                 Arguments = arguments,
                 UseShellExecute = false
             });
-            var test = "t";
             return process;
         }
     }

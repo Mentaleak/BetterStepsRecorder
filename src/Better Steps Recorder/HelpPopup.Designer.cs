@@ -32,6 +32,7 @@
             label1 = new Label();
             linkLabel1 = new LinkLabel();
             pictureBox2 = new PictureBox();
+            VersionLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             SuspendLayout();
             // 
@@ -78,11 +79,21 @@
             pictureBox2.TabIndex = 4;
             pictureBox2.TabStop = false;
             // 
+            // VersionLabel
+            // 
+            VersionLabel.AutoSize = true;
+            VersionLabel.Location = new Point(118, 73);
+            VersionLabel.Name = "VersionLabel";
+            VersionLabel.Size = new Size(48, 15);
+            VersionLabel.TabIndex = 5;
+            VersionLabel.Text = "Version:";
+            // 
             // HelpPopup
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(472, 120);
+            Controls.Add(VersionLabel);
             Controls.Add(pictureBox2);
             Controls.Add(linkLabel1);
             Controls.Add(label1);
@@ -91,6 +102,7 @@
             ShowIcon = false;
             Text = "Help";
             TopMost = true;
+            Load += HelpPopup_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -102,5 +114,6 @@
         private Label label1;
         private LinkLabel linkLabel1;
         private PictureBox pictureBox2;
+        private Label VersionLabel;
     }
 }

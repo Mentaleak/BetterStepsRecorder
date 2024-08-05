@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v8.0": {
-      "Better Steps Recorder/1.0.0": {
+      "Better Steps Recorder/2024.08.05.1528": {
         "dependencies": {
           "UIAutomationClient": "8.0.0.0",
           "UIAutomationTypes": "8.0.0.0",
@@ -51,7 +51,7 @@
     }
   },
   "libraries": {
-    "Better Steps Recorder/1.0.0": {
+    "Better Steps Recorder/2024.08.05.1528": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

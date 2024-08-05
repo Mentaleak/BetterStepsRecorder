@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -31,5 +32,15 @@ namespace Better_Steps_Recorder
             this.Close();
         }
 
+        private string GetVersion()
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            return version != null ? version.ToString() : "Unknown Version";
+        }
+
+        private void HelpPopup_Load(object sender, EventArgs e)
+        {
+            VersionLabel.Text = $"Version: {GetVersion()}";
+        }
     }
 }
