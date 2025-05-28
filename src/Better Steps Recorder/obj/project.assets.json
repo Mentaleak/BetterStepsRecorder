@@ -8,34 +8,27 @@
     "net8.0-windows7.0": []
   },
   "packageFolders": {
-    "C:\\Users\\zfischer\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Users\\zfischer\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "2024.8.5.1545",
     "restore": {
-      "projectUniqueName": "F:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
+      "projectUniqueName": "D:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
       "projectName": "Better Steps Recorder",
-      "projectPath": "F:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
+      "projectPath": "D:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\Better Steps Recorder.csproj",
       "packagesPath": "C:\\Users\\zfischer\\.nuget\\packages\\",
-      "outputPath": "F:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\obj\\",
+      "outputPath": "D:\\Github\\BetterStepsRecorder\\src\\Better Steps Recorder\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
-      ],
       "configFilePaths": [
         "C:\\Users\\zfischer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0-windows"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -48,6 +41,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -72,7 +70,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.106/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

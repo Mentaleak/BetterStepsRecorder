@@ -14,6 +14,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Better_Steps_Recorder
-build_property.ProjectDir = F:\Github\BetterStepsRecorder\src\Better Steps Recorder\
+build_property.ProjectDir = D:\Github\BetterStepsRecorder\src\Better Steps Recorder\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
