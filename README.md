@@ -28,7 +28,8 @@ Selecting a step displays the corresponding screenshot and metadata, allowing fo
 ![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/2024-08-02_09-47-41.png)
 
 ### Saving and Exporting: 
-rom the File menu, use "Save As" to create a copy of your project, preserving the original. Use "Export" to generate an RTF document, editable in WordPad or Word, for versatile formatting or PDF creation.
+rom the File menu, use "Save As" to create a copy of your project, preserving the original. Use "Export" to generate an RTF document, editable in WordPad or Word, for versatile formatting or PDF creation. 
+*New* HTML Export is also available.
 ![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/2024-08-02_09-50-21.png)
 
 #### The Exported File will look similar to this

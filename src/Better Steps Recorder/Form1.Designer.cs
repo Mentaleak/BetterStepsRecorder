@@ -48,6 +48,9 @@
             toolStripMenuItem1_SaveAs = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exportToolStripMenuItem = new ToolStripMenuItem();
+            exportToFileToolStripMenuItem = new ToolStripMenuItem();
+            exportToRtfToolStripMenuItem = new ToolStripMenuItem();
+            exportToHtmlToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
@@ -259,7 +262,28 @@
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             exportToolStripMenuItem.Size = new Size(114, 22);
             exportToolStripMenuItem.Text = "Export";
-            exportToolStripMenuItem.Click += exportToolStripMenuItem_Click;
+            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem });
+            // 
+            // exportToFileToolStripMenuItem
+            // 
+            exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
+            exportToFileToolStripMenuItem.Size = new Size(114, 22);
+            exportToFileToolStripMenuItem.Text = "To File";
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem });
+            // 
+            // exportToRtfToolStripMenuItem
+            // 
+            exportToRtfToolStripMenuItem.Name = "exportToRtfToolStripMenuItem";
+            exportToRtfToolStripMenuItem.Size = new Size(114, 22);
+            exportToRtfToolStripMenuItem.Text = "RTF";
+            exportToRtfToolStripMenuItem.Click += exportToRtfToolStripMenuItem_Click;
+            // 
+            // exportToHtmlToolStripMenuItem
+            // 
+            exportToHtmlToolStripMenuItem.Name = "exportToHtmlToolStripMenuItem";
+            exportToHtmlToolStripMenuItem.Size = new Size(114, 22);
+            exportToHtmlToolStripMenuItem.Text = "HTML";
+            exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
             // 
             // ToolStripMenuItem_Recording
             // 
@@ -326,6 +350,9 @@
         private RichTextBox richTextBox_stepText;
         private SplitContainer splitContainer3;
         private ToolStripMenuItem exportToolStripMenuItem;
+        private ToolStripMenuItem exportToFileToolStripMenuItem;
+        private ToolStripMenuItem exportToRtfToolStripMenuItem;
+        private ToolStripMenuItem exportToHtmlToolStripMenuItem;
         private ContextMenuStrip contextMenu_ListBox_Events;
         private ToolStripMenuItem moveUpToolStripMenuItem;
         private ToolStripMenuItem moveDownToolStripMenuItem;

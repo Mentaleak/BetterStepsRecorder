@@ -1,9 +1,7 @@
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Text.Json;
-using System.Diagnostics;
-using System.Drawing.Imaging;
-using System.Text.Json;
+
 // Remove this line: using System.Windows.Automation;
 using System.Windows.Forms;
 // Add FlaUI imports if needed:
@@ -32,14 +30,14 @@ namespace Better_Steps_Recorder
 
 
         }
-        private void ListBox1_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if the Delete key was pressed
-            if (e.KeyCode == Keys.Delete)
-            {
-                deleteToolStripMenuItem_Click(sender, e);
-            }
-        }
+        private void ListBox1_KeyDown(object? sender, KeyEventArgs e)
+{
+    // Check if the Delete key was pressed
+    if (e.KeyCode == Keys.Delete)
+    {
+        deleteToolStripMenuItem_Click(sender, e);
+    }
+}
         public void AddRecordEventToListBox(RecordEvent recordEvent)
         {
             Listbox_Events.Items.Add(recordEvent);
@@ -189,11 +187,11 @@ namespace Better_Steps_Recorder
 
 
         }
-        private void activityTimer_Tick(object sender, EventArgs e)
-        {
-            Program.zip?.SaveToZip();
-            activityTimer.Stop();
-        }
+        private void activityTimer_Tick(object? sender, EventArgs e)
+{
+    Program.zip?.SaveToZip();
+    activityTimer.Stop();
+}
 
 
         private void EnableRecording()
@@ -249,43 +247,43 @@ namespace Better_Steps_Recorder
 
 
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteToolStripMenuItem_Click(object? sender, EventArgs e)
+{
+    if (Listbox_Events.SelectedItems.Count > 0)
+    {
+        // Create a list to store the selected events to remove them safely
+        List<RecordEvent> selectedEvents = new List<RecordEvent>();
+
+        // Collect all selected events
+        foreach (var item in Listbox_Events.SelectedItems)
         {
-            if (Listbox_Events.SelectedItems.Count > 0)
+            if (item is RecordEvent selectedEvent)
             {
-                // Create a list to store the selected events to remove them safely
-                List<RecordEvent> selectedEvents = new List<RecordEvent>();
-
-                // Collect all selected events
-                foreach (var item in Listbox_Events.SelectedItems)
-                {
-                    if (item is RecordEvent selectedEvent)
-                    {
-                        selectedEvents.Add(selectedEvent);
-                    }
-                }
-
-                // Remove each selected event
-                foreach (var selectedEvent in selectedEvents)
-                {
-                    Listbox_Events.Items.Remove(selectedEvent);
-
-                    var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
-                    if (recordEvent != null)
-                    {
-                        Program._recordEvents.Remove(recordEvent);
-                    }
-                    else
-                    {
-                        // Handle the case where the event is not found, if necessary
-                        MessageBox.Show("One or more selected events were not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                }
-
-                // Update the display of list items after removal
-                UpdateListItems();
+                selectedEvents.Add(selectedEvent);
             }
         }
+
+        // Remove each selected event
+        foreach (var selectedEvent in selectedEvents)
+        {
+            Listbox_Events.Items.Remove(selectedEvent);
+
+            var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
+            if (recordEvent != null)
+            {
+                Program._recordEvents.Remove(recordEvent);
+            }
+            else
+            {
+                // Handle the case where the event is not found, if necessary
+                MessageBox.Show("One or more selected events were not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // Update the display of list items after removal
+        UpdateListItems();
+    }
+}
 
 
 
@@ -486,7 +484,47 @@ namespace Better_Steps_Recorder
                 }
             }
         }
+// Add these methods to the Form1 class
 
+private void exportToRtfToolStripMenuItem_Click(object sender, EventArgs e)
+{
+    Program.zip?.SaveToZip();
+    // Set up the save file dialog to specify the output path for the RTF document
+    using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+    {
+        saveFileDialog.Filter = "Rich Text Format|*.rtf";
+        saveFileDialog.Title = "Export to RTF Document";
+        if (Program.zip?.zipFilePath != null)
+        {
+            saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".rtf";
+        }
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            string docPath = saveFileDialog.FileName;
+            Program.ExportToRTF(docPath);
+        }
+    }
+}
+
+private void exportToHtmlToolStripMenuItem_Click(object sender, EventArgs e)
+{
+    Program.zip?.SaveToZip();
+    // Set up the save file dialog to specify the output path for the HTML document
+    using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+    {
+        saveFileDialog.Filter = "HTML Files|*.html";
+        saveFileDialog.Title = "Export to HTML Document";
+        if (Program.zip?.zipFilePath != null)
+        {
+            saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".html";
+        }
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            string docPath = saveFileDialog.FileName;
+            Program.ExportToHTML(docPath);
+        }
+    }
+}
         private void richTextBox_stepText_Leave(object sender, EventArgs e)
         {
             UpdateListItems();
