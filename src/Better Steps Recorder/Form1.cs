@@ -1,8 +1,15 @@
 using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Text.Json;
-using System.Windows.Automation;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Text.Json;
+// Remove this line: using System.Windows.Automation;
 using System.Windows.Forms;
+// Add FlaUI imports if needed:
+using FlaUI.Core.AutomationElements;
+using System.Windows.Forms;
+using ListBox = System.Windows.Forms.ListBox;
 
 namespace Better_Steps_Recorder
 {

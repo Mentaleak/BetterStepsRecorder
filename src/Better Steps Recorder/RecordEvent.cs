@@ -6,15 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using System.Windows.Automation;
-
+using FlaUI.Core.AutomationElements;
 
 namespace Better_Steps_Recorder
 {
     public class RecordEvent
     {
-
-
         public Guid ID { get; set; } = Guid.NewGuid();
         private DateTime _CreationTime = DateTime.Now;
 
@@ -32,8 +29,10 @@ namespace Better_Steps_Recorder
         public WindowHelper.RECT UICoordinates { get; set; }
         public WindowHelper.Size UISize { get; set; }
         public int Step { get; set; }
+        
         [JsonIgnore] 
         public AutomationElement? UIElement { get; set; }
+        
         public WindowHelper.POINT MouseCoordinates { get; set; }
         public string? EventType { get; set; }
         public string? Screenshotb64 { get; set; }
@@ -45,18 +44,84 @@ namespace Better_Steps_Recorder
             // Customize the string representation for display in the ListBox
             return $"{Step}: {_StepText}";
         }
-        /*
-        public string ElementName {
-            get { return this.UIElement.Current.Name; }
-        }
 
-        public string ElementType
-        {
-            get { return this.UIElement.Current.LocalizedControlType; }
-        }
-        */
         public string? ElementName { get; set; }
         public string? ElementType { get; set; }
+        
+        // Helper methods to get element properties using FlaUI
+        public static string? GetDetailedElementDescription(AutomationElement element)
+        {
+            if (element == null) return null;
+            
+            var sb = new StringBuilder();
+            sb.AppendLine($"Name: {element.Name}");
+            sb.AppendLine($"ControlType: {element.ControlType}");
+            sb.AppendLine($"AutomationId: {element.AutomationId}");
+            sb.AppendLine($"ClassName: {element.ClassName}");
+            
+            if (element.Properties.HelpText.IsSupported)
+                sb.AppendLine($"HelpText: {element.Properties.HelpText.Value}");
+            
+            if (element.Properties.AcceleratorKey.IsSupported)
+                sb.AppendLine($"AcceleratorKey: {element.Properties.AcceleratorKey.Value}");
+            
+            if (element.Properties.AccessKey.IsSupported)
+                sb.AppendLine($"AccessKey: {element.Properties.AccessKey.Value}");
+            
+            return sb.ToString();
+        }
+        
+        public static string? GetElementPath(AutomationElement element)
+        {
+            if (element == null) return null;
+            
+            var path = new List<string>();
+            var current = element;
+            
+            while (current != null)
+            {
+                string elementInfo = !string.IsNullOrEmpty(current.Name) 
+                    ? $"{current.ControlType}:{current.Name}" 
+                    : current.ControlType.ToString();
+                
+                path.Add(elementInfo);
+                current = current.Parent;
+            }
+            
+            path.Reverse();
+            return string.Join(" > ", path);
+        }
+        
+        public static string? GetAcceleratorKey(AutomationElement element)
+        {
+            return element?.Properties.AcceleratorKey.IsSupported == true 
+                ? element.Properties.AcceleratorKey.Value 
+                : null;
+        }
+        
+        public static string? GetAccessKey(AutomationElement element)
+        {
+            return element?.Properties.AccessKey.IsSupported == true 
+                ? element.Properties.AccessKey.Value 
+                : null;
+        }
+        
+        public static string? GetAutomationId(AutomationElement element)
+        {
+            return element?.AutomationId;
+        }
+        
+        public static string? GetClassName(AutomationElement element)
+        {
+            return element?.ClassName;
+        }
+        
+        public static string? GetHelpText(AutomationElement element)
+        {
+            return element?.Properties.HelpText.IsSupported == true 
+                ? element.Properties.HelpText.Value 
+                : null;
+        }
     }
 
     public class DateTimeWithSecondsConverter : DateTimeConverter

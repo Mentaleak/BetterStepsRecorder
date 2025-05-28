@@ -16,17 +16,6 @@ F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.genruntimeconfig.cache
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\ref\Better Steps Recorder.dll
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.csproj.AssemblyReference.cache
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Interop.UIAutomationClient.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.csproj.ResolveComReference.cache
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\UIAutomationClient.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\UIAutomationTypes.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\WindowsBase.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Xaml.dll
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\UIAutomationClient.xml
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\UIAutomationTypes.xml
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\WindowsBase.xml
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Xaml.xml
-F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.csproj.CopyComplete
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better_Steps_Recorder.Properties.Resources.resources
 F:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better_Steps_Recorder.HelpPopup.resources
 D:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Interop.UIAutomationClient.dll
@@ -43,3 +32,15 @@ D:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows
 D:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.dll
 D:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\refint\Better Steps Recorder.dll
 D:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better Steps Recorder.pdb
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\FlaUI.Core.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\FlaUI.UIA3.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\Interop.UIAutomationClient.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Configuration.ConfigurationManager.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Diagnostics.EventLog.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Diagnostics.PerformanceCounter.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Drawing.Common.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\System.Management.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Diagnostics.PerformanceCounter.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Management.dll
+f:\Github\BetterStepsRecorder\src\Better Steps Recorder\obj\Debug\net8.0-windows\Better S.EB62E65A.Up2Date
