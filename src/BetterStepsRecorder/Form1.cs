@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using FlaUI.Core.AutomationElements;
 using System.Windows.Forms;
 using ListBox = System.Windows.Forms.ListBox;
+using Better_Steps_Recorder.Exporters;
+using Better_Steps_Recorder.UI.Dialogs;
 
 namespace Better_Steps_Recorder
 {
@@ -31,13 +33,13 @@ namespace Better_Steps_Recorder
 
         }
         private void ListBox1_KeyDown(object? sender, KeyEventArgs e)
-{
-    // Check if the Delete key was pressed
-    if (e.KeyCode == Keys.Delete)
-    {
-        deleteToolStripMenuItem_Click(sender, e);
-    }
-}
+        {
+            // Check if the Delete key was pressed
+            if (e.KeyCode == Keys.Delete)
+            {
+                deleteToolStripMenuItem_Click(sender, e);
+            }
+        }
         public void AddRecordEventToListBox(RecordEvent recordEvent)
         {
             Listbox_Events.Items.Add(recordEvent);
@@ -188,10 +190,10 @@ namespace Better_Steps_Recorder
 
         }
         private void activityTimer_Tick(object? sender, EventArgs e)
-{
-    Program.zip?.SaveToZip();
-    activityTimer.Stop();
-}
+        {
+            Program.zip?.SaveToZip();
+            activityTimer.Stop();
+        }
 
 
         private void EnableRecording()
@@ -225,65 +227,69 @@ namespace Better_Steps_Recorder
 
         }
 
+        /// <summary>
+        /// Gets the default filename for exports based on the current BSR file
+        /// </summary>
+        /// <returns>The filename without extension</returns>
+        private string GetDefaultExportFileName()
+{
+    if (Program.zip != null && !string.IsNullOrEmpty(Program.zip.ZipFilePath))
+    {
+        // Extract the filename without extension
+        string fileName = Path.GetFileNameWithoutExtension(Program.zip.ZipFilePath);
+        return fileName;
+    }
+    
+    // Default if no file is loaded
+    return "Steps Recording";
+}
+
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Program.zip?.SaveToZip();
-            // Set up the save file dialog to specify the output path for the Word document
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-            {
-                saveFileDialog.Filter = "Rich Text Format|*.rtf";
-                saveFileDialog.Title = "Export to RTF Document";
-                if (Program.zip?.zipFilePath != null)
-                {
-                    saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".rtf";
-                }
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string docPath = saveFileDialog.FileName;
-                    Program.ExportToRTF(docPath);
-                }
-            }
+            // Use the new RtfExporter class through the ExportDialogs helper
+            ExportDialogs.HandleRtfExport(GetDefaultExportFileName());
         }
 
 
 
         private void deleteToolStripMenuItem_Click(object? sender, EventArgs e)
-{
-    if (Listbox_Events.SelectedItems.Count > 0)
-    {
-        // Create a list to store the selected events to remove them safely
-        List<RecordEvent> selectedEvents = new List<RecordEvent>();
-
-        // Collect all selected events
-        foreach (var item in Listbox_Events.SelectedItems)
         {
-            if (item is RecordEvent selectedEvent)
+            if (Listbox_Events.SelectedItems.Count > 0)
             {
-                selectedEvents.Add(selectedEvent);
+                // Create a list to store the selected events to remove them safely
+                List<RecordEvent> selectedEvents = new List<RecordEvent>();
+
+                // Collect all selected events
+                foreach (var item in Listbox_Events.SelectedItems)
+                {
+                    if (item is RecordEvent selectedEvent)
+                    {
+                        selectedEvents.Add(selectedEvent);
+                    }
+                }
+
+                // Remove each selected event
+                foreach (var selectedEvent in selectedEvents)
+                {
+                    Listbox_Events.Items.Remove(selectedEvent);
+
+                    var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
+                    if (recordEvent != null)
+                    {
+                        Program._recordEvents.Remove(recordEvent);
+                    }
+                    else
+                    {
+                        // Handle the case where the event is not found, if necessary
+                        MessageBox.Show("One or more selected events were not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+                // Update the display of list items after removal
+                UpdateListItems();
             }
         }
-
-        // Remove each selected event
-        foreach (var selectedEvent in selectedEvents)
-        {
-            Listbox_Events.Items.Remove(selectedEvent);
-
-            var recordEvent = Program._recordEvents.Find(e => e.ID == selectedEvent.ID);
-            if (recordEvent != null)
-            {
-                Program._recordEvents.Remove(recordEvent);
-            }
-            else
-            {
-                // Handle the case where the event is not found, if necessary
-                MessageBox.Show("One or more selected events were not found in the record events list.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-
-        // Update the display of list items after removal
-        UpdateListItems();
-    }
-}
 
 
 
@@ -484,80 +490,28 @@ namespace Better_Steps_Recorder
                 }
             }
         }
-// Add these methods to the Form1 class
+        // Add these methods to the Form1 class
 
-private void exportToRtfToolStripMenuItem_Click(object sender, EventArgs e)
-{
-    Program.zip?.SaveToZip();
-    // Set up the save file dialog to specify the output path for the RTF document
-    using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-    {
-        saveFileDialog.Filter = "Rich Text Format|*.rtf";
-        saveFileDialog.Title = "Export to RTF Document";
-        if (Program.zip?.zipFilePath != null)
+        private void exportToRtfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".rtf";
+            Program.zip?.SaveToZip();
+            // Use the new RtfExporter class through the ExportDialogs helper with default filename
+            ExportDialogs.HandleRtfExport(GetDefaultExportFileName());
         }
-        if (saveFileDialog.ShowDialog() == DialogResult.OK)
-        {
-            string docPath = saveFileDialog.FileName;
-            Program.ExportToRTF(docPath);
-        }
-    }
-}
 
         private void exportToHtmlToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Program.zip?.SaveToZip();
-            // Set up the save file dialog to specify the output path for the HTML document
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-            {
-                saveFileDialog.Filter = "HTML Files|*.html";
-                saveFileDialog.Title = "Export to HTML Document";
-                if (Program.zip?.zipFilePath != null)
-                {
-                    saveFileDialog.FileName = Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) + ".html";
-                }
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string docPath = saveFileDialog.FileName;
-                    Program.ExportToHTML(docPath);
-                }
-            }
+            // Use the new HtmlExporter class through the ExportDialogs helper with default filename
+            ExportDialogs.HandleHtmlExport(GetDefaultExportFileName());
         }
-private void exportToObsidianVaultToolStripMenuItem_Click(object sender, EventArgs e)
-{
-    Program.zip?.SaveToZip();
-    
-    // Prompt for Obsidian vault folder
-    string vaultPath = ObsidianExporter.SelectObsidianVault();
-    if (string.IsNullOrEmpty(vaultPath))
-        return;
-    
-    // Check if it's a valid Obsidian vault
-    if (!Directory.Exists(Path.Combine(vaultPath, ".obsidian")))
-    {
-        MessageBox.Show("The selected folder is not a valid Obsidian vault. Please select a folder containing a .obsidian directory.", 
-            "Invalid Obsidian Vault", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return;
-    }
-    
-    // Prompt for subfolder (optional) - this will use our custom folder browser that restricts navigation to within the vault
-    string subfolderPath = ObsidianExporter.SelectSubfolder(vaultPath);
-    
-    // Prompt for file name
-    string defaultFileName = Program.zip?.zipFilePath != null ? 
-        Path.GetFileNameWithoutExtension(Program.zip.zipFilePath) : 
-        "BSR Export";
-    
-    string fileName = ObsidianExporter.PromptForFileName(defaultFileName);
-    if (string.IsNullOrEmpty(fileName))
-        return;
-    
-    // Export to Obsidian vault
-    ObsidianExporter.ExportToObsidianVault(vaultPath, fileName, subfolderPath);
-}
 
+        private void exportToObsidianVaultToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.zip?.SaveToZip();
+            // Use the new ObsidianExporter class through the ExportDialogs helper with default filename
+            ExportDialogs.HandleObsidianExport(GetDefaultExportFileName());
+        }
 
         private void richTextBox_stepText_Leave(object sender, EventArgs e)
         {
@@ -589,4 +543,3 @@ private void exportToObsidianVaultToolStripMenuItem_Click(object sender, EventAr
         }
     }
 }
-

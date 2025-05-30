@@ -8,34 +8,28 @@ using System.Text.Json;
 
 namespace Better_Steps_Recorder
 {
-
-
     public class ZipFileHandler
     {
-        public string? zipFilePath;
-        //private ZipArchive zipArchive;
+        private string? _zipFilePath;
+        
+        /// <summary>
+        /// Gets the full path to the current BSR zip file
+        /// </summary>
+        public string ZipFilePath
+        {
+            get { return _zipFilePath; }
+            private set { _zipFilePath = value; }
+        }
 
         public ZipFileHandler(string zipFilePath)
         {
-            this.zipFilePath = zipFilePath;
-            //zipArchive = ZipFile.Open(zipFilePath, ZipArchiveMode.Update);
+            this.ZipFilePath = zipFilePath;
         }
-        /* public Stream CreateEntry(string entryName)
-         {
-             var entry = zipArchive.CreateEntry(entryName, CompressionLevel.Fastest);
-             return entry.Open();
-         }
 
-         public Stream GetEntryStream(string entryName)
-         {
-             var entry = zipArchive.GetEntry(entryName);
-             return entry?.Open();
-         }
-        */
         public void SaveToZip()
         {
             Debug.WriteLine(DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + "_SAVED");
-            using (var zip = ZipFile.Open(zipFilePath, ZipArchiveMode.Update))
+            using (var zip = ZipFile.Open(ZipFilePath, ZipArchiveMode.Update))
             {
                 var existingEntries = new HashSet<string>(zip.Entries.Select(e => e.FullName));
                 var validEntries = new HashSet<string>();
@@ -80,9 +74,5 @@ namespace Better_Steps_Recorder
                 }
             }
         }
-
-
-
-
     }
 }

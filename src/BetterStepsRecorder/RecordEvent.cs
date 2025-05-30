@@ -108,7 +108,27 @@ namespace Better_Steps_Recorder
         
         public static string? GetAutomationId(AutomationElement element)
         {
-            return element?.AutomationId;
+            try
+            {
+                if (element == null) return null;
+                
+                // Get the raw automation ID
+                string? automationId = element.AutomationId;
+                
+                // Check if it's in a special format like [#3011]
+                if (string.IsNullOrEmpty(automationId) && element.Properties.AutomationId.IsSupported)
+                {
+                    // Try to get the automation ID through properties
+                    automationId = element.Properties.AutomationId.Value;
+                }
+                
+                return automationId;
+            }
+            catch (Exception)
+            {
+                // If there's any exception accessing the automation ID, return null
+                return null;
+            }
         }
         
         public static string? GetClassName(AutomationElement element)

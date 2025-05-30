@@ -29,8 +29,11 @@ Selecting a step displays the corresponding screenshot and metadata, allowing fo
 
 ### Saving and Exporting: 
 rom the File menu, use "Save As" to create a copy of your project, preserving the original. Use "Export" to generate an RTF document, editable in WordPad or Word, for versatile formatting or PDF creation. 
+
 *New* HTML Export
+
 *New* Export to Obsidian Vault
+
 ![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/2024-08-02_09-50-21.png)
 
 #### The Exported File will look similar to this
