@@ -1,4 +1,4 @@
-﻿namespace Better_Steps_Recorder
+﻿namespace BetterStepsRecorder
 {
     partial class HelpPopup
     {

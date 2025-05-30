@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FlaUI.Core.AutomationElements;
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     public class RecordEvent
     {

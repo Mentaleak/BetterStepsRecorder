@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using Better_Steps_Recorder.Exporters;
+using BetterStepsRecorder.Exporters;
 
-namespace Better_Steps_Recorder.UI.Dialogs
+namespace BetterStepsRecorder.UI.Dialogs
 {
     /// <summary>
     /// Provides common dialog functionality for all exporters

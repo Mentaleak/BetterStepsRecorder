@@ -6,7 +6,7 @@ using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json;
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     public class ZipFileHandler
     {

@@ -12,7 +12,7 @@ using FlaUI.UIA3;
 using System.Drawing;
 using Debug = System.Diagnostics.Debug;
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     public class WindowHelper
     {

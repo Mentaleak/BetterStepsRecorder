@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     public partial class HelpPopup : Form
     {

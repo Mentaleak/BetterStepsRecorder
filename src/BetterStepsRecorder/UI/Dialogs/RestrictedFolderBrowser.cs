@@ -3,7 +3,7 @@ using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace Better_Steps_Recorder.UI.Dialogs
+namespace BetterStepsRecorder.UI.Dialogs
 {
     /// <summary>
     /// A custom folder browser that restricts navigation to within a specific root folder

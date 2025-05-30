@@ -7,7 +7,7 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.Text.Json;
 
-namespace Better_Steps_Recorder.Exporters
+namespace BetterStepsRecorder.Exporters
 {
     /// <summary>
     /// Exporter for Obsidian markdown files with images

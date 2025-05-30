@@ -10,14 +10,14 @@ using System.IO.Compression;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.UIA3;
-using static Better_Steps_Recorder.WindowHelper;
+using static BetterStepsRecorder.WindowHelper;
 using System.IO;
 using System.ComponentModel;
 using Debug = System.Diagnostics.Debug;
 using Application = System.Windows.Forms.Application;
 using System.Windows; // Add this for System.Windows.Point
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     internal static class Program
     {

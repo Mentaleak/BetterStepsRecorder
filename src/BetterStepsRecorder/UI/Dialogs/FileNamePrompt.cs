@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace Better_Steps_Recorder.UI.Dialogs
+namespace BetterStepsRecorder.UI.Dialogs
 {
     /// <summary>
     /// A dialog that prompts the user to enter a file name

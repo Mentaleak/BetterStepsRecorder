@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 
-namespace Better_Steps_Recorder.Exporters
+namespace BetterStepsRecorder.Exporters
 {
     /// <summary>
     /// Abstract base class for all exporters with common export functionality

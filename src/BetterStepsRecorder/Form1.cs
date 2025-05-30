@@ -8,10 +8,10 @@ using System.Windows.Forms;
 using FlaUI.Core.AutomationElements;
 using System.Windows.Forms;
 using ListBox = System.Windows.Forms.ListBox;
-using Better_Steps_Recorder.Exporters;
-using Better_Steps_Recorder.UI.Dialogs;
+using BetterStepsRecorder.Exporters;
+using BetterStepsRecorder.UI.Dialogs;
 
-namespace Better_Steps_Recorder
+namespace BetterStepsRecorder
 {
     public partial class Form1 : Form
     {

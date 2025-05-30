@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: Better Steps Recorder",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/BetterStepsRecorder/bin/Debug/net6.0-windows/BetterStepsRecorder.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/BetterStepsRecorder",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}
