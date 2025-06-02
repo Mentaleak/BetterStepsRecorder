@@ -540,12 +540,10 @@ namespace BetterStepsRecorder.Exporters
             try
             {
                 byte[] imageBytes = Convert.FromBase64String(base64String);
-                using (var ms = new MemoryStream(imageBytes))
+                using var ms = new MemoryStream(imageBytes);
+                using (var image = Image.FromStream(ms))
                 {
-                    using (var image = Image.FromStream(ms))
-                    {
-                        return new Size(image.Width, image.Height);
-                    }
+                    return new Size(image.Width, image.Height);
                 }
             }
             catch (Exception ex)
@@ -555,24 +553,5 @@ namespace BetterStepsRecorder.Exporters
             }
         }
         
-        private void EnsureDirectoryExists(string filePath)
-        {
-            string directory = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-        }
-        
-        private void ShowExportSuccess(string filePath)
-        {
-            StatusManager.ShowSuccess($"Export completed successfully to:\n{filePath}");
-        }
-        
-        private void ShowExportError(string message, Exception ex)
-        {
-            MessageBox.Show($"{message}: {ex.Message}", 
-                "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
     }
 }

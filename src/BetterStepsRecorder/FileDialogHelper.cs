@@ -68,8 +68,7 @@ namespace BetterStepsRecorder
                     string newZipFilePath = saveFileDialog.FileName;
 
                     // Assume zipHandler is an instance of ZipFileHandler
-                    Program.zip = new ZipFileHandler(newZipFilePath);
-                    Program.zip.SaveToZip();
+                    Program.SaveRecordEventsToNewFile(newZipFilePath);
                     //MessageBox.Show("File saved successfully.", "Save As", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     StatusManager.ShowSuccess("File saved successfully");
                 }

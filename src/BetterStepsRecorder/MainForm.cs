@@ -20,7 +20,7 @@ namespace BetterStepsRecorder
         private const int DefaultActivityDelay = 5000;
         private int ActivityDelay = DefaultActivityDelay;
         private Point _mouseDownLocation;
-        private StatusStripManager _statusManager;
+        
         public MainForm()
         {
             InitializeComponent();
@@ -50,7 +50,7 @@ namespace BetterStepsRecorder
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
         }
     }
 }

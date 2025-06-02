@@ -92,17 +92,9 @@ namespace BetterStepsRecorder.Exporters
             {
                 errorMessage += $": {ex.Message}";
             }
-            
-            // Use static StatusManager if initialized, otherwise fall back to MessageBox
-            if (StatusManager.IsInitialized)
-            {
-                StatusManager.ShowMessage(errorMessage, true);
-            }
-            else
-            {
-                // Fallback to MessageBox only if StatusManager is not initialized
+
                 MessageBox.Show(errorMessage, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+
         }
 
         /// <summary>

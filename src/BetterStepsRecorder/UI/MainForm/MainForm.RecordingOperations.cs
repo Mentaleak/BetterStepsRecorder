@@ -54,7 +54,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void activityTimer_Tick(object? sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             StatusManager.ShowSuccess($"Data Saved");
             activityTimer.Stop();
         }

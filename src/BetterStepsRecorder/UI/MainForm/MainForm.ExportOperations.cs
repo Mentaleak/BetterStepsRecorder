@@ -30,7 +30,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void exportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             // Use the new RtfExporter class through the ExportDialogs helper
             ExportDialogs.HandleRtfExport(GetDefaultExportFileName());
         }
@@ -40,7 +40,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void exportToRtfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             // Use the new RtfExporter class through the ExportDialogs helper with default filename
             ExportDialogs.HandleRtfExport(GetDefaultExportFileName());
         }
@@ -50,7 +50,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void exportToHtmlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             // Use the new HtmlExporter class through the ExportDialogs helper with default filename
             ExportDialogs.HandleHtmlExport(GetDefaultExportFileName());
         }
@@ -60,7 +60,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void exportToOdtToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             // Use the new OdtExporter class through the ExportDialogs helper with default filename
             ExportDialogs.HandleOdtExport(GetDefaultExportFileName());
         }
@@ -70,7 +70,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void exportToObsidianVaultToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             // Use the new ObsidianExporter class through the ExportDialogs helper with default filename
             ExportDialogs.HandleObsidianExport(GetDefaultExportFileName());
         }

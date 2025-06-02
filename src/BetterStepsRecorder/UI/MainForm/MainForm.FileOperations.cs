@@ -13,7 +13,7 @@ namespace BetterStepsRecorder
         {
             if (Program.zip != null)
             {
-                Program.zip?.SaveToZip();
+                Program.SaveRecordEvents();
             }
             string zipFilePath = FileDialogHelper.ShowSaveFileDialog();
             if (zipFilePath != null && zipFilePath != "")
@@ -37,7 +37,7 @@ namespace BetterStepsRecorder
         {
             if (Program.zip != null)
             {
-                Program.zip?.SaveToZip();
+                Program.SaveRecordEvents();
             }
             string zipFilePath = FileDialogHelper.ShowOpenFileDialog();
             if (zipFilePath != null && zipFilePath != "")
@@ -57,7 +57,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void toolStripMenuItem1_SaveAs_Click(object sender, EventArgs e)
         {
-            Program.zip?.SaveToZip();
+            Program.SaveRecordEvents();
             FileDialogHelper.SaveAs();
         }
 
