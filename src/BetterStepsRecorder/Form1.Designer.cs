@@ -260,44 +260,44 @@
             // 
             // exportToolStripMenuItem
             // 
+            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
             exportToolStripMenuItem.Enabled = false;
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             exportToolStripMenuItem.Size = new Size(114, 22);
             exportToolStripMenuItem.Text = "Export";
-            exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
             // 
             // exportToFileToolStripMenuItem
             // 
-            exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
-            exportToFileToolStripMenuItem.Size = new Size(180, 22);
-            exportToFileToolStripMenuItem.Text = "To File";
             exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem });
+            exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
+            exportToFileToolStripMenuItem.Size = new Size(165, 22);
+            exportToFileToolStripMenuItem.Text = "To File";
             // 
             // exportToRtfToolStripMenuItem
             // 
             exportToRtfToolStripMenuItem.Name = "exportToRtfToolStripMenuItem";
-            exportToRtfToolStripMenuItem.Size = new Size(114, 22);
+            exportToRtfToolStripMenuItem.Size = new Size(106, 22);
             exportToRtfToolStripMenuItem.Text = "RTF";
             exportToRtfToolStripMenuItem.Click += exportToRtfToolStripMenuItem_Click;
             // 
             // exportToHtmlToolStripMenuItem
             // 
             exportToHtmlToolStripMenuItem.Name = "exportToHtmlToolStripMenuItem";
-            exportToHtmlToolStripMenuItem.Size = new Size(114, 22);
+            exportToHtmlToolStripMenuItem.Size = new Size(106, 22);
             exportToHtmlToolStripMenuItem.Text = "HTML";
             exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
             // 
             // exportToOdtToolStripMenuItem
             // 
             exportToOdtToolStripMenuItem.Name = "exportToOdtToolStripMenuItem";
-            exportToOdtToolStripMenuItem.Size = new Size(114, 22);
+            exportToOdtToolStripMenuItem.Size = new Size(106, 22);
             exportToOdtToolStripMenuItem.Text = "ODT";
             exportToOdtToolStripMenuItem.Click += exportToOdtToolStripMenuItem_Click;
             // 
             // exportToObsidianVaultToolStripMenuItem
             // 
             exportToObsidianVaultToolStripMenuItem.Name = "exportToObsidianVaultToolStripMenuItem";
-            exportToObsidianVaultToolStripMenuItem.Size = new Size(180, 22);
+            exportToObsidianVaultToolStripMenuItem.Size = new Size(165, 22);
             exportToObsidianVaultToolStripMenuItem.Text = "To Obsidian Vault";
             exportToObsidianVaultToolStripMenuItem.Click += exportToObsidianVaultToolStripMenuItem_Click;
             // 

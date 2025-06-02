@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.IO.Compression;
 using System.Xml;
+using BetterStepsRecorder.UI;
 
 namespace BetterStepsRecorder.Exporters
 {
@@ -565,8 +566,7 @@ namespace BetterStepsRecorder.Exporters
         
         private void ShowExportSuccess(string filePath)
         {
-            MessageBox.Show($"Export completed successfully to:\n{filePath}", 
-                "Export to ODT", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            StatusManager.ShowSuccess($"Export completed successfully to:\n{filePath}");
         }
         
         private void ShowExportError(string message, Exception ex)

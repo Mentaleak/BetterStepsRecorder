@@ -4,6 +4,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using BetterStepsRecorder.UI;
 
 namespace BetterStepsRecorder.Exporters
 {
@@ -12,6 +13,9 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public abstract class ExporterBase
     {
+        // Remove the instance property - we'll use the static StatusManager directly
+        // protected StatusStripManager StatusManager { get; private set; }
+
         /// <summary>
         /// Exports the current steps recording to the specified format
         /// </summary>
@@ -48,8 +52,17 @@ namespace BetterStepsRecorder.Exporters
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving image: {ex.Message}", 
-                    "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Use static StatusManager if initialized, otherwise fall back to MessageBox
+                if (StatusManager.IsInitialized)
+                {
+                    StatusManager.ShowMessage($"Error saving image: {ex.Message}", true);
+                }
+                else
+                {
+                    // Fallback to MessageBox only if StatusManager is not initialized
+                    MessageBox.Show($"Error saving image: {ex.Message}", 
+                        "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 return false;
             }
         }
@@ -80,7 +93,16 @@ namespace BetterStepsRecorder.Exporters
                 errorMessage += $": {ex.Message}";
             }
             
-            MessageBox.Show(errorMessage, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // Use static StatusManager if initialized, otherwise fall back to MessageBox
+            if (StatusManager.IsInitialized)
+            {
+                StatusManager.ShowMessage(errorMessage, true);
+            }
+            else
+            {
+                // Fallback to MessageBox only if StatusManager is not initialized
+                MessageBox.Show(errorMessage, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -89,8 +111,8 @@ namespace BetterStepsRecorder.Exporters
         /// <param name="filePath">The path where the file was exported</param>
         protected void ShowExportSuccess(string filePath)
         {
-            MessageBox.Show($"Successfully exported to:\n{filePath}", 
-                "Export Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Use the static StatusManager which will throw an exception if not initialized
+            StatusManager.ShowSuccess($"Successfully exported to: {filePath}");
         }
     }
 }
