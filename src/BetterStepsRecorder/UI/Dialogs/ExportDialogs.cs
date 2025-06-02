@@ -63,6 +63,28 @@ namespace BetterStepsRecorder.UI.Dialogs
         }
 
         /// <summary>
+        /// Shows a save file dialog for ODT export
+        /// </summary>
+        /// <param name="defaultFileName">The default filename to use (without extension)</param>
+        /// <returns>The selected file path, or null if canceled</returns>
+        public static string ShowOdtSaveDialog(string defaultFileName = "Steps Recording")
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "OpenDocument Text (*.odt)|*.odt";
+                saveDialog.Title = "Save Steps as ODT";
+                saveDialog.DefaultExt = "odt";
+                saveDialog.FileName = $"{defaultFileName}.odt";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    return saveDialog.FileName;
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Shows a dialog to select an Obsidian vault folder
         /// </summary>
         /// <returns>The selected vault path, or null if canceled</returns>
@@ -179,6 +201,21 @@ namespace BetterStepsRecorder.UI.Dialogs
                 return false;
 
             RtfExporter exporter = new RtfExporter();
+            return exporter.Export(filePath);
+        }
+
+        /// <summary>
+        /// Handles the complete ODT export process including all dialogs
+        /// </summary>
+        /// <param name="defaultFileName">The default filename to use (without extension)</param>
+        /// <returns>True if export was successful, false otherwise</returns>
+        public static bool HandleOdtExport(string defaultFileName = "Steps Recording")
+        {
+            string filePath = ShowOdtSaveDialog(defaultFileName);
+            if (string.IsNullOrEmpty(filePath))
+                return false;
+
+            OdtExporter exporter = new OdtExporter();
             return exporter.Export(filePath);
         }
     }

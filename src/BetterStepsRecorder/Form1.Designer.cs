@@ -51,6 +51,7 @@
             exportToFileToolStripMenuItem = new ToolStripMenuItem();
             exportToRtfToolStripMenuItem = new ToolStripMenuItem();
             exportToHtmlToolStripMenuItem = new ToolStripMenuItem();
+            exportToOdtToolStripMenuItem = new ToolStripMenuItem();
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
@@ -270,7 +271,7 @@
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
             exportToFileToolStripMenuItem.Size = new Size(180, 22);
             exportToFileToolStripMenuItem.Text = "To File";
-            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem });
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem });
             // 
             // exportToRtfToolStripMenuItem
             // 
@@ -285,6 +286,13 @@
             exportToHtmlToolStripMenuItem.Size = new Size(114, 22);
             exportToHtmlToolStripMenuItem.Text = "HTML";
             exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
+            // 
+            // exportToOdtToolStripMenuItem
+            // 
+            exportToOdtToolStripMenuItem.Name = "exportToOdtToolStripMenuItem";
+            exportToOdtToolStripMenuItem.Size = new Size(114, 22);
+            exportToOdtToolStripMenuItem.Text = "ODT";
+            exportToOdtToolStripMenuItem.Click += exportToOdtToolStripMenuItem_Click;
             // 
             // exportToObsidianVaultToolStripMenuItem
             // 
@@ -361,6 +369,7 @@
         private ToolStripMenuItem exportToFileToolStripMenuItem;
         private ToolStripMenuItem exportToRtfToolStripMenuItem;
         private ToolStripMenuItem exportToHtmlToolStripMenuItem;
+        private ToolStripMenuItem exportToOdtToolStripMenuItem;
         private ContextMenuStrip contextMenu_ListBox_Events;
         private ToolStripMenuItem moveUpToolStripMenuItem;
         private ToolStripMenuItem moveDownToolStripMenuItem;

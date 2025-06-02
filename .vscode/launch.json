@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/BetterStepsRecorder/bin/Debug/net6.0-windows/BetterStepsRecorder.dll",
+            "program": "${workspaceFolder}/src/BetterStepsRecorder/bin/Debug/net8.0-windows/BetterStepsRecorder.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/BetterStepsRecorder",
             "console": "internalConsole",

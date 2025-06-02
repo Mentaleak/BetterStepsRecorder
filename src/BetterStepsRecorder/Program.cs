@@ -16,6 +16,7 @@ using System.ComponentModel;
 using Debug = System.Diagnostics.Debug;
 using Application = System.Windows.Forms.Application;
 using System.Windows; // Add this for System.Windows.Point
+using BetterStepsRecorder.Exporters;
 
 namespace BetterStepsRecorder
 {
@@ -295,6 +296,25 @@ namespace BetterStepsRecorder
             {
                 ms.Write(imageBytes, 0, imageBytes.Length);
                 return Image.FromStream(ms, true);
+            }
+        }
+        public static void ExportToODT(string docPath)
+        {
+            try
+            {
+                var odtExporter = new OdtExporter();
+                if (odtExporter.Export(docPath))
+                {
+                    MessageBox.Show("Export completed successfully.", "Export to ODT", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (IOException ioEx)
+            {
+                MessageBox.Show($"Failed to save the document. {ioEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An unexpected error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

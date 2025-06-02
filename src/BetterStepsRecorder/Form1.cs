@@ -95,6 +95,7 @@ namespace BetterStepsRecorder
                 // if not a record event
             }
         }
+        
 
 
         private void ToolStripMenuItem_Recording_Click(object sender, EventArgs e)
@@ -504,6 +505,13 @@ namespace BetterStepsRecorder
             Program.zip?.SaveToZip();
             // Use the new HtmlExporter class through the ExportDialogs helper with default filename
             ExportDialogs.HandleHtmlExport(GetDefaultExportFileName());
+        }
+
+        private void exportToOdtToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.zip?.SaveToZip();
+            // Use the new OdtExporter class through the ExportDialogs helper with default filename
+            ExportDialogs.HandleOdtExport(GetDefaultExportFileName());
         }
 
         private void exportToObsidianVaultToolStripMenuItem_Click(object sender, EventArgs e)
