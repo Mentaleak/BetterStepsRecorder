@@ -27,7 +27,7 @@ namespace BetterStepsRecorder
         private static IntPtr _hookID = IntPtr.Zero;
         private static LowLevelMouseProc _proc = HookCallback;
         public static List<RecordEvent> _recordEvents = new List<RecordEvent>();
-        private static Form1? _form1Instance;
+        private static MainForm? _form1Instance;
         public static int EventCounter = 1;
         public static bool IsRecording = false;
 
@@ -35,7 +35,7 @@ namespace BetterStepsRecorder
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            _form1Instance = new Form1();
+            _form1Instance = new MainForm();
 
             Application.Run(_form1Instance);
 
