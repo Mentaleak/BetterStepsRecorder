@@ -9,6 +9,40 @@ The "Better Steps Recorder" is a modern alternative to the now-deprecated PSR.ex
 - Feel free to view and build from source if you have any cyber concerns.
 
 ```
+## Features
+- Recorded Events
+  - Left Click
+  - Right Click
+  - Drag and Drop (Highlight and positioning)
+- Settings
+  - Click Indicator
+    - Arrow 
+    - Circle
+    - Cursor
+  - Arrow (Indicator) Colour
+- Markup Tools
+ - Blur
+ - Highlight
+   -  Highlight Colour
+ - Text
+ - Arrow
+ - Crop
+ - Undo
+- Steps
+  - Right click
+    - Move Up
+    - Move Down
+    - Delete
+  - Drag to change step order or position
+  - Auto-Generated and editable Step Descriptions
+- Export
+  - File
+    - HTML
+    - RTF (openable in word, where you can save in other formats or as PDF)
+    - ODT (openable in word, where you can save in other formats or as PDF)
+
+
+
 ## Usage
 
 ### Starting a Project:
@@ -29,10 +63,9 @@ Selecting a step displays the corresponding screenshot and metadata, allowing fo
 
 ### Saving and Exporting: 
 rom the File menu, use "Save As" to create a copy of your project, preserving the original. Use "Export" to generate an RTF document, editable in WordPad or Word, for versatile formatting or PDF creation. 
-
-*New* HTML Export
-
-*New* Export to Obsidian Vault
+HTML Export
+ODT Export
+Export to Obsidian Vault
 
 ![image](https://raw.githubusercontent.com/Mentaleak/BetterStepsRecorder/main/Docs/2024-08-02_09-50-21.png)
 
