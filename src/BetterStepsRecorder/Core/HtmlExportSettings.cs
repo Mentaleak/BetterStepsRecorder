@@ -22,15 +22,15 @@ namespace BetterStepsRecorder
         public bool ShowGeneratedDate { get; set; } = true;
 
         // Timestamp row on each step card
-        public bool ShowStepTimestamps { get; set; } = true;
+        public bool ShowStepTimestamps { get; set; } = false;
 
         // Detail strip: Action / Application / Window / Element / Element Type / Mouse Position
-        public bool ShowAction { get; set; } = true;
-        public bool ShowApplication { get; set; } = true;
-        public bool ShowWindow { get; set; } = true;
-        public bool ShowElement { get; set; } = true;
-        public bool ShowElementType { get; set; } = true;
-        public bool ShowMousePosition { get; set; } = true;
+        public bool ShowAction { get; set; } = false;
+        public bool ShowApplication { get; set; } = false;
+        public bool ShowWindow { get; set; } = false;
+        public bool ShowElement { get; set; } = false;
+        public bool ShowElementType { get; set; } = false;
+        public bool ShowMousePosition { get; set; } = false;
 
         /// <summary>Returns true when every detail-strip option is off (so the strip itself can be omitted).</summary>
         public bool IsDetailStripEmpty =>
