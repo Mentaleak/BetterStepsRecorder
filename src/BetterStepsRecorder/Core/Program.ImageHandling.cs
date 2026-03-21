@@ -63,9 +63,11 @@ namespace BetterStepsRecorder
         /// <param name="offsetY">Y offset of the bitmap</param>
         public static Color ArrowColor { get; set; } = Color.Magenta;
         public static ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
-        public static ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.ActiveWindow;
+        public static ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.Cropped;
         public static DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
         public static DragScreenshotMode DragFallbackMode { get; set; } = DragScreenshotMode.Cropped;
+        public static int ClickCroppedPadding { get; set; } = 200;
+        public static int DragCroppedPadding { get; set; } = 120;
 
         private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY, POINT cursorPos)
         {

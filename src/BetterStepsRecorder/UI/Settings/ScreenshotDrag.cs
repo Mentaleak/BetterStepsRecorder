@@ -27,9 +27,10 @@ namespace BetterStepsRecorder.UI.Settings
             rdoActiveScreen.CheckedChanged += RadioButton_CheckedChanged;
             rdoAllScreens.CheckedChanged += RadioButton_CheckedChanged;
             cmbFallbackMode.SelectedIndexChanged += ComboBox_SelectedIndexChanged;
+            nudPadding.ValueChanged += NudPadding_ValueChanged;
 
-            // Show/hide fallback controls based on mode
-            UpdateFallbackVisibility();
+            // Show/hide controls based on mode
+            UpdateControlVisibility();
         }
 
         private void LoadSettings()
@@ -40,6 +41,7 @@ namespace BetterStepsRecorder.UI.Settings
             rdoActiveWindow.Checked = settings.DragScreenshotMode == DragScreenshotMode.ActiveWindow;
             rdoActiveScreen.Checked = settings.DragScreenshotMode == DragScreenshotMode.ActiveScreen;
             rdoAllScreens.Checked = settings.DragScreenshotMode == DragScreenshotMode.AllScreens;
+            nudPadding.Value = settings.DragCroppedPadding;
 
             // Load fallback mode
             switch (settings.DragFallbackMode)
@@ -61,7 +63,7 @@ namespace BetterStepsRecorder.UI.Settings
             // Only save when a radio button is checked (not when unchecked)
             if (sender is RadioButton rb && rb.Checked)
             {
-                UpdateFallbackVisibility();
+                UpdateControlVisibility();
                 SaveSettings();
             }
         }
@@ -71,8 +73,18 @@ namespace BetterStepsRecorder.UI.Settings
             SaveSettings();
         }
 
-        private void UpdateFallbackVisibility()
+        private void NudPadding_ValueChanged(object sender, EventArgs e)
         {
+            SaveSettings();
+        }
+
+        private void UpdateControlVisibility()
+        {
+            // Show padding controls only when Cropped is selected
+            bool showPadding = rdoCropped.Checked;
+            lblPadding.Visible = showPadding;
+            nudPadding.Visible = showPadding;
+
             // Show fallback controls only when ActiveWindow is selected
             bool showFallback = rdoActiveWindow.Checked;
             lblFallback.Visible = showFallback;
@@ -93,6 +105,7 @@ namespace BetterStepsRecorder.UI.Settings
                 selectedMode = DragScreenshotMode.Cropped;
 
             Program.DragScreenshotMode = selectedMode;
+            Program.DragCroppedPadding = (int)nudPadding.Value;
 
             // Save fallback mode
             DragScreenshotMode fallbackMode;

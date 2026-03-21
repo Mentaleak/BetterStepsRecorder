@@ -9,6 +9,7 @@ namespace BetterStepsRecorder
 
     public enum ClickScreenshotMode
     {
+        Cropped,
         ActiveWindow,
         ActiveScreen,
         AllScreens

@@ -196,11 +196,11 @@ namespace BetterStepsRecorder
                                 }
                                 else // Cropped
                                 {
-                                    const int DragPad = 120;
-                                    int cropRight  = Math.Min(SystemInformation.VirtualScreen.Right,  Math.Max(dragStart.X, dragEnd.X) + DragPad);
-                                    int cropBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, Math.Max(dragStart.Y, dragEnd.Y) + DragPad);
-                                    cropLeft = Math.Max(SystemInformation.VirtualScreen.Left, Math.Min(dragStart.X, dragEnd.X) - DragPad);
-                                    cropTop  = Math.Max(SystemInformation.VirtualScreen.Top,  Math.Min(dragStart.Y, dragEnd.Y) - DragPad);
+                                    int dragPad = DragCroppedPadding;
+                                    int cropRight  = Math.Min(SystemInformation.VirtualScreen.Right,  Math.Max(dragStart.X, dragEnd.X) + dragPad);
+                                    int cropBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, Math.Max(dragStart.Y, dragEnd.Y) + dragPad);
+                                    cropLeft = Math.Max(SystemInformation.VirtualScreen.Left, Math.Min(dragStart.X, dragEnd.X) - dragPad);
+                                    cropTop  = Math.Max(SystemInformation.VirtualScreen.Top,  Math.Min(dragStart.Y, dragEnd.Y) - dragPad);
                                     cropW = cropRight  - cropLeft;
                                     cropH = cropBottom - cropTop;
                                 }
@@ -340,12 +340,22 @@ namespace BetterStepsRecorder
                                     captureWidth = screen.Bounds.Width;
                                     captureHeight = screen.Bounds.Height;
                                 }
-                                else // ActiveWindow
+                                else if (ClickScreenshotMode == ClickScreenshotMode.ActiveWindow)
                                 {
                                     captureLeft = rect.Left;
                                     captureTop = rect.Top;
                                     captureWidth = rect.Right - rect.Left;
                                     captureHeight = rect.Bottom - rect.Top;
+                                }
+                                else // Cropped
+                                {
+                                    int clickPad = ClickCroppedPadding;
+                                    captureLeft = Math.Max(SystemInformation.VirtualScreen.Left, cursorPos.X - clickPad);
+                                    captureTop = Math.Max(SystemInformation.VirtualScreen.Top, cursorPos.Y - clickPad);
+                                    int captureRight = Math.Min(SystemInformation.VirtualScreen.Right, cursorPos.X + clickPad);
+                                    int captureBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, cursorPos.Y + clickPad);
+                                    captureWidth = captureRight - captureLeft;
+                                    captureHeight = captureBottom - captureTop;
                                 }
 
                                 Bitmap? preClickBitmap = null;

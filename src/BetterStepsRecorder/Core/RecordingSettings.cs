@@ -22,13 +22,17 @@ namespace BetterStepsRecorder
 
         public ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
 
-        public ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.ActiveWindow;
+        public ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.Cropped;
 
         public DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
 
         public bool MinimizeOnStartRecording { get; set; } = false;
 
         public DragScreenshotMode DragFallbackMode { get; set; } = DragScreenshotMode.Cropped;
+
+        public int ClickCroppedPadding { get; set; } = 200;
+
+        public int DragCroppedPadding { get; set; } = 120;
 
         // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -74,6 +78,8 @@ namespace BetterStepsRecorder
             Program.ClickScreenshotMode = ClickScreenshotMode;
             Program.DragScreenshotMode = DragScreenshotMode;
             Program.DragFallbackMode = DragFallbackMode;
+            Program.ClickCroppedPadding = ClickCroppedPadding;
+            Program.DragCroppedPadding = DragCroppedPadding;
         }
 
         /// <summary>Snapshots the current live Program static properties and saves to disk.</summary>
@@ -85,7 +91,9 @@ namespace BetterStepsRecorder
                 IndicatorStyle = Program.IndicatorStyle,
                 ClickScreenshotMode = Program.ClickScreenshotMode,
                 DragScreenshotMode = Program.DragScreenshotMode,
-                DragFallbackMode = Program.DragFallbackMode
+                DragFallbackMode = Program.DragFallbackMode,
+                ClickCroppedPadding = Program.ClickCroppedPadding,
+                DragCroppedPadding = Program.DragCroppedPadding
             };
             s.Save();
         }
