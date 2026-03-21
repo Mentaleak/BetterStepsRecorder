@@ -20,10 +20,6 @@ namespace BetterStepsRecorder.UI.Settings
             rdoActiveWindow.CheckedChanged += RadioButton_CheckedChanged;
             rdoActiveScreen.CheckedChanged += RadioButton_CheckedChanged;
             rdoAllScreens.CheckedChanged += RadioButton_CheckedChanged;
-            nudPadding.ValueChanged += NudPadding_ValueChanged;
-
-            // Show/hide padding controls based on mode
-            UpdatePaddingVisibility();
         }
 
         private void LoadSettings()
@@ -34,7 +30,6 @@ namespace BetterStepsRecorder.UI.Settings
             rdoActiveWindow.Checked = settings.ClickScreenshotMode == ClickScreenshotMode.ActiveWindow;
             rdoActiveScreen.Checked = settings.ClickScreenshotMode == ClickScreenshotMode.ActiveScreen;
             rdoAllScreens.Checked = settings.ClickScreenshotMode == ClickScreenshotMode.AllScreens;
-            nudPadding.Value = settings.ClickCroppedPadding;
         }
 
         private void RadioButton_CheckedChanged(object sender, EventArgs e)
@@ -42,22 +37,14 @@ namespace BetterStepsRecorder.UI.Settings
             // Only save when a radio button is checked (not when unchecked)
             if (sender is RadioButton rb && rb.Checked)
             {
-                UpdatePaddingVisibility();
                 SaveSettings();
+
+                // Update the parent form's node states
+                if (ParentForm is Settings settingsForm)
+                {
+                    settingsForm.UpdateNodeStates();
+                }
             }
-        }
-
-        private void NudPadding_ValueChanged(object sender, EventArgs e)
-        {
-            SaveSettings();
-        }
-
-        private void UpdatePaddingVisibility()
-        {
-            // Show padding controls only when Cropped is selected
-            bool showPadding = rdoCropped.Checked;
-            lblPadding.Visible = showPadding;
-            nudPadding.Visible = showPadding;
         }
 
         private void SaveSettings()
@@ -74,7 +61,6 @@ namespace BetterStepsRecorder.UI.Settings
                 selectedMode = ClickScreenshotMode.Cropped;
 
             Program.ClickScreenshotMode = selectedMode;
-            Program.ClickCroppedPadding = (int)nudPadding.Value;
             RecordingSettings.SaveCurrent();
         }
     }

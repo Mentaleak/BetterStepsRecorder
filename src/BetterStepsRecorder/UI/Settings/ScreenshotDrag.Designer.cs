@@ -33,11 +33,6 @@
             rdoActiveWindow = new RadioButton();
             rdoActiveScreen = new RadioButton();
             rdoAllScreens = new RadioButton();
-            lblPadding = new Label();
-            nudPadding = new NumericUpDown();
-            lblFallback = new Label();
-            cmbFallbackMode = new ComboBox();
-            ((System.ComponentModel.ISupportInitialize)nudPadding).BeginInit();
             SuspendLayout();
             // 
             // lblNote
@@ -94,59 +89,17 @@
             rdoAllScreens.Text = "All screens  — entire virtual desktop captured";
             rdoAllScreens.UseVisualStyleBackColor = true;
             // 
-            // lblPadding
-            // 
-            lblPadding.AutoSize = true;
-            lblPadding.Location = new Point(43, 185);
-            lblPadding.Name = "lblPadding";
-            lblPadding.Size = new Size(160, 20);
-            lblPadding.TabIndex = 5;
-            lblPadding.Text = "Cropped padding (px):";
-            // 
-            // nudPadding
-            // 
-            nudPadding.Location = new Point(209, 183);
-            nudPadding.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
-            nudPadding.Minimum = new decimal(new int[] { 50, 0, 0, 0 });
-            nudPadding.Name = "nudPadding";
-            nudPadding.Size = new Size(80, 27);
-            nudPadding.TabIndex = 6;
-            nudPadding.Value = new decimal(new int[] { 120, 0, 0, 0 });
-            // 
-            // lblFallback
-            // 
-            lblFallback.AutoSize = true;
-            lblFallback.Location = new Point(43, 220);
-            lblFallback.Name = "lblFallback";
-            lblFallback.Size = new Size(301, 20);
-            lblFallback.TabIndex = 7;
-            lblFallback.Text = "Fallback when drag spans multiple windows:";
-            // 
-            // cmbFallbackMode
-            // 
-            cmbFallbackMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbFallbackMode.FormattingEnabled = true;
-            cmbFallbackMode.Location = new Point(43, 245);
-            cmbFallbackMode.Name = "cmbFallbackMode";
-            cmbFallbackMode.Size = new Size(200, 28);
-            cmbFallbackMode.TabIndex = 8;
-            // 
             // ScreenshotDrag
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(cmbFallbackMode);
-            Controls.Add(lblFallback);
-            Controls.Add(nudPadding);
-            Controls.Add(lblPadding);
             Controls.Add(rdoAllScreens);
             Controls.Add(rdoActiveScreen);
             Controls.Add(rdoActiveWindow);
             Controls.Add(rdoCropped);
             Controls.Add(lblNote);
             Name = "ScreenshotDrag";
-            Size = new Size(472, 295);
-            ((System.ComponentModel.ISupportInitialize)nudPadding).EndInit();
+            Size = new Size(472, 190);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -158,9 +111,5 @@
         private RadioButton rdoActiveWindow;
         private RadioButton rdoActiveScreen;
         private RadioButton rdoAllScreens;
-        private Label lblPadding;
-        private NumericUpDown nudPadding;
-        private Label lblFallback;
-        private ComboBox cmbFallbackMode;
     }
 }

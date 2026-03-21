@@ -33,9 +33,6 @@ namespace BetterStepsRecorder.UI.Settings
             rdoActiveWindow = new RadioButton();
             rdoActiveScreen = new RadioButton();
             rdoAllScreens = new RadioButton();
-            lblPadding = new Label();
-            nudPadding = new NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)nudPadding).BeginInit();
             SuspendLayout();
             // 
             // lblNote
@@ -92,39 +89,17 @@ namespace BetterStepsRecorder.UI.Settings
             rdoAllScreens.Text = "All screens  — entire virtual desktop captured";
             rdoAllScreens.UseVisualStyleBackColor = true;
             // 
-            // lblPadding
-            // 
-            lblPadding.AutoSize = true;
-            lblPadding.Location = new Point(43, 185);
-            lblPadding.Name = "lblPadding";
-            lblPadding.Size = new Size(160, 20);
-            lblPadding.TabIndex = 5;
-            lblPadding.Text = "Cropped padding (px):";
-            // 
-            // nudPadding
-            // 
-            nudPadding.Location = new Point(209, 185);
-            nudPadding.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
-            nudPadding.Minimum = new decimal(new int[] { 50, 0, 0, 0 });
-            nudPadding.Name = "nudPadding";
-            nudPadding.Size = new Size(80, 27);
-            nudPadding.TabIndex = 6;
-            nudPadding.Value = new decimal(new int[] { 200, 0, 0, 0 });
-            // 
             // ScreenshotClick
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(nudPadding);
-            Controls.Add(lblPadding);
             Controls.Add(rdoAllScreens);
             Controls.Add(rdoActiveScreen);
             Controls.Add(rdoActiveWindow);
             Controls.Add(rdoCropped);
             Controls.Add(lblNote);
             Name = "ScreenshotClick";
-            Size = new Size(472, 220);
-            ((System.ComponentModel.ISupportInitialize)nudPadding).EndInit();
+            Size = new Size(472, 190);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -136,7 +111,5 @@ namespace BetterStepsRecorder.UI.Settings
         private RadioButton rdoActiveWindow;
         private RadioButton rdoActiveScreen;
         private RadioButton rdoAllScreens;
-        private Label lblPadding;
-        private NumericUpDown nudPadding;
     }
 }
