@@ -22,11 +22,11 @@ namespace BetterStepsRecorder
 
         public ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
 
-        public ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.Cropped;
+        public ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.ActiveWindow;
 
-        public DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
+        public DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.ActiveWindow;
 
-        public bool MinimizeOnStartRecording { get; set; } = false;
+        public bool MinimizeOnStartRecording { get; set; } = true;
 
         public DragScreenshotMode DragFallbackMode { get; set; } = DragScreenshotMode.Cropped;
 

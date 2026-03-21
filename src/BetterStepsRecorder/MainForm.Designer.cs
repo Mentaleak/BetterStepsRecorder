@@ -63,10 +63,6 @@
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
-            arrowColourToolStripMenuItem = new ToolStripMenuItem();
-            clickIndicatorStyleToolStripMenuItem = new ToolStripMenuItem();
-            dragScreenshotModeToolStripMenuItem = new ToolStripMenuItem();
-            htmlExportOptionsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
@@ -209,7 +205,7 @@
             // 
             splitContainer3.Panel2.Controls.Add(richTextBox_stepText);
             splitContainer3.Size = new Size(648, 799);
-            splitContainer3.SplitterDistance = 671;
+            splitContainer3.SplitterDistance = 670;
             splitContainer3.SplitterWidth = 5;
             splitContainer3.TabIndex = 2;
             // 
@@ -220,7 +216,7 @@
             pictureBox1.Location = new Point(0, 27);
             pictureBox1.Margin = new Padding(3, 4, 3, 4);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(648, 644);
+            pictureBox1.Size = new Size(648, 643);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -303,7 +299,7 @@
             richTextBox_stepText.Location = new Point(0, 0);
             richTextBox_stepText.Margin = new Padding(3, 4, 3, 4);
             richTextBox_stepText.Name = "richTextBox_stepText";
-            richTextBox_stepText.Size = new Size(648, 123);
+            richTextBox_stepText.Size = new Size(648, 124);
             richTextBox_stepText.TabIndex = 1;
             richTextBox_stepText.Text = "";
             richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
@@ -409,39 +405,10 @@
             // 
             // settingsToolStripMenuItem
             // 
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { arrowColourToolStripMenuItem, clickIndicatorStyleToolStripMenuItem, dragScreenshotModeToolStripMenuItem, htmlExportOptionsToolStripMenuItem });
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             settingsToolStripMenuItem.Size = new Size(74, 24);
             settingsToolStripMenuItem.Text = "Settings";
             settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
-            // 
-            // arrowColourToolStripMenuItem
-            // 
-            arrowColourToolStripMenuItem.Name = "arrowColourToolStripMenuItem";
-            arrowColourToolStripMenuItem.Size = new Size(239, 24);
-            arrowColourToolStripMenuItem.Text = "Arrow Colour...";
-            arrowColourToolStripMenuItem.Click += arrowColourToolStripMenuItem_Click;
-            // 
-            // clickIndicatorStyleToolStripMenuItem
-            // 
-            clickIndicatorStyleToolStripMenuItem.Name = "clickIndicatorStyleToolStripMenuItem";
-            clickIndicatorStyleToolStripMenuItem.Size = new Size(239, 24);
-            clickIndicatorStyleToolStripMenuItem.Text = "Click Indicator Style...";
-            clickIndicatorStyleToolStripMenuItem.Click += clickIndicatorStyleToolStripMenuItem_Click;
-            // 
-            // dragScreenshotModeToolStripMenuItem
-            // 
-            dragScreenshotModeToolStripMenuItem.Name = "dragScreenshotModeToolStripMenuItem";
-            dragScreenshotModeToolStripMenuItem.Size = new Size(239, 24);
-            dragScreenshotModeToolStripMenuItem.Text = "Drag Screenshot Mode...";
-            dragScreenshotModeToolStripMenuItem.Click += dragScreenshotModeToolStripMenuItem_Click;
-            // 
-            // htmlExportOptionsToolStripMenuItem
-            // 
-            htmlExportOptionsToolStripMenuItem.Name = "htmlExportOptionsToolStripMenuItem";
-            htmlExportOptionsToolStripMenuItem.Size = new Size(239, 24);
-            htmlExportOptionsToolStripMenuItem.Text = "HTML Export Options...";
-            htmlExportOptionsToolStripMenuItem.Click += htmlExportOptionsToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
             // 
@@ -514,10 +481,6 @@
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem exportToObsidianVaultToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripMenuItem arrowColourToolStripMenuItem;
-        private ToolStripMenuItem clickIndicatorStyleToolStripMenuItem;
-        private ToolStripMenuItem dragScreenshotModeToolStripMenuItem;
-        private ToolStripMenuItem htmlExportOptionsToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
         private ToolStripButton undoToolStripButton;
         private ToolStripButton blurRegionToolStripButton;

@@ -13,9 +13,14 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+                searchDebounceTimer?.Dispose();
+                currentView?.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -74,7 +79,7 @@
             treeNode12.Name = "Settings_Export";
             treeNode12.Text = "Export";
             treeView_Settings.Nodes.AddRange(new TreeNode[] { treeNode1, treeNode4, treeNode10, treeNode12 });
-            treeView_Settings.Size = new Size(244, 408);
+            treeView_Settings.Size = new Size(244, 367);
             treeView_Settings.TabIndex = 0;
             // 
             // textBox_SearchSettings
@@ -89,14 +94,14 @@
             // 
             panel_settings.Location = new Point(262, 12);
             panel_settings.Name = "panel_settings";
-            panel_settings.Size = new Size(703, 441);
+            panel_settings.Size = new Size(600, 400);
             panel_settings.TabIndex = 2;
             // 
             // Settings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(977, 465);
+            ClientSize = new Size(874, 421);
             Controls.Add(panel_settings);
             Controls.Add(textBox_SearchSettings);
             Controls.Add(treeView_Settings);
