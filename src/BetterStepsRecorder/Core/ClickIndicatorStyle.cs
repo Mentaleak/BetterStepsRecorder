@@ -7,9 +7,17 @@ namespace BetterStepsRecorder
         Cursor
     }
 
+    public enum ClickScreenshotMode
+    {
+        ActiveWindow,
+        ActiveScreen,
+        AllScreens
+    }
+
     public enum DragScreenshotMode
     {
         Cropped,
+        ActiveWindow,
         ActiveScreen,
         AllScreens
     }
