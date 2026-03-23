@@ -28,6 +28,9 @@ namespace BetterStepsRecorder
             activityTimer.Interval = ActivityDelay;
             activityTimer.Tick += activityTimer_Tick;
 
+            // Sync the "Check for updates at launch" menu item with the persisted setting
+            checkForUpdatesAtLaunchToolStripMenuItem.Checked = Program.CheckForUpdatesAtLaunch;
+
             // Initialize the status strip
             InitializeStatusStrip();
         }

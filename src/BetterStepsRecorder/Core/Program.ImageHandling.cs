@@ -64,6 +64,7 @@ namespace BetterStepsRecorder
         public static Color ArrowColor { get; set; } = Color.Magenta;
         public static ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
         public static DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
+        public static bool CheckForUpdatesAtLaunch { get; set; } = true;
 
         private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY, POINT cursorPos)
         {

@@ -24,6 +24,8 @@ namespace BetterStepsRecorder
 
         public DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
 
+        public bool CheckForUpdatesAtLaunch { get; set; } = true;
+
         // ── Helpers ────────────────────────────────────────────────────────────
 
         [JsonIgnore]
@@ -66,6 +68,7 @@ namespace BetterStepsRecorder
             Program.ArrowColor = ArrowColor;
             Program.IndicatorStyle = IndicatorStyle;
             Program.DragScreenshotMode = DragScreenshotMode;
+            Program.CheckForUpdatesAtLaunch = CheckForUpdatesAtLaunch;
         }
 
         /// <summary>Snapshots the current live Program static properties and saves to disk.</summary>
@@ -75,7 +78,8 @@ namespace BetterStepsRecorder
             {
                 ArrowColor = Program.ArrowColor,
                 IndicatorStyle = Program.IndicatorStyle,
-                DragScreenshotMode = Program.DragScreenshotMode
+                DragScreenshotMode = Program.DragScreenshotMode,
+                CheckForUpdatesAtLaunch = Program.CheckForUpdatesAtLaunch
             };
             s.Save();
         }

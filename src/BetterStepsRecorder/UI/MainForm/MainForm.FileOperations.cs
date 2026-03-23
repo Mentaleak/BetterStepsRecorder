@@ -161,6 +161,12 @@ namespace BetterStepsRecorder
             }
         }
 
+        private void checkForUpdatesAtLaunchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.CheckForUpdatesAtLaunch = checkForUpdatesAtLaunchToolStripMenuItem.Checked;
+            RecordingSettings.SaveCurrent();
+        }
+
         /// <summary>
         /// Shows the help popup
         /// </summary>

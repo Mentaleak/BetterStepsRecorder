@@ -67,6 +67,7 @@
             clickIndicatorStyleToolStripMenuItem = new ToolStripMenuItem();
             dragScreenshotModeToolStripMenuItem = new ToolStripMenuItem();
             htmlExportOptionsToolStripMenuItem = new ToolStripMenuItem();
+            checkForUpdatesAtLaunchToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
@@ -404,7 +405,7 @@
             //
             // settingsToolStripMenuItem
             //
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { arrowColourToolStripMenuItem, clickIndicatorStyleToolStripMenuItem, dragScreenshotModeToolStripMenuItem, htmlExportOptionsToolStripMenuItem });
+            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { arrowColourToolStripMenuItem, clickIndicatorStyleToolStripMenuItem, dragScreenshotModeToolStripMenuItem, htmlExportOptionsToolStripMenuItem, checkForUpdatesAtLaunchToolStripMenuItem });
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             settingsToolStripMenuItem.Size = new Size(61, 20);
             settingsToolStripMenuItem.Text = "Settings";
@@ -433,9 +434,17 @@
             // htmlExportOptionsToolStripMenuItem
             //
             htmlExportOptionsToolStripMenuItem.Name = "htmlExportOptionsToolStripMenuItem";
-            htmlExportOptionsToolStripMenuItem.Size = new Size(180, 22);
+            htmlExportOptionsToolStripMenuItem.Size = new Size(200, 22);
             htmlExportOptionsToolStripMenuItem.Text = "HTML Export Options...";
             htmlExportOptionsToolStripMenuItem.Click += htmlExportOptionsToolStripMenuItem_Click;
+            //
+            // checkForUpdatesAtLaunchToolStripMenuItem
+            //
+            checkForUpdatesAtLaunchToolStripMenuItem.CheckOnClick = true;
+            checkForUpdatesAtLaunchToolStripMenuItem.Name = "checkForUpdatesAtLaunchToolStripMenuItem";
+            checkForUpdatesAtLaunchToolStripMenuItem.Size = new Size(200, 22);
+            checkForUpdatesAtLaunchToolStripMenuItem.Text = "Check for updates at launch";
+            checkForUpdatesAtLaunchToolStripMenuItem.Click += checkForUpdatesAtLaunchToolStripMenuItem_Click;
             //
             // helpToolStripMenuItem
             //
@@ -510,6 +519,7 @@
         private ToolStripMenuItem clickIndicatorStyleToolStripMenuItem;
         private ToolStripMenuItem dragScreenshotModeToolStripMenuItem;
         private ToolStripMenuItem htmlExportOptionsToolStripMenuItem;
+        private ToolStripMenuItem checkForUpdatesAtLaunchToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
         private ToolStripButton undoToolStripButton;
         private ToolStripButton blurRegionToolStripButton;

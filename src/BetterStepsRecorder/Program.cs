@@ -40,10 +40,23 @@ namespace BetterStepsRecorder
         [STAThread]
         static void Main()
         {
+            // Parse CLI flags before anything else
+            foreach (string arg in Environment.GetCommandLineArgs())
+            {
+                if (arg.Equals("--force-update-check", StringComparison.OrdinalIgnoreCase))
+                {
+                    UpdaterService.ForceUpdateCheck = true;
+                    break;
+                }
+            }
+
             ApplicationConfiguration.Initialize();
 
-            // Load persisted recording settings (arrow colour, indicator style)
+            // Load persisted recording settings (arrow colour, indicator style, update prefs)
             RecordingSettings.Load().Apply();
+
+            // Load persisted update state
+            UpdateState updateState = UpdateState.Load();
 
             // Create the spool directory for this session
             Directory.CreateDirectory(SessionSpoolDir);
@@ -53,6 +66,31 @@ namespace BetterStepsRecorder
 
             _form1Instance = new MainForm();
 
+            // Wire up post-show update logic before Application.Run blocks
+            _form1Instance.Shown += async (s, e) =>
+            {
+                // Silent install path — runs before standard check
+                if (updateState.SilentInstallOnNextLaunch &&
+                    !string.IsNullOrEmpty(updateState.PendingUpdateUrl))
+                {
+                    string pendingUrl = updateState.PendingUpdateUrl;
+                    // Clear state first so a failure does not loop
+                    updateState.Clear();
+
+                    bool installed = await UpdaterService.DownloadAndApplyUpdateAsync(pendingUrl);
+                    if (installed)
+                        return; // App is shutting down
+
+                    // Failure: state already cleared — fall through to normal launch
+                }
+
+                // Standard launch-time check
+                if (CheckForUpdatesAtLaunch)
+                {
+                    _ = CheckAndShowBannerAsync(updateState);
+                }
+            };
+
             Application.Run(_form1Instance);
 
             // Ensure proper cleanup of FlaUI resources
@@ -60,6 +98,23 @@ namespace BetterStepsRecorder
 
             // Clean up this session's spool directory on clean exit
             TryDeleteSpoolDir(SessionSpoolDir);
+        }
+
+        private static async System.Threading.Tasks.Task CheckAndShowBannerAsync(UpdateState updateState)
+        {
+            try
+            {
+                UpdateCheckResult result = await UpdaterService.CheckForUpdateAsync();
+                if (result.IsUpdateAvailable && _form1Instance != null && !_form1Instance.IsDisposed)
+                {
+                    _form1Instance.Invoke(() =>
+                        _form1Instance.ShowUpdateBanner(result.LatestVersion, result.DownloadUrl, updateState));
+                }
+            }
+            catch
+            {
+                // Silently swallowed — app continues normally
+            }
         }
 
         /// <summary>Deletes spool session folders older than 7 days.</summary>
