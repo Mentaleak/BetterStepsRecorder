@@ -1,28 +1,19 @@
-using System;
-using System.Windows.Forms;
+using BetterStepsRecorder.UI.Settings.Base;
 
 namespace BetterStepsRecorder.UI.Settings
 {
-    public partial class ScreenshotClickCropped : UserControl
+    /// <summary>
+    /// Wrapper for click cropped padding settings.
+    /// Uses the generic PaddingSettingsControl to reduce duplication.
+    /// </summary>
+    public partial class ScreenshotClickCropped : PaddingSettingsControl
     {
-        public ScreenshotClickCropped()
+        public ScreenshotClickCropped() 
+            : base(
+                getter: () => RecordingSettings.Load().ClickCroppedPadding,
+                setter: value => Program.ClickCroppedPadding = value,
+                labelText: "Padding (pixels):")
         {
-            InitializeComponent();
-            LoadSettings();
-            
-            nudPadding.ValueChanged += NudPadding_ValueChanged;
-        }
-
-        private void LoadSettings()
-        {
-            var settings = RecordingSettings.Load();
-            nudPadding.Value = settings.ClickCroppedPadding;
-        }
-
-        private void NudPadding_ValueChanged(object sender, EventArgs e)
-        {
-            Program.ClickCroppedPadding = (int)nudPadding.Value;
-            RecordingSettings.SaveCurrent();
         }
     }
 }
