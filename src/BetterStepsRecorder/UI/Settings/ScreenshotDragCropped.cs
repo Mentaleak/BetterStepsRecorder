@@ -1,19 +1,28 @@
-using BetterStepsRecorder.UI.Settings.Base;
+using System;
+using System.Windows.Forms;
 
 namespace BetterStepsRecorder.UI.Settings
 {
-    /// <summary>
-    /// Wrapper for drag cropped padding settings.
-    /// Uses the generic PaddingSettingsControl to reduce duplication.
-    /// </summary>
-    public partial class ScreenshotDragCropped : PaddingSettingsControl
+    public partial class ScreenshotDragCropped : UserControl
     {
-        public ScreenshotDragCropped() 
-            : base(
-                getter: () => RecordingSettings.Load().DragCroppedPadding,
-                setter: value => Program.DragCroppedPadding = value,
-                labelText: "Padding (pixels):")
+        public ScreenshotDragCropped()
         {
+            InitializeComponent();
+            LoadSettings();
+            
+            nudPadding.ValueChanged += NudPadding_ValueChanged;
+        }
+
+        private void LoadSettings()
+        {
+            var settings = RecordingSettings.Load();
+            nudPadding.Value = settings.DragCroppedPadding;
+        }
+
+        private void NudPadding_ValueChanged(object sender, EventArgs e)
+        {
+            Program.DragCroppedPadding = (int)nudPadding.Value;
+            RecordingSettings.SaveCurrent();
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using BetterStepsRecorder.UI.Settings.Helpers;
 
 namespace BetterStepsRecorder.UI.Settings
 {
@@ -50,7 +49,38 @@ namespace BetterStepsRecorder.UI.Settings
                 return;
             }
 
-            UserControl newView = SettingsControlFactory.CreateControl(e.Node.Name);
+            UserControl newView = null;
+
+            switch (e.Node.Name)
+            {
+                case "Settings_General":
+                    newView = new GeneralSettings();
+                    break;
+                case "Settings_IndicatorStyle":
+                    newView = new IndicatorStyle();
+                    break;
+                case "Settings_IndicatorColor":
+                    newView = new IndicatorColor();
+                    break;
+                case "Settings_ScreenshotClick":
+                    newView = new ScreenshotClick();
+                    break;
+                case "Settings_ScreenshotClickCropped":
+                    newView = new ScreenshotClickCropped();
+                    break;
+                case "Settings_ScreenshotDrag":
+                    newView = new ScreenshotDrag();
+                    break;
+                case "Settings_ScreenshotDragCropped":
+                    newView = new ScreenshotDragCropped();
+                    break;
+                case "Settings_ScreenshotDragFallback":
+                    newView = new ScreenshotDragFallback();
+                    break;
+                case "Settings_ExportHtml":
+                    newView = new ExportHtml();
+                    break;
+            }
 
             if (newView != null)
             {
@@ -242,17 +272,41 @@ namespace BetterStepsRecorder.UI.Settings
 
         private UserControl CreateControlForNode(TreeNode node)
         {
-            return SettingsControlFactory.CreateControl(node.Name);
+            switch (node.Name)
+            {
+                case "Settings_General":
+                    return new GeneralSettings();
+                case "Settings_IndicatorStyle":
+                    return new IndicatorStyle();
+                case "Settings_IndicatorColor":
+                    return new IndicatorColor();
+                case "Settings_ScreenshotClick":
+                    return new ScreenshotClick();
+                case "Settings_ScreenshotClickCropped":
+                    return new ScreenshotClickCropped();
+                case "Settings_ScreenshotDrag":
+                    return new ScreenshotDrag();
+                case "Settings_ScreenshotDragCropped":
+                    return new ScreenshotDragCropped();
+                case "Settings_ScreenshotDragFallback":
+                    return new ScreenshotDragFallback();
+                case "Settings_ExportHtml":
+                    return new ExportHtml();
+                default:
+                    return null;
+            }
         }
 
         public void UpdateNodeStates()
         {
             var settings = RecordingSettings.Load();
 
-            // Use extension method for cleaner node lookups
-            TreeNode clickCroppedNode = treeView_Settings.FindNodeByName("Settings_ScreenshotClickCropped");
-            TreeNode dragCroppedNode = treeView_Settings.FindNodeByName("Settings_ScreenshotDragCropped");
-            TreeNode dragFallbackNode = treeView_Settings.FindNodeByName("Settings_ScreenshotDragFallback");
+            // Find the child nodes
+            TreeNode clickNode = FindNodeByName("Settings_ScreenshotClick");
+            TreeNode clickCroppedNode = FindNodeByName("Settings_ScreenshotClickCropped");
+            TreeNode dragNode = FindNodeByName("Settings_ScreenshotDrag");
+            TreeNode dragCroppedNode = FindNodeByName("Settings_ScreenshotDragCropped");
+            TreeNode dragFallbackNode = FindNodeByName("Settings_ScreenshotDragFallback");
 
             // Enable/disable Click -> Cropped node based on mode
             if (clickCroppedNode != null)
@@ -391,11 +445,40 @@ namespace BetterStepsRecorder.UI.Settings
         {
             List<string> content = new List<string>();
 
-            // Use factory to create temporary instance
+            // Create temporary instance to extract searchable text
             UserControl tempControl = null;
             try
             {
-                tempControl = SettingsControlFactory.CreateControl(nodeName);
+                switch (nodeName)
+                {
+                    case "Settings_General":
+                        tempControl = new GeneralSettings();
+                        break;
+                    case "Settings_IndicatorStyle":
+                        tempControl = new IndicatorStyle();
+                        break;
+                    case "Settings_IndicatorColor":
+                        tempControl = new IndicatorColor();
+                        break;
+                    case "Settings_ScreenshotClick":
+                        tempControl = new ScreenshotClick();
+                        break;
+                    case "Settings_ScreenshotClickCropped":
+                        tempControl = new ScreenshotClickCropped();
+                        break;
+                    case "Settings_ScreenshotDrag":
+                        tempControl = new ScreenshotDrag();
+                        break;
+                    case "Settings_ScreenshotDragCropped":
+                        tempControl = new ScreenshotDragCropped();
+                        break;
+                    case "Settings_ScreenshotDragFallback":
+                        tempControl = new ScreenshotDragFallback();
+                        break;
+                    case "Settings_ExportHtml":
+                        tempControl = new ExportHtml();
+                        break;
+                }
 
                 if (tempControl != null)
                 {
@@ -492,7 +575,7 @@ namespace BetterStepsRecorder.UI.Settings
                 if (matches)
                 {
                     anyMatches = true;
-                    TreeNode node = treeView_Settings.FindNodeByName(kvp.Key);
+                    TreeNode node = FindNodeByName(kvp.Key);
                     if (node != null)
                     {
                         ShowNodeAndParents(node);
