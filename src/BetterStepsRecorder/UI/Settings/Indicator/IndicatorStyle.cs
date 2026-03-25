@@ -18,7 +18,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = BSRSettings.Load();
+            var settings = BSRSettings.Current;
 
             rdoArrow.Checked = settings.IndicatorStyle == ClickIndicatorStyle.Arrow;
             rdoCircle.Checked = settings.IndicatorStyle == ClickIndicatorStyle.Circle;

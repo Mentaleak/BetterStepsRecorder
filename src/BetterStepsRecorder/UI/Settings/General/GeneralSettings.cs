@@ -14,28 +14,17 @@ namespace BetterStepsRecorder.UI.Settings
         {
             InitializeComponent();
             LoadSettings();
-            
-            // Auto-save when checkbox changes
-            chkMinimizeOnStart.CheckedChanged += Checkbox_CheckedChanged;
         }
 
         private void LoadSettings()
         {
-            var settings = BSRSettings.Load();
-            chkMinimizeOnStart.Checked = settings.MinimizeOnStartRecording;
+            chkMinimizeOnStart.Checked = BSRSettings.Current.MinimizeOnStartRecording;
         }
 
         private void Checkbox_CheckedChanged(object sender, EventArgs e)
         {
-            SaveSettings();
-        }
-
-        private void SaveSettings()
-        {
-            var settings = BSRSettings.Load();
-            settings.MinimizeOnStartRecording = chkMinimizeOnStart.Checked;
-            settings.Save();
-
+            BSRSettings.Current.MinimizeOnStartRecording = chkMinimizeOnStart.Checked;
+            BSRSettings.Current.Save();
         }
     }
 }

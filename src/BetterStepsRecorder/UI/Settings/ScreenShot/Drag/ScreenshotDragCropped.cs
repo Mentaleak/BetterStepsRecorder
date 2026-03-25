@@ -15,8 +15,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = BSRSettings.Load();
-            nudPadding.Value = settings.DragCroppedPadding;
+            nudPadding.Value = BSRSettings.Current.DragCroppedPadding;
         }
 
         private void NudPadding_ValueChanged(object sender, EventArgs e)

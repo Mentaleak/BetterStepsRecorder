@@ -21,10 +21,8 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = BSRSettings.Load();
-
             // Load fallback mode
-            switch (settings.DragFallbackMode)
+            switch (BSRSettings.Current.DragFallbackMode)
             {
                 case FallbackDragScreenshotMode.ActiveScreen:
                     cmbFallbackMode.SelectedIndex = 1;

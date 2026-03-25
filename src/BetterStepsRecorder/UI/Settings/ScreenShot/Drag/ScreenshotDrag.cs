@@ -18,7 +18,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = BSRSettings.Load();
+            var settings = BSRSettings.Current;
 
             rdoCropped.Checked = settings.DragScreenshotMode == DragScreenshotMode.Cropped;
             rdoActiveWindow.Checked = settings.DragScreenshotMode == DragScreenshotMode.ActiveWindow;

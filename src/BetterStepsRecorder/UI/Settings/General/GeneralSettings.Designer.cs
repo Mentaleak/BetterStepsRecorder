@@ -61,6 +61,7 @@ namespace BetterStepsRecorder.UI.Settings
             chkMinimizeOnStart.TabIndex = 2;
             chkMinimizeOnStart.Text = "Minimize on start recording";
             chkMinimizeOnStart.UseVisualStyleBackColor = true;
+            chkMinimizeOnStart.CheckedChanged += Checkbox_CheckedChanged;
             // 
             // GeneralSettings
             // 

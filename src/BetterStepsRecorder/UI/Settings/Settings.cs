@@ -299,7 +299,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         public void UpdateNodeStates()
         {
-            var settings = BSRSettings.Load();
+            var settings = BSRSettings.Current;
 
             // Find the child nodes
             TreeNode clickNode = FindNodeByName("Settings_ScreenshotClick");

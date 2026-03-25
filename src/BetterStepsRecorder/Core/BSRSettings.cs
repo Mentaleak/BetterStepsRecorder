@@ -46,6 +46,7 @@ namespace BetterStepsRecorder
         Cropped,
         ActiveScreen,
         AllScreens
+        // ActiveWindow is skipped since it is the primary mode that triggers fallback when it fails
     }
 
 
@@ -59,6 +60,27 @@ namespace BetterStepsRecorder
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "BetterStepsRecorder",
             "recording.json");
+
+        private static BSRSettings? _instance;
+        private static readonly object _lock = new object();
+
+        /// <summary>
+        /// Gets the current settings instance (singleton).
+        /// </summary>
+        public static BSRSettings Current
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        _instance ??= Load();
+                    }
+                }
+                return _instance;
+            }
+        }
 
         /// <summary>
         /// Default values for all settings.
@@ -172,7 +194,8 @@ namespace BetterStepsRecorder
 
         // ── Persistence ────────────────────────────────────────────────────────
 
-        public static BSRSettings Load()
+        /// <summary>Loads settings from disk.</summary>
+        private static BSRSettings Load()
         {
             try
             {
@@ -184,6 +207,16 @@ namespace BetterStepsRecorder
             }
             catch { }
             return new BSRSettings();
+        }
+
+        /// <summary>Reloads settings from disk and updates the singleton instance.</summary>
+        public static void Reload()
+        {
+            lock (_lock)
+            {
+                _instance = Load();
+                _instance.Apply();
+            }
         }
 
         public void Save()
@@ -200,6 +233,8 @@ namespace BetterStepsRecorder
         /// <summary>Applies loaded values to the live Program static properties.</summary>
         public void Apply()
         {
+
+
             // Indicator
             Program.ArrowColor = ArrowColor;
             Program.IndicatorStyle = IndicatorStyle;
@@ -217,22 +252,14 @@ namespace BetterStepsRecorder
         /// <summary>Snapshots the current live Program static properties and saves to disk.</summary>
         public static void SaveCurrent()
         {
-            var s = new BSRSettings
-            {
-                // Indicator
-                ArrowColor = Program.ArrowColor,
-                IndicatorStyle = Program.IndicatorStyle,
-
-                // Click Screenshot
-                ClickScreenshotMode = Program.ClickScreenshotMode,
-                ClickCroppedPadding = Program.ClickCroppedPadding,
-
-                // Drag Screenshot
-                DragScreenshotMode = Program.DragScreenshotMode,
-                DragFallbackMode = Program.DragFallbackMode,
-                DragCroppedPadding = Program.DragCroppedPadding
-            };
-            s.Save();
+            Current.ArrowColor = Program.ArrowColor;
+            Current.IndicatorStyle = Program.IndicatorStyle;
+            Current.ClickScreenshotMode = Program.ClickScreenshotMode;
+            Current.ClickCroppedPadding = Program.ClickCroppedPadding;
+            Current.DragScreenshotMode = Program.DragScreenshotMode;
+            Current.DragFallbackMode = Program.DragFallbackMode;
+            Current.DragCroppedPadding = Program.DragCroppedPadding;
+            Current.Save();
         }
     }
 }
