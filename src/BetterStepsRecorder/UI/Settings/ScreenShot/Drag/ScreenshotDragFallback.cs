@@ -21,15 +21,15 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = RecordingSettings.Load();
+            var settings = BSRSettings.Load();
 
             // Load fallback mode
             switch (settings.DragFallbackMode)
             {
-                case DragScreenshotMode.ActiveScreen:
+                case FallbackDragScreenshotMode.ActiveScreen:
                     cmbFallbackMode.SelectedIndex = 1;
                     break;
-                case DragScreenshotMode.AllScreens:
+                case FallbackDragScreenshotMode.AllScreens:
                     cmbFallbackMode.SelectedIndex = 2;
                     break;
                 default:
@@ -40,21 +40,21 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            DragScreenshotMode fallbackMode;
+            FallbackDragScreenshotMode fallbackMode;
             switch (cmbFallbackMode.SelectedIndex)
             {
                 case 1:
-                    fallbackMode = DragScreenshotMode.ActiveScreen;
+                    fallbackMode = FallbackDragScreenshotMode.ActiveScreen;
                     break;
                 case 2:
-                    fallbackMode = DragScreenshotMode.AllScreens;
+                    fallbackMode = FallbackDragScreenshotMode.AllScreens;
                     break;
                 default:
-                    fallbackMode = DragScreenshotMode.Cropped;
+                    fallbackMode = FallbackDragScreenshotMode.Cropped;
                     break;
             }
             Program.DragFallbackMode = fallbackMode;
-            RecordingSettings.SaveCurrent();
+            BSRSettings.SaveCurrent();
 
             // Update the parent form's node states
             if (ParentForm is Settings settingsForm)

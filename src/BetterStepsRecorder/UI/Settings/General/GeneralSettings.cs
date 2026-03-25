@@ -21,7 +21,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = RecordingSettings.Load();
+            var settings = BSRSettings.Load();
             chkMinimizeOnStart.Checked = settings.MinimizeOnStartRecording;
         }
 
@@ -32,9 +32,10 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void SaveSettings()
         {
-            var settings = RecordingSettings.Load();
+            var settings = BSRSettings.Load();
             settings.MinimizeOnStartRecording = chkMinimizeOnStart.Checked;
             settings.Save();
+
         }
     }
 }

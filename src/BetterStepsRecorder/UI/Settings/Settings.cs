@@ -299,7 +299,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         public void UpdateNodeStates()
         {
-            var settings = RecordingSettings.Load();
+            var settings = BSRSettings.Load();
 
             // Find the child nodes
             TreeNode clickNode = FindNodeByName("Settings_ScreenshotClick");
@@ -319,7 +319,7 @@ namespace BetterStepsRecorder.UI.Settings
             if (dragCroppedNode != null)
             {
                 bool isCropped = settings.DragScreenshotMode == DragScreenshotMode.Cropped;
-                bool fallbackIsCropped = settings.DragFallbackMode == DragScreenshotMode.Cropped;
+                bool fallbackIsCropped = settings.DragFallbackMode == FallbackDragScreenshotMode.Cropped;
                 dragCroppedNode.ForeColor = (isCropped || fallbackIsCropped) ? SystemColors.ControlText : SystemColors.GrayText;
             }
 

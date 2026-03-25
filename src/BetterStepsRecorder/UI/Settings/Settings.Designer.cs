@@ -94,17 +94,20 @@
             // 
             panel_settings.Location = new Point(262, 12);
             panel_settings.Name = "panel_settings";
-            panel_settings.Size = new Size(600, 400);
+            panel_settings.Size = new Size(600, 430);
             panel_settings.TabIndex = 2;
             // 
             // Settings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(874, 421);
+            ClientSize = new Size(874, 454);
             Controls.Add(panel_settings);
             Controls.Add(textBox_SearchSettings);
             Controls.Add(treeView_Settings);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "Settings";
             ShowIcon = false;
             Text = "Settings";

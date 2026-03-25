@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace BetterStepsRecorder.UI.Settings
 {
-    public partial class ScreenshotClickCropped : UserControl
+    public partial class ScreenshotDragCropped : UserControl
     {
-        public ScreenshotClickCropped()
+        public ScreenshotDragCropped()
         {
             InitializeComponent();
             LoadSettings();
@@ -15,14 +15,14 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var settings = RecordingSettings.Load();
-            nudPadding.Value = settings.ClickCroppedPadding;
+            var settings = BSRSettings.Load();
+            nudPadding.Value = settings.DragCroppedPadding;
         }
 
         private void NudPadding_ValueChanged(object sender, EventArgs e)
         {
-            Program.ClickCroppedPadding = (int)nudPadding.Value;
-            RecordingSettings.SaveCurrent();
+            Program.DragCroppedPadding = (int)nudPadding.Value;
+            BSRSettings.SaveCurrent();
         }
     }
 }

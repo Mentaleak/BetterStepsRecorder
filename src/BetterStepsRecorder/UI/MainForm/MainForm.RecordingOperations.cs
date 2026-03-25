@@ -30,7 +30,7 @@ namespace BetterStepsRecorder
                 ActivityDelay = 15000;
 
                 // Minimize window if setting is enabled
-                var settings = RecordingSettings.Load();
+                var settings = BSRSettings.Load();
                 if (settings.MinimizeOnStartRecording)
                 {
                     WindowState = FormWindowState.Minimized;

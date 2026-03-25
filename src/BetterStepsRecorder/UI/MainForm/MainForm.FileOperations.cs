@@ -113,7 +113,7 @@ namespace BetterStepsRecorder
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
                     Program.ArrowColor = dlg.Color;
-                    RecordingSettings.SaveCurrent();
+                    BSRSettings.SaveCurrent();
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace BetterStepsRecorder
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
                     Program.IndicatorStyle = dlg.SelectedStyle;
-                    RecordingSettings.SaveCurrent();
+                    BSRSettings.SaveCurrent();
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace BetterStepsRecorder
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
                     Program.DragScreenshotMode = dlg.SelectedMode;
-                    RecordingSettings.SaveCurrent();
+                    BSRSettings.SaveCurrent();
                 }
             }
         }

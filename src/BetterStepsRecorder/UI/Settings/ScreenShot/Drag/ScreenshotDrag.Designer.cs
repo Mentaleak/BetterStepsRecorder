@@ -1,6 +1,6 @@
-namespace BetterStepsRecorder.UI.Settings
+﻿namespace BetterStepsRecorder.UI.Settings
 {
-    partial class ScreenshotClick
+    partial class ScreenshotDrag
     {
         /// <summary> 
         /// Required designer variable.
@@ -41,42 +41,48 @@ namespace BetterStepsRecorder.UI.Settings
             lblNote.ForeColor = SystemColors.GrayText;
             lblNote.Location = new Point(3, 25);
             lblNote.Name = "lblNote";
-            lblNote.Size = new Size(368, 20);
+            lblNote.Size = new Size(370, 20);
             lblNote.TabIndex = 0;
-            lblNote.Text = "Choose how screenshots are captured for click actions:";
+            lblNote.Text = "Choose how screenshots are captured for drag actions:";
             // 
             // rdoCropped
             // 
             rdoCropped.AutoSize = true;
             rdoCropped.Location = new Point(23, 61);
             rdoCropped.Name = "rdoCropped";
-            rdoCropped.Size = new Size(325, 24);
+            rdoCropped.Size = new Size(322, 24);
             rdoCropped.TabIndex = 1;
             rdoCropped.TabStop = true;
-            rdoCropped.Text = "Cropped  — tight crop around the click point";
+            rdoCropped.Tag = DragScreenshotMode.Cropped;
+            rdoCropped.Text = "Cropped  — tight crop around the drag path";
             rdoCropped.UseVisualStyleBackColor = true;
+            rdoCropped.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // rdoActiveWindow
             // 
             rdoActiveWindow.AutoSize = true;
             rdoActiveWindow.Location = new Point(23, 91);
             rdoActiveWindow.Name = "rdoActiveWindow";
-            rdoActiveWindow.Size = new Size(335, 24);
+            rdoActiveWindow.Size = new Size(337, 24);
             rdoActiveWindow.TabIndex = 2;
             rdoActiveWindow.TabStop = true;
-            rdoActiveWindow.Text = "Active window  — window containing the click";
+            rdoActiveWindow.Tag = DragScreenshotMode.ActiveWindow;
+            rdoActiveWindow.Text = "Active window  — window containing the drag";
             rdoActiveWindow.UseVisualStyleBackColor = true;
+            rdoActiveWindow.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // rdoActiveScreen
             // 
             rdoActiveScreen.AutoSize = true;
             rdoActiveScreen.Location = new Point(23, 121);
             rdoActiveScreen.Name = "rdoActiveScreen";
-            rdoActiveScreen.Size = new Size(315, 24);
+            rdoActiveScreen.Size = new Size(317, 24);
             rdoActiveScreen.TabIndex = 3;
             rdoActiveScreen.TabStop = true;
-            rdoActiveScreen.Text = "Active screen  — screen containing the click";
+            rdoActiveScreen.Tag = DragScreenshotMode.ActiveScreen;
+            rdoActiveScreen.Text = "Active screen  — screen containing the drag";
             rdoActiveScreen.UseVisualStyleBackColor = true;
+            rdoActiveScreen.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // rdoAllScreens
             // 
@@ -86,10 +92,12 @@ namespace BetterStepsRecorder.UI.Settings
             rdoAllScreens.Size = new Size(327, 24);
             rdoAllScreens.TabIndex = 4;
             rdoAllScreens.TabStop = true;
+            rdoAllScreens.Tag = DragScreenshotMode.AllScreens;
             rdoAllScreens.Text = "All screens  — entire virtual desktop captured";
             rdoAllScreens.UseVisualStyleBackColor = true;
+            rdoAllScreens.CheckedChanged += RadioButton_CheckedChanged;
             // 
-            // ScreenshotClick
+            // ScreenshotDrag
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -98,7 +106,7 @@ namespace BetterStepsRecorder.UI.Settings
             Controls.Add(rdoActiveWindow);
             Controls.Add(rdoCropped);
             Controls.Add(lblNote);
-            Name = "ScreenshotClick";
+            Name = "ScreenshotDrag";
             Size = new Size(472, 190);
             ResumeLayout(false);
             PerformLayout();

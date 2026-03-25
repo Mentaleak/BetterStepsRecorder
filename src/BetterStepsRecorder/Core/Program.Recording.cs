@@ -165,7 +165,7 @@ namespace BetterStepsRecorder
                                 DragScreenshotMode effectiveMode = DragScreenshotMode;
                                 if (effectiveMode == DragScreenshotMode.ActiveWindow && multiWindowDrag)
                                 {
-                                    effectiveMode = DragFallbackMode;
+                                    effectiveMode = (DragScreenshotMode)DragFallbackMode;
                                 }
 
                                 // Capture region: padded crop, active window, the screen containing the drag end, or all screens

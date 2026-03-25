@@ -65,7 +65,7 @@ namespace BetterStepsRecorder
         public static ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
         public static ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.Cropped;
         public static DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
-        public static DragScreenshotMode DragFallbackMode { get; set; } = DragScreenshotMode.Cropped;
+        public static FallbackDragScreenshotMode DragFallbackMode { get; set; } = FallbackDragScreenshotMode.Cropped;
         public static int ClickCroppedPadding { get; set; } = 200;
         public static int DragCroppedPadding { get; set; } = 120;
 

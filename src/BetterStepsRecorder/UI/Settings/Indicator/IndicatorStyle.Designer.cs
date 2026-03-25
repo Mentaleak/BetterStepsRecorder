@@ -51,8 +51,10 @@
             rdoArrow.Size = new Size(308, 24);
             rdoArrow.TabIndex = 1;
             rdoArrow.TabStop = true;
+            rdoArrow.Tag = ClickIndicatorStyle.Arrow;
             rdoArrow.Text = "Arrow  — long pointer arrow (original style)";
             rdoArrow.UseVisualStyleBackColor = true;
+            rdoArrow.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // rdoCircle
             // 
@@ -62,8 +64,10 @@
             rdoCircle.Size = new Size(340, 24);
             rdoCircle.TabIndex = 2;
             rdoCircle.TabStop = true;
+            rdoCircle.Tag = ClickIndicatorStyle.Circle;
             rdoCircle.Text = "Circle  — highlighted ring around the click point";
             rdoCircle.UseVisualStyleBackColor = true;
+            rdoCircle.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // rdoCursor
             // 
@@ -73,8 +77,10 @@
             rdoCursor.Size = new Size(420, 24);
             rdoCursor.TabIndex = 3;
             rdoCursor.TabStop = true;
+            rdoCursor.Tag = ClickIndicatorStyle.Cursor;
             rdoCursor.Text = "Cursor  — mouse pointer shape at the click point";
             rdoCursor.UseVisualStyleBackColor = true;
+            rdoCursor.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // ArrowIndicator
             // 

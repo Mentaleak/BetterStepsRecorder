@@ -43,7 +43,7 @@ namespace BetterStepsRecorder
             ApplicationConfiguration.Initialize();
 
             // Load persisted recording settings (arrow colour, indicator style)
-            RecordingSettings.Load().Apply();
+            BSRSettings.Load().Apply();
 
             // Create the spool directory for this session
             Directory.CreateDirectory(SessionSpoolDir);

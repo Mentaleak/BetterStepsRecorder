@@ -14,17 +14,11 @@ namespace BetterStepsRecorder.UI.Settings
         {
             InitializeComponent();
             LoadSettings();
-
-            // Auto-save when selection changes
-            rdoCropped.CheckedChanged += RadioButton_CheckedChanged;
-            rdoActiveWindow.CheckedChanged += RadioButton_CheckedChanged;
-            rdoActiveScreen.CheckedChanged += RadioButton_CheckedChanged;
-            rdoAllScreens.CheckedChanged += RadioButton_CheckedChanged;
         }
 
         private void LoadSettings()
         {
-            var settings = RecordingSettings.Load();
+            var settings = BSRSettings.Load();
 
             rdoCropped.Checked = settings.ClickScreenshotMode == ClickScreenshotMode.Cropped;
             rdoActiveWindow.Checked = settings.ClickScreenshotMode == ClickScreenshotMode.ActiveWindow;
@@ -34,10 +28,10 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void RadioButton_CheckedChanged(object sender, EventArgs e)
         {
-            // Only save when a radio button is checked (not when unchecked)
-            if (sender is RadioButton rb && rb.Checked)
+            if (sender is RadioButton { Checked: true, Tag: ClickScreenshotMode mode })
             {
-                SaveSettings();
+                Program.ClickScreenshotMode = mode;
+                BSRSettings.SaveCurrent();
 
                 // Update the parent form's node states
                 if (ParentForm is Settings settingsForm)
@@ -45,23 +39,6 @@ namespace BetterStepsRecorder.UI.Settings
                     settingsForm.UpdateNodeStates();
                 }
             }
-        }
-
-        private void SaveSettings()
-        {
-            ClickScreenshotMode selectedMode;
-
-            if (rdoAllScreens.Checked)
-                selectedMode = ClickScreenshotMode.AllScreens;
-            else if (rdoActiveScreen.Checked)
-                selectedMode = ClickScreenshotMode.ActiveScreen;
-            else if (rdoActiveWindow.Checked)
-                selectedMode = ClickScreenshotMode.ActiveWindow;
-            else
-                selectedMode = ClickScreenshotMode.Cropped;
-
-            Program.ClickScreenshotMode = selectedMode;
-            RecordingSettings.SaveCurrent();
         }
     }
 }
