@@ -15,19 +15,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            var originalValue = BSRSettings.Current.ClickCroppedPadding;
-            var clampedValue = Math.Clamp(originalValue, 
-                                          BSRSettings.Bounds.MinCroppedPadding, 
-                                          BSRSettings.Bounds.MaxCroppedPadding);
-
-            nudPadding.Value = clampedValue;
-
-            // If clamping occurred, save the corrected value back to settings
-            if (clampedValue != originalValue)
-            {
-                BSRSettings.Current.ClickCroppedPadding = clampedValue;
-                BSRSettings.Current.Save();
-            }
+            nudPadding.Value = BSRSettings.Current.ClickCroppedPadding;
         }
 
         private void NudPadding_ValueChanged(object sender, EventArgs e)

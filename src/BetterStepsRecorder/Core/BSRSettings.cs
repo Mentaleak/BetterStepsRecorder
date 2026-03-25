@@ -126,7 +126,12 @@ namespace BetterStepsRecorder
 
         public ClickScreenshotMode ClickScreenshotMode { get; set; } = Defaults.ClickScreenshotMode;
 
-        public int ClickCroppedPadding { get; set; } = Defaults.ClickCroppedPadding;
+        private int _clickCroppedPadding = Defaults.ClickCroppedPadding;
+        public int ClickCroppedPadding
+        {
+            get => _clickCroppedPadding;
+            set => _clickCroppedPadding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
+        }
 
         // ── Drag Screenshot Settings ──────────────────────────────────────────
 
@@ -134,7 +139,12 @@ namespace BetterStepsRecorder
 
         public FallbackDragScreenshotMode DragFallbackMode { get; set; } = Defaults.DragFallbackMode;
 
-        public int DragCroppedPadding { get; set; } = Defaults.DragCroppedPadding;
+        private int _dragCroppedPadding = Defaults.DragCroppedPadding;
+        public int DragCroppedPadding
+        {
+            get => _dragCroppedPadding;
+            set => _dragCroppedPadding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
+        }
 
         // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -203,19 +213,55 @@ namespace BetterStepsRecorder
 
         // ── Persistence ────────────────────────────────────────────────────────
 
+        /// <summary>Validates and clamps all settings values to their valid ranges.</summary>
+        private void ValidateAndClamp()
+        {
+            // Properties with validation in setters will auto-clamp when assigned
+            // Force clamping by re-assigning to trigger setters
+            ClickCroppedPadding = _clickCroppedPadding;
+            DragCroppedPadding = _dragCroppedPadding;
+        }
+
+        /// <summary>Auto-heals and saves settings if any values were clamped during validation.</summary>
+        private void AutoHealIfNeeded()
+        {
+            int originalClick = _clickCroppedPadding;
+            int originalDrag = _dragCroppedPadding;
+
+            ValidateAndClamp();
+
+            // If clamping occurred, save the healed values back to disk
+            if (_clickCroppedPadding != originalClick || 
+                _dragCroppedPadding != originalDrag)
+            {
+                Save();
+            }
+        }
+
         /// <summary>Loads settings from disk.</summary>
         private static BSRSettings Load()
         {
+            BSRSettings settings;
             try
             {
                 if (File.Exists(SettingsPath))
                 {
                     string json = File.ReadAllText(SettingsPath);
-                    return JsonSerializer.Deserialize<BSRSettings>(json) ?? new BSRSettings();
+                    settings = JsonSerializer.Deserialize<BSRSettings>(json) ?? new BSRSettings();
+                }
+                else
+                {
+                    settings = new BSRSettings();
                 }
             }
-            catch { }
-            return new BSRSettings();
+            catch
+            {
+                settings = new BSRSettings();
+            }
+
+            settings.AutoHealIfNeeded();
+
+            return settings;
         }
 
         /// <summary>Reloads settings from disk and updates the singleton instance.</summary>
