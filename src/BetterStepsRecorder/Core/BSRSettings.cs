@@ -65,6 +65,15 @@ namespace BetterStepsRecorder
         private static readonly object _lock = new object();
 
         /// <summary>
+        /// Validation constants for settings bounds.
+        /// </summary>
+        public static class Bounds
+        {
+            public const int MinCroppedPadding = 50;
+            public const int MaxCroppedPadding = 500;
+        }
+
+        /// <summary>
         /// Gets the current settings instance (singleton).
         /// </summary>
         public static BSRSettings Current

@@ -56,12 +56,12 @@ namespace BetterStepsRecorder.UI.Settings
             // nudPadding
             // 
             nudPadding.Location = new Point(124, 63);
-            nudPadding.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
-            nudPadding.Minimum = new decimal(new int[] { 50, 0, 0, 0 });
+            nudPadding.Maximum = new decimal(new int[] { BSRSettings.Bounds.MaxCroppedPadding, 0, 0, 0 });
+            nudPadding.Minimum = new decimal(new int[] { BSRSettings.Bounds.MinCroppedPadding, 0, 0, 0 });
             nudPadding.Name = "nudPadding";
             nudPadding.Size = new Size(80, 27);
             nudPadding.TabIndex = 2;
-            nudPadding.Value = new decimal(new int[] { 120, 0, 0, 0 });
+            nudPadding.Value = new decimal(new int[] { BSRSettings.Defaults.DragCroppedPadding, 0, 0, 0 });
             // 
             // ScreenshotDragCropped
             // 
