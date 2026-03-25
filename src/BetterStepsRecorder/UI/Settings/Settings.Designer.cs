@@ -52,6 +52,7 @@
             // 
             // treeView_Settings
             // 
+            treeView_Settings.Font = new Font("Segoe UI", 11.25F, FontStyle.Bold);
             treeView_Settings.Location = new Point(12, 45);
             treeView_Settings.Name = "treeView_Settings";
             treeNode1.Name = "Settings_General";

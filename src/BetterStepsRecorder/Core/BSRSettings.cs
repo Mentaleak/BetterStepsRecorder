@@ -264,16 +264,6 @@ namespace BetterStepsRecorder
             return settings;
         }
 
-        /// <summary>Reloads settings from disk and updates the singleton instance.</summary>
-        public static void Reload()
-        {
-            lock (_lock)
-            {
-                _instance = Load();
-                _instance.Apply();
-            }
-        }
-
         public void Save()
         {
             try
