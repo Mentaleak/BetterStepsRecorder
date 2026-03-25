@@ -53,9 +53,9 @@
 
   <Target Name="CopyUpdater" AfterTargets="BuildUpdater">
     <PropertyGroup>
-      <_UpdaterSource>$(MSBuildThisFileDirectory)..\Updater\bin\$(Configuration)\net10.0-windows7.0\Updater.exe</_UpdaterSource>
+      <_UpdaterOut>$(MSBuildThisFileDirectory)..\Updater\bin\$(Configuration)\net10.0-windows7.0\</_UpdaterOut>
     </PropertyGroup>
-    <Copy SourceFiles="$(_UpdaterSource)"
+    <Copy SourceFiles="$(_UpdaterOut)Updater.exe;$(_UpdaterOut)Updater.dll;$(_UpdaterOut)Updater.runtimeconfig.json;$(_UpdaterOut)Updater.deps.json"
           DestinationFolder="$(OutputPath)"
           SkipUnchangedFiles="true" />
   </Target>

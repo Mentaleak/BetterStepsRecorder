@@ -2,7 +2,7 @@
   "profiles": {
     "BetterStepsRecorder": {
       "commandName": "Project",
-      "commandLineArgs": "--force-update-check"
+      "commandLineArgs": "--force-update-check --test-update-check"
     }
   }
 }

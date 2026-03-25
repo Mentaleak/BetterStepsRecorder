@@ -139,14 +139,11 @@ namespace BetterStepsRecorder
                 if (!File.Exists(updaterInExtract))
                     return false;
 
-                // Stage Updater.exe to temp so it is not locked by the install-path copy
-                string stagedUpdater = Path.Combine(Path.GetTempPath(), "BSRUpdater.exe");
-                File.Copy(updaterInExtract, stagedUpdater, overwrite: true);
-
-                // Launch the staged updater
+                // Launch Updater.exe directly from the extracted folder —
+                // all its runtime dependencies are already alongside it there
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = stagedUpdater,
+                    FileName = updaterInExtract,
                     Arguments = $"\"{installPath}\" \"{exeFilename}\"",
                     UseShellExecute = true
                 });
