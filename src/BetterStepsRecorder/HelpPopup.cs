@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -8,36 +7,27 @@ namespace BetterStepsRecorder
 {
     public partial class HelpPopup : Form
     {
-        private const string ReleasesUrl = "https://github.com/Mentaleak/BetterStepsRecorder/releases";
+        private const string RepoUrl = "https://github.com/Mentaleak/BetterStepsRecorder";
+        private const string ReleasesUrl = RepoUrl + "/releases";
+
+        private string _pendingDownloadUrl = string.Empty;
 
         public HelpPopup()
         {
             InitializeComponent();
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://github.com/Mentaleak/BetterStepsRecorder",
-                UseShellExecute = true
-            });
-        }
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => OpenUrl(RepoUrl);
+        private void linkLabelReleasesPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => OpenUrl(ReleasesUrl);
+        private void button_CloseHelp_Click(object sender, EventArgs e) => Close();
 
-        private void button_CloseHelp_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private string GetVersion()
-        {
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-            return version != null ? version.ToString() : "Unknown Version";
-        }
+        private static void OpenUrl(string url) =>
+            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
 
         private async void HelpPopup_Load(object sender, EventArgs e)
         {
-            VersionLabel.Text = $"Version: {GetVersion()}";
+            string version = UpdaterService.CurrentVersion?.ToString() ?? "Unknown Version";
+            VersionLabel.Text = $"Version: {version}";
             await RunUpdateCheckAsync();
         }
 
@@ -58,8 +48,8 @@ namespace BetterStepsRecorder
             else if (result.IsUpdateAvailable)
             {
                 labelUpdateStatus.Text = $"Version {result.LatestVersion} is available.";
+                _pendingDownloadUrl = result.DownloadUrl;
                 buttonDownloadInstall.Visible = true;
-                buttonDownloadInstall.Tag = result.DownloadUrl;
             }
             else
             {
@@ -73,8 +63,7 @@ namespace BetterStepsRecorder
             buttonDownloadInstall.Text = "Updating…";
             linkLabelReleasesPage.Visible = false;
 
-            string downloadUrl = buttonDownloadInstall.Tag as string ?? string.Empty;
-            bool success = await UpdaterService.DownloadAndApplyUpdateAsync(downloadUrl);
+            bool success = await UpdaterService.DownloadAndApplyUpdateAsync(_pendingDownloadUrl);
 
             if (!success)
             {
@@ -84,15 +73,6 @@ namespace BetterStepsRecorder
                 linkLabelReleasesPage.Visible = true;
             }
             // On success the app shuts down — we never reach here.
-        }
-
-        private void linkLabelReleasesPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = ReleasesUrl,
-                UseShellExecute = true
-            });
         }
     }
 }

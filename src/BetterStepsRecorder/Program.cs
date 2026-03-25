@@ -37,15 +37,18 @@ namespace BetterStepsRecorder
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "BetterStepsRecorder", "spool", Guid.NewGuid().ToString("N"));
 
+        private const string ArgForceUpdate = "--force-update-check";
+        private const string ArgTestUpdate = "--test-update-check";
+
         [STAThread]
         static void Main()
         {
             // Parse CLI flags before anything else
             foreach (string arg in Environment.GetCommandLineArgs())
             {
-                if (arg.Equals("--force-update-check", StringComparison.OrdinalIgnoreCase))
+                if (arg.Equals(ArgForceUpdate, StringComparison.OrdinalIgnoreCase))
                     UpdaterService.ForceUpdateCheck = true;
-                else if (arg.Equals("--test-update-check", StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(ArgTestUpdate, StringComparison.OrdinalIgnoreCase))
                     UpdaterService.TestUpdateCheck = true;
             }
 

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Updater
@@ -11,50 +12,52 @@ namespace Updater
         static void Main(string[] args)
         {
             string logPath = Path.Combine(Path.GetTempPath(), "BSRUpdater.log");
+            var log = new StringBuilder();
             try
             {
-                File.WriteAllText(logPath, $"[start] args={args.Length}\n");
+                log.AppendLine($"[start] args={args.Length}");
 
                 if (args.Length < 2)
                 {
-                    File.AppendAllText(logPath, "[abort] fewer than 2 args\n");
+                    log.AppendLine("[abort] fewer than 2 args");
                     return;
                 }
 
                 string installPath = args[0];
                 string exeFilename = args[1];
-                File.AppendAllText(logPath, $"[args] installPath={installPath} exeFilename={exeFilename}\n");
+                log.AppendLine($"[args] installPath={installPath} exeFilename={exeFilename}");
 
-                // Poll for BSR process exit — max 10 seconds, 500ms interval
                 bool exited = WaitForProcessExit(exeFilename, timeoutMs: 10_000, intervalMs: 500);
-                File.AppendAllText(logPath, $"[wait] exited={exited}\n");
+                log.AppendLine($"[wait] exited={exited}");
                 if (!exited)
-                    return; // Abort — process still running, do not modify any files
+                    return;
 
                 string updateDir = Path.Combine(Path.GetTempPath(), "BSR_update");
-                File.AppendAllText(logPath, $"[updateDir] exists={Directory.Exists(updateDir)}\n");
+                log.AppendLine($"[updateDir] exists={Directory.Exists(updateDir)}");
 
-                // Copy all files from %TEMP%\BSR_update\ to install path, overwriting
-                foreach (string sourceFile in Directory.GetFiles(updateDir))
+                foreach (string sourceFile in Directory.EnumerateFiles(updateDir))
                 {
                     string destFile = Path.Combine(installPath, Path.GetFileName(sourceFile));
-                    File.AppendAllText(logPath, $"[copy] {sourceFile} -> {destFile}\n");
+                    log.AppendLine($"[copy] {sourceFile} -> {destFile}");
                     File.Copy(sourceFile, destFile, overwrite: true);
                 }
 
-                // Relaunch BSR
                 string bsrExe = Path.Combine(installPath, exeFilename);
-                File.AppendAllText(logPath, $"[launch] {bsrExe}\n");
+                log.AppendLine($"[launch] {bsrExe}");
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = bsrExe,
                     UseShellExecute = true
                 });
-                File.AppendAllText(logPath, "[done]\n");
+                log.AppendLine("[done]");
             }
             catch (Exception ex)
             {
-                try { File.AppendAllText(logPath, $"[exception] {ex}\n"); } catch { }
+                log.AppendLine($"[exception] {ex}");
+            }
+            finally
+            {
+                try { File.WriteAllText(logPath, log.ToString()); } catch { }
             }
         }
 

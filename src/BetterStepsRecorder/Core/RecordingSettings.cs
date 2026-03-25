@@ -51,13 +51,14 @@ namespace BetterStepsRecorder
             return new RecordingSettings();
         }
 
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+
         public void Save()
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
-                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsPath, json);
+                Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath)!);
+                File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, _jsonOptions));
             }
             catch { }
         }

@@ -20,6 +20,10 @@ namespace BetterStepsRecorder
         private const string ReleasesApiUrl =
             "https://api.github.com/repos/Mentaleak/BetterStepsRecorder/releases/latest";
 
+        /// <summary>Current assembly version, resolved once at startup.</summary>
+        public static readonly Version? CurrentVersion =
+            Assembly.GetExecutingAssembly().GetName().Version;
+
         /// <summary>
         /// When true, version comparison is skipped and any returned release is treated as newer.
         /// Set at startup when --force-update-check is present on the command line.
@@ -32,7 +36,9 @@ namespace BetterStepsRecorder
         /// </summary>
         public static bool TestUpdateCheck { get; set; }
 
-        // Single shared HttpClient — not disposed between calls
+        /// <summary>Cached result from the last check — avoids duplicate API calls within a session.</summary>
+        private static UpdateCheckResult? _cachedResult;
+
         private static readonly HttpClient _http = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(10)
@@ -43,9 +49,15 @@ namespace BetterStepsRecorder
             _http.DefaultRequestHeaders.UserAgent.ParseAdd("BetterStepsRecorder");
         }
 
-        /// <summary>Queries the GitHub releases API and returns whether a newer version exists.</summary>
+        /// <summary>
+        /// Queries the GitHub releases API and returns whether a newer version exists.
+        /// Result is cached for the lifetime of the process — subsequent calls return the cached value.
+        /// </summary>
         public static async Task<UpdateCheckResult> CheckForUpdateAsync()
         {
+            if (_cachedResult != null)
+                return _cachedResult;
+
             try
             {
                 string json = await _http.GetStringAsync(ReleasesApiUrl);
@@ -64,26 +76,19 @@ namespace BetterStepsRecorder
                 // Strip leading 'v' from tag (e.g. "v2026.3.20.0" → "2026.3.20.0")
                 string versionStr = tagName.TrimStart('v');
 
-                bool isNewer;
-                if (ForceUpdateCheck)
-                {
-                    isNewer = true;
-                }
-                else
-                {
-                    Version? current = Assembly.GetExecutingAssembly().GetName().Version;
-                    isNewer = Version.TryParse(versionStr, out Version? latest) &&
-                              latest != null &&
-                              current != null &&
-                              latest > current;
-                }
+                bool isNewer = ForceUpdateCheck ||
+                               (Version.TryParse(versionStr, out Version? latest) &&
+                                latest != null &&
+                                CurrentVersion != null &&
+                                latest > CurrentVersion);
 
-                return new UpdateCheckResult
+                _cachedResult = new UpdateCheckResult
                 {
                     IsUpdateAvailable = isNewer,
                     LatestVersion = versionStr,
                     DownloadUrl = downloadUrl
                 };
+                return _cachedResult;
             }
             catch (Exception ex)
             {
