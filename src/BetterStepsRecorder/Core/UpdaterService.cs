@@ -26,6 +26,12 @@ namespace BetterStepsRecorder
         /// </summary>
         public static bool ForceUpdateCheck { get; set; }
 
+        /// <summary>
+        /// When true, the download step is skipped and %TEMP%\BSR_update.zip is used directly.
+        /// Set at startup when --test-update-check is present on the command line.
+        /// </summary>
+        public static bool TestUpdateCheck { get; set; }
+
         // Single shared HttpClient — not disposed between calls
         private static readonly HttpClient _http = new HttpClient
         {
@@ -108,14 +114,19 @@ namespace BetterStepsRecorder
                 string tempZip = Path.Combine(Path.GetTempPath(), "BSR_update.zip");
                 string updateDir = Path.Combine(Path.GetTempPath(), "BSR_update");
 
-                // Download zip
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60)))
-                using (HttpResponseMessage response = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token))
+                // Download zip (skipped when --test-update-check is active)
+                if (!TestUpdateCheck)
                 {
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+                    using HttpResponseMessage response = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token);
                     response.EnsureSuccessStatusCode();
                     using Stream stream = await response.Content.ReadAsStreamAsync(cts.Token);
                     using FileStream fs = new FileStream(tempZip, FileMode.Create, FileAccess.Write, FileShare.None);
                     await stream.CopyToAsync(fs, cts.Token);
+                }
+                else if (!File.Exists(tempZip))
+                {
+                    return false; // test mode but no local zip found
                 }
 
                 // Extract zip, overwriting previous contents

@@ -44,10 +44,9 @@ namespace BetterStepsRecorder
             foreach (string arg in Environment.GetCommandLineArgs())
             {
                 if (arg.Equals("--force-update-check", StringComparison.OrdinalIgnoreCase))
-                {
                     UpdaterService.ForceUpdateCheck = true;
-                    break;
-                }
+                else if (arg.Equals("--test-update-check", StringComparison.OrdinalIgnoreCase))
+                    UpdaterService.TestUpdateCheck = true;
             }
 
             ApplicationConfiguration.Initialize();
