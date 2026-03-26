@@ -117,7 +117,8 @@ namespace BetterStepsRecorder
 
         // ── Indicator Settings ────────────────────────────────────────────────
 
-        // Stored as ARGB int so System.Text.Json can round-trip it without a custom converter
+        // Stored as ARGB hex string (e.g., #FFFF00FF) for human readability
+        [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
         public int IndicatorColorArgb { get; set; } = Defaults.IndicatorColorArgb;
 
         public ClickIndicatorStyle IndicatorStyle { get; set; } = Defaults.IndicatorStyle;
