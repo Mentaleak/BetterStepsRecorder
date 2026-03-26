@@ -108,12 +108,12 @@ namespace BetterStepsRecorder
         {
             using (var dlg = new ColorDialog())
             {
-                dlg.Color = Program.ArrowColor;
+                dlg.Color = BSRSettings.Current.IndicatorColor;
                 dlg.FullOpen = true;
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    Program.ArrowColor = dlg.Color;
-                    BSRSettings.SaveCurrent();
+                    BSRSettings.Current.IndicatorColor = dlg.Color;
+                    BSRSettings.Current.Save();
                 }
             }
         }
@@ -123,12 +123,12 @@ namespace BetterStepsRecorder
         /// </summary>
         private void clickIndicatorStyleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var dlg = new UI.Dialogs.ClickIndicatorStyleDialog(Program.IndicatorStyle))
+            using (var dlg = new UI.Dialogs.ClickIndicatorStyleDialog(BSRSettings.Current.IndicatorStyle))
             {
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    Program.IndicatorStyle = dlg.SelectedStyle;
-                    BSRSettings.SaveCurrent();
+                    BSRSettings.Current.IndicatorStyle = dlg.SelectedStyle;
+                    BSRSettings.Current.Save();
                 }
             }
         }
@@ -138,12 +138,12 @@ namespace BetterStepsRecorder
         /// </summary>
         private void dragScreenshotModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var dlg = new UI.Dialogs.DragScreenshotModeDialog(Program.DragScreenshotMode))
+            using (var dlg = new UI.Dialogs.DragScreenshotModeDialog(BSRSettings.Current.DragScreenshotMode))
             {
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    Program.DragScreenshotMode = dlg.SelectedMode;
-                    BSRSettings.SaveCurrent();
+                    BSRSettings.Current.DragScreenshotMode = dlg.SelectedMode;
+                    BSRSettings.Current.Save();
                 }
             }
         }

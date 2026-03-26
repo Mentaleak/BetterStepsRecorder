@@ -18,7 +18,7 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            UpdateColorDisplay(BSRSettings.Current.ArrowColor);
+            UpdateColorDisplay(BSRSettings.Current.IndicatorColor);
         }
 
         private void UpdateColorDisplay(Color color)
@@ -31,7 +31,7 @@ namespace BetterStepsRecorder.UI.Settings
         {
             using (var dlg = new ColorDialog())
             {
-                dlg.Color = BSRSettings.Current.ArrowColor;
+                dlg.Color = BSRSettings.Current.IndicatorColor;
                 dlg.FullOpen = true;
 
                 if (dlg.ShowDialog(this) == DialogResult.OK)
@@ -44,8 +44,8 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void SaveColor(Color color)
         {
-            Program.ArrowColor = color;
-            BSRSettings.SaveCurrent();
+            BSRSettings.Current.IndicatorColor = color;
+            BSRSettings.Current.Save();
         }
     }
 }

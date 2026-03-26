@@ -30,8 +30,8 @@ namespace BetterStepsRecorder.UI.Settings
         {
             if (sender is RadioButton { Checked: true, Tag: ClickScreenshotMode mode })
             {
-                Program.ClickScreenshotMode = mode;
-                BSRSettings.SaveCurrent();
+                BSRSettings.Current.ClickScreenshotMode = mode;
+                BSRSettings.Current.Save();
 
                 // Update the parent form's node states
                 if (ParentForm is Settings settingsForm)

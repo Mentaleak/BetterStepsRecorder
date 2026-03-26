@@ -51,8 +51,8 @@ namespace BetterStepsRecorder.UI.Settings
                     fallbackMode = FallbackDragScreenshotMode.Cropped;
                     break;
             }
-            Program.DragFallbackMode = fallbackMode;
-            BSRSettings.SaveCurrent();
+            BSRSettings.Current.DragFallbackMode = fallbackMode;
+            BSRSettings.Current.Save();
 
             // Update the parent form's node states
             if (ParentForm is Settings settingsForm)

@@ -20,8 +20,8 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void NudPadding_ValueChanged(object sender, EventArgs e)
         {
-            Program.ClickCroppedPadding = (int)nudPadding.Value;
-            BSRSettings.SaveCurrent();
+            BSRSettings.Current.ClickCroppedPadding = (int)nudPadding.Value;
+            BSRSettings.Current.Save();
         }
     }
 }

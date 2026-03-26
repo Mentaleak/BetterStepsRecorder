@@ -52,14 +52,14 @@ namespace BetterStepsRecorder
 
     /// <summary>
     /// Persisted settings for the recording/capture behaviour.
-    /// Saved to %LOCALAPPDATA%\BetterStepsRecorder\recording.json.
+    /// Saved to %LOCALAPPDATA%\BetterStepsRecorder\bsrsettings.json.
     /// </summary>
     public class BSRSettings
     {
         private static readonly string SettingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "BetterStepsRecorder",
-            "recording.json");
+            "bsrsettings.json");
 
         private static BSRSettings? _instance;
         private static readonly object _lock = new object();
@@ -149,7 +149,7 @@ namespace BetterStepsRecorder
         // ── Helpers ────────────────────────────────────────────────────────────
 
         [JsonIgnore]
-        public Color ArrowColor
+        public Color IndicatorColor
         {
             get => Color.FromArgb(IndicatorColorArgb);
             set => IndicatorColorArgb = value.ToArgb();
@@ -184,7 +184,7 @@ namespace BetterStepsRecorder
             switch (settingName)
             {
                 case nameof(IndicatorColorArgb):
-                case nameof(ArrowColor):
+                case nameof(IndicatorColor):
                     IndicatorColorArgb = Defaults.IndicatorColorArgb;
                     break;
                 case nameof(IndicatorStyle):
@@ -273,38 +273,6 @@ namespace BetterStepsRecorder
                 File.WriteAllText(SettingsPath, json);
             }
             catch { }
-        }
-
-        /// <summary>Applies loaded values to the live Program static properties.</summary>
-        public void Apply()
-        {
-
-
-            // Indicator
-            Program.ArrowColor = ArrowColor;
-            Program.IndicatorStyle = IndicatorStyle;
-
-            // Click Screenshot
-            Program.ClickScreenshotMode = ClickScreenshotMode;
-            Program.ClickCroppedPadding = ClickCroppedPadding;
-
-            // Drag Screenshot
-            Program.DragScreenshotMode = DragScreenshotMode;
-            Program.DragFallbackMode = DragFallbackMode;
-            Program.DragCroppedPadding = DragCroppedPadding;
-        }
-
-        /// <summary>Snapshots the current live Program static properties and saves to disk.</summary>
-        public static void SaveCurrent()
-        {
-            Current.ArrowColor = Program.ArrowColor;
-            Current.IndicatorStyle = Program.IndicatorStyle;
-            Current.ClickScreenshotMode = Program.ClickScreenshotMode;
-            Current.ClickCroppedPadding = Program.ClickCroppedPadding;
-            Current.DragScreenshotMode = Program.DragScreenshotMode;
-            Current.DragFallbackMode = Program.DragFallbackMode;
-            Current.DragCroppedPadding = Program.DragCroppedPadding;
-            Current.Save();
         }
     }
 }

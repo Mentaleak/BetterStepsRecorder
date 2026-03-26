@@ -162,10 +162,10 @@ namespace BetterStepsRecorder
                                 bool multiWindowDrag = !RectsEqual(winRect, endWinRect);
 
                                 // Use fallback mode if ActiveWindow mode but drag spans multiple windows
-                                DragScreenshotMode effectiveMode = DragScreenshotMode;
+                                DragScreenshotMode effectiveMode = BSRSettings.Current.DragScreenshotMode;
                                 if (effectiveMode == DragScreenshotMode.ActiveWindow && multiWindowDrag)
                                 {
-                                    effectiveMode = (DragScreenshotMode)DragFallbackMode;
+                                    effectiveMode = (DragScreenshotMode)BSRSettings.Current.DragFallbackMode;
                                 }
 
                                 // Capture region: padded crop, active window, the screen containing the drag end, or all screens
@@ -196,7 +196,7 @@ namespace BetterStepsRecorder
                                 }
                                 else // Cropped
                                 {
-                                    int dragPad = DragCroppedPadding;
+                                    int dragPad = BSRSettings.Current.DragCroppedPadding;
                                     int cropRight  = Math.Min(SystemInformation.VirtualScreen.Right,  Math.Max(dragStart.X, dragEnd.X) + dragPad);
                                     int cropBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, Math.Max(dragStart.Y, dragEnd.Y) + dragPad);
                                     cropLeft = Math.Max(SystemInformation.VirtualScreen.Left, Math.Min(dragStart.X, dragEnd.X) - dragPad);
@@ -325,14 +325,14 @@ namespace BetterStepsRecorder
 
                                 // Determine screenshot region based on ClickScreenshotMode
                                 int captureLeft, captureTop, captureWidth, captureHeight;
-                                if (ClickScreenshotMode == ClickScreenshotMode.AllScreens)
+                                if (BSRSettings.Current.ClickScreenshotMode == ClickScreenshotMode.AllScreens)
                                 {
                                     captureLeft = SystemInformation.VirtualScreen.Left;
                                     captureTop = SystemInformation.VirtualScreen.Top;
                                     captureWidth = SystemInformation.VirtualScreen.Width;
                                     captureHeight = SystemInformation.VirtualScreen.Height;
                                 }
-                                else if (ClickScreenshotMode == ClickScreenshotMode.ActiveScreen)
+                                else if (BSRSettings.Current.ClickScreenshotMode == ClickScreenshotMode.ActiveScreen)
                                 {
                                     var screen = Screen.FromPoint(new System.Drawing.Point(cursorPos.X, cursorPos.Y));
                                     captureLeft = screen.Bounds.Left;
@@ -340,7 +340,7 @@ namespace BetterStepsRecorder
                                     captureWidth = screen.Bounds.Width;
                                     captureHeight = screen.Bounds.Height;
                                 }
-                                else if (ClickScreenshotMode == ClickScreenshotMode.ActiveWindow)
+                                else if (BSRSettings.Current.ClickScreenshotMode == ClickScreenshotMode.ActiveWindow)
                                 {
                                     captureLeft = rect.Left;
                                     captureTop = rect.Top;
@@ -349,7 +349,7 @@ namespace BetterStepsRecorder
                                 }
                                 else // Cropped
                                 {
-                                    int clickPad = ClickCroppedPadding;
+                                    int clickPad = BSRSettings.Current.ClickCroppedPadding;
                                     captureLeft = Math.Max(SystemInformation.VirtualScreen.Left, cursorPos.X - clickPad);
                                     captureTop = Math.Max(SystemInformation.VirtualScreen.Top, cursorPos.Y - clickPad);
                                     int captureRight = Math.Min(SystemInformation.VirtualScreen.Right, cursorPos.X + clickPad);

@@ -29,8 +29,8 @@ namespace BetterStepsRecorder.UI.Settings
         {
             if (sender is RadioButton { Checked: true, Tag: ClickIndicatorStyle style })
             {
-                Program.IndicatorStyle = style;
-                BSRSettings.SaveCurrent();
+                BSRSettings.Current.IndicatorStyle = style;
+                BSRSettings.Current.Save();
             }
         }
     }

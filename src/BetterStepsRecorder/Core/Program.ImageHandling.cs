@@ -61,20 +61,12 @@ namespace BetterStepsRecorder
         /// <param name="height">Height of the bitmap</param>
         /// <param name="offsetX">X offset of the bitmap</param>
         /// <param name="offsetY">Y offset of the bitmap</param>
-        public static Color ArrowColor { get; set; } = Color.Magenta;
-        public static ClickIndicatorStyle IndicatorStyle { get; set; } = ClickIndicatorStyle.Arrow;
-        public static ClickScreenshotMode ClickScreenshotMode { get; set; } = ClickScreenshotMode.Cropped;
-        public static DragScreenshotMode DragScreenshotMode { get; set; } = DragScreenshotMode.Cropped;
-        public static FallbackDragScreenshotMode DragFallbackMode { get; set; } = FallbackDragScreenshotMode.Cropped;
-        public static int ClickCroppedPadding { get; set; } = 200;
-        public static int DragCroppedPadding { get; set; } = 120;
-
         private static void DrawArrowAtCursor(Graphics gfx, int width, int height, int offsetX, int offsetY, POINT cursorPos)
         {
             int cursorX = cursorPos.X - offsetX;
             int cursorY = cursorPos.Y - offsetY;
 
-            switch (IndicatorStyle)
+            switch (BSRSettings.Current.IndicatorStyle)
             {
                 case ClickIndicatorStyle.Circle:
                     DrawCircleIndicator(gfx, cursorX, cursorY);
@@ -95,7 +87,7 @@ namespace BetterStepsRecorder
             int endY = cursorY < height / 2 ? cursorY + arrowLength : cursorY - arrowLength;
 
             using (var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(5, 5))
-            using (var arrowPen = new Pen(ArrowColor, 5))
+            using (var arrowPen = new Pen(BSRSettings.Current.IndicatorColor, 5))
             {
                 arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.Custom;
                 arrowPen.CustomEndCap = arrowCap;
@@ -109,16 +101,16 @@ namespace BetterStepsRecorder
             gfx.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             // Semi-transparent filled inner circle
-            using (var fill = new SolidBrush(Color.FromArgb(60, ArrowColor)))
+            using (var fill = new SolidBrush(Color.FromArgb(60, BSRSettings.Current.IndicatorColor)))
                 gfx.FillEllipse(fill, cursorX - radius, cursorY - radius, radius * 2, radius * 2);
 
             // Solid border ring
-            using (var border = new Pen(ArrowColor, 3.5f))
+            using (var border = new Pen(BSRSettings.Current.IndicatorColor, 3.5f))
                 gfx.DrawEllipse(border, cursorX - radius, cursorY - radius, radius * 2, radius * 2);
 
             // Small solid centre dot
             int dot = 5;
-            using (var dotBrush = new SolidBrush(ArrowColor))
+            using (var dotBrush = new SolidBrush(BSRSettings.Current.IndicatorColor))
                 gfx.FillEllipse(dotBrush, cursorX - dot, cursorY - dot, dot * 2, dot * 2);
         }
 
@@ -186,7 +178,7 @@ namespace BetterStepsRecorder
             using (var path = new System.Drawing.Drawing2D.GraphicsPath())
             {
                 path.AddBezier(sx, sy, c1x, c1y, c2x, c2y, baseX, baseY);
-                using (var pen = new Pen(ArrowColor, 4))
+                using (var pen = new Pen(BSRSettings.Current.IndicatorColor, 4))
                     gfx.DrawPath(pen, path);
             }
 
@@ -196,7 +188,7 @@ namespace BetterStepsRecorder
                 PointF tip   = new PointF(tipX, tipY);
                 PointF base1 = new PointF(baseX + px * aw, baseY + py * aw);
                 PointF base2 = new PointF(baseX - px * aw, baseY - py * aw);
-                using (var brush = new SolidBrush(ArrowColor))
+                using (var brush = new SolidBrush(BSRSettings.Current.IndicatorColor))
                     gfx.FillPolygon(brush, new[] { tip, base1, base2 });
             }
 
@@ -207,7 +199,7 @@ namespace BetterStepsRecorder
 
             // START: semi-transparent circle with a white "1" label
             int scx = ClampX(sx), scy = ClampY(sy);
-            using (var fill = new SolidBrush(Color.FromArgb(160, ArrowColor)))
+            using (var fill = new SolidBrush(Color.FromArgb(160, BSRSettings.Current.IndicatorColor)))
                 gfx.FillEllipse(fill, scx - r, scy - r, r * 2, r * 2);
             using (var border = new Pen(Color.White, 2f))
                 gfx.DrawEllipse(border, scx - r, scy - r, r * 2, r * 2);
@@ -218,7 +210,7 @@ namespace BetterStepsRecorder
 
             // END: filled circle with a white "2" label
             int ecx = ClampX(ex), ecy = ClampY(ey);
-            using (var fill = new SolidBrush(Color.FromArgb(220, ArrowColor)))
+            using (var fill = new SolidBrush(Color.FromArgb(220, BSRSettings.Current.IndicatorColor)))
                 gfx.FillEllipse(fill, ecx - r, ecy - r, r * 2, r * 2);
             using (var border = new Pen(Color.White, 2f))
                 gfx.DrawEllipse(border, ecx - r, ecy - r, r * 2, r * 2);
@@ -253,7 +245,7 @@ namespace BetterStepsRecorder
             }
 
             // Filled with indicator colour
-            using (var fill = new SolidBrush(ArrowColor))
+            using (var fill = new SolidBrush(BSRSettings.Current.IndicatorColor))
                 gfx.FillPolygon(fill, cursorPoly);
         }
 
