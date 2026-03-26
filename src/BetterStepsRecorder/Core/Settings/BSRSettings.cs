@@ -287,7 +287,11 @@ namespace BetterStepsRecorder
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(SettingsPath));
+                string? directoryPath = Path.GetDirectoryName(SettingsPath);
+                if (!string.IsNullOrEmpty(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(SettingsPath, json);
             }
