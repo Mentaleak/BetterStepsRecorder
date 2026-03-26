@@ -243,6 +243,11 @@
             undoToolStripButton.ToolTipText = "Undo last annotation (Ctrl+Z)";
             undoToolStripButton.Click += undoToolStripButton_Click;
             // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(6, 27);
+            // 
             // blurRegionToolStripButton
             // 
             blurRegionToolStripButton.CheckOnClick = true;
@@ -269,6 +274,11 @@
             highlightColourToolStripButton.ToolTipText = "Pick highlight colour";
             highlightColourToolStripButton.Click += highlightColourToolStripButton_Click;
             // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(6, 27);
+            // 
             // textLabelToolStripButton
             // 
             textLabelToolStripButton.CheckOnClick = true;
@@ -287,6 +297,11 @@
             arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
             arrowToolStripButton.Click += arrowToolStripButton_Click;
             // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(6, 27);
+            // 
             // cropToolStripButton
             // 
             cropToolStripButton.CheckOnClick = true;
@@ -295,21 +310,6 @@
             cropToolStripButton.Text = "Crop";
             cropToolStripButton.ToolTipText = "Crop the screenshot to the selected area";
             cropToolStripButton.Click += cropToolStripButton_Click;
-            // 
-            // toolStripSeparator2
-            // 
-            toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(6, 27);
-            // 
-            // toolStripSeparator3
-            // 
-            toolStripSeparator3.Name = "toolStripSeparator3";
-            toolStripSeparator3.Size = new Size(6, 27);
-            // 
-            // toolStripSeparator4
-            // 
-            toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(6, 27);
             // 
             // richTextBox_stepText
             // 
@@ -343,14 +343,14 @@
             // newToolStripMenuItem
             // 
             newToolStripMenuItem.Name = "newToolStripMenuItem";
-            newToolStripMenuItem.Size = new Size(129, 24);
+            newToolStripMenuItem.Size = new Size(180, 24);
             newToolStripMenuItem.Text = "New";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(129, 24);
+            openToolStripMenuItem.Size = new Size(180, 24);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
@@ -358,26 +358,26 @@
             // 
             toolStripMenuItem1_SaveAs.Enabled = false;
             toolStripMenuItem1_SaveAs.Name = "toolStripMenuItem1_SaveAs";
-            toolStripMenuItem1_SaveAs.Size = new Size(129, 24);
+            toolStripMenuItem1_SaveAs.Size = new Size(180, 24);
             toolStripMenuItem1_SaveAs.Text = "Save As";
             toolStripMenuItem1_SaveAs.Click += toolStripMenuItem1_SaveAs_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(126, 6);
+            toolStripSeparator1.Size = new Size(177, 6);
             // 
             // exportToolStripMenuItem
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
             exportToolStripMenuItem.Enabled = false;
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(129, 24);
+            exportToolStripMenuItem.Size = new Size(180, 24);
             exportToolStripMenuItem.Text = "Export";
             // 
             // exportToFileToolStripMenuItem
             // 
-            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem });
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
             exportToFileToolStripMenuItem.Size = new Size(194, 24);
             exportToFileToolStripMenuItem.Text = "To File";
@@ -385,21 +385,21 @@
             // exportToRtfToolStripMenuItem
             // 
             exportToRtfToolStripMenuItem.Name = "exportToRtfToolStripMenuItem";
-            exportToRtfToolStripMenuItem.Size = new Size(117, 24);
+            exportToRtfToolStripMenuItem.Size = new Size(180, 24);
             exportToRtfToolStripMenuItem.Text = "RTF";
             exportToRtfToolStripMenuItem.Click += exportToRtfToolStripMenuItem_Click;
             // 
             // exportToHtmlToolStripMenuItem
             // 
             exportToHtmlToolStripMenuItem.Name = "exportToHtmlToolStripMenuItem";
-            exportToHtmlToolStripMenuItem.Size = new Size(117, 24);
+            exportToHtmlToolStripMenuItem.Size = new Size(180, 24);
             exportToHtmlToolStripMenuItem.Text = "HTML";
             exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
             // 
             // exportToOdtToolStripMenuItem
             // 
             exportToOdtToolStripMenuItem.Name = "exportToOdtToolStripMenuItem";
-            exportToOdtToolStripMenuItem.Size = new Size(117, 24);
+            exportToOdtToolStripMenuItem.Size = new Size(180, 24);
             exportToOdtToolStripMenuItem.Text = "ODT";
             exportToOdtToolStripMenuItem.Click += exportToOdtToolStripMenuItem_Click;
             // 

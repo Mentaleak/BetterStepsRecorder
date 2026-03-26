@@ -119,18 +119,6 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Opens the HTML export options dialog
-        /// </summary>
-        private void htmlExportOptionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var settings = HtmlExportSettings.Load();
-            using (var dlg = new UI.Dialogs.HtmlExportSettingsDialog(settings))
-            {
-                dlg.ShowDialog(this);
-            }
-        }
-
-        /// <summary>
         /// Shows the help popup
         /// </summary>
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)

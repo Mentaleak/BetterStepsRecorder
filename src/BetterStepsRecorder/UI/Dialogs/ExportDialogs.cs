@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using BetterStepsRecorder.Exporters;
+using BetterStepsRecorder.UI.Dialogs.Obsidian;
 
 namespace BetterStepsRecorder.UI.Dialogs
 {

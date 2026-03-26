@@ -2,10 +2,11 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace BetterStepsRecorder.UI.Dialogs
+namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 {
     /// <summary>
     /// A dialog that prompts the user to enter a file name
+    ///  USED BY OBSIDIAN PLUGIN EXPORTER
     /// </summary>
     public class FileNamePrompt : Form
     {
