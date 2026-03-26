@@ -119,21 +119,6 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Opens the click indicator style picker
-        /// </summary>
-        private void clickIndicatorStyleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new UI.Dialogs.ClickIndicatorStyleDialog(BSRSettings.Current.IndicatorStyle))
-            {
-                if (dlg.ShowDialog(this) == DialogResult.OK)
-                {
-                    BSRSettings.Current.IndicatorStyle = dlg.SelectedStyle;
-                    BSRSettings.Current.Save();
-                }
-            }
-        }
-
-        /// <summary>
         /// Opens the drag screenshot mode picker
         /// </summary>
         private void dragScreenshotModeToolStripMenuItem_Click(object sender, EventArgs e)
