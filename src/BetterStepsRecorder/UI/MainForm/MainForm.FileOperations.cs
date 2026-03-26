@@ -119,22 +119,6 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Opens the drag screenshot mode picker
-        /// </summary>
-        private void dragScreenshotModeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new UI.Dialogs.DragScreenshotModeDialog(BSRSettings.Current.DragScreenshotMode))
-            {
-                if (dlg.ShowDialog(this) == DialogResult.OK)
-                {
-                    BSRSettings.Current.DragScreenshotMode = dlg.SelectedMode;
-                    BSRSettings.Current.Save();
-                }
-            }
-        }
-
-
-        /// <summary>
         /// Opens the HTML export options dialog
         /// </summary>
         private void htmlExportOptionsToolStripMenuItem_Click(object sender, EventArgs e)
