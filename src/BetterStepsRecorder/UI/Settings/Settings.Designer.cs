@@ -48,6 +48,9 @@
             treeView_Settings = new TreeView();
             textBox_SearchSettings = new TextBox();
             panel_settings = new Panel();
+            button_settings_default = new Button();
+            button_settings_import = new Button();
+            button_settings_export = new Button();
             SuspendLayout();
             // 
             // treeView_Settings
@@ -95,14 +98,47 @@
             // 
             panel_settings.Location = new Point(262, 12);
             panel_settings.Name = "panel_settings";
-            panel_settings.Size = new Size(600, 430);
+            panel_settings.Size = new Size(600, 440);
             panel_settings.TabIndex = 2;
+            // 
+            // button_settings_default
+            // 
+            button_settings_default.Location = new Point(12, 419);
+            button_settings_default.Name = "button_settings_default";
+            button_settings_default.Size = new Size(75, 33);
+            button_settings_default.TabIndex = 3;
+            button_settings_default.Text = "Defaults";
+            button_settings_default.UseVisualStyleBackColor = true;
+            button_settings_default.Click += button_settings_default_Click;
+            // 
+            // button_settings_import
+            // 
+            button_settings_import.Location = new Point(93, 419);
+            button_settings_import.Name = "button_settings_import";
+            button_settings_import.Size = new Size(75, 33);
+            button_settings_import.TabIndex = 4;
+            button_settings_import.Text = "Import";
+            button_settings_import.UseVisualStyleBackColor = true;
+            button_settings_import.Click += button_settings_import_Click;
+            // 
+            // button_settings_export
+            // 
+            button_settings_export.Location = new Point(174, 419);
+            button_settings_export.Name = "button_settings_export";
+            button_settings_export.Size = new Size(75, 33);
+            button_settings_export.TabIndex = 5;
+            button_settings_export.Text = "Export";
+            button_settings_export.UseVisualStyleBackColor = true;
+            button_settings_export.Click += button_settings_export_Click;
             // 
             // Settings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(874, 454);
+            ClientSize = new Size(874, 460);
+            Controls.Add(button_settings_export);
+            Controls.Add(button_settings_import);
+            Controls.Add(button_settings_default);
             Controls.Add(panel_settings);
             Controls.Add(textBox_SearchSettings);
             Controls.Add(treeView_Settings);
@@ -121,5 +157,8 @@
         private TreeView treeView_Settings;
         private TextBox textBox_SearchSettings;
         private Panel panel_settings;
+        private Button button_settings_default;
+        private Button button_settings_import;
+        private Button button_settings_export;
     }
 }

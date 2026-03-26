@@ -275,5 +275,51 @@ namespace BetterStepsRecorder
             }
             catch { }
         }
+
+        /// <summary>Exports settings to a specified file path.</summary>
+        /// <param name="filePath">The file path to export to.</param>
+        /// <returns>True if export succeeded, false otherwise.</returns>
+        public bool Export(string filePath)
+        {
+            try
+            {
+                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(filePath, json);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Imports settings from a specified file path and updates the singleton.</summary>
+        /// <param name="filePath">The file path to import from.</param>
+        /// <returns>True if import succeeded, false otherwise.</returns>
+        public static bool Import(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath)) return false;
+
+                string json = File.ReadAllText(filePath);
+                var imported = JsonSerializer.Deserialize<BSRSettings>(json);
+                if (imported == null) return false;
+
+                imported.AutoHealIfNeeded();
+
+                lock (_lock)
+                {
+                    _instance = imported;
+                    _instance.Save();
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

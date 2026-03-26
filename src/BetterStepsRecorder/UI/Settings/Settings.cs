@@ -637,5 +637,143 @@ namespace BetterStepsRecorder.UI.Settings
                 ShowChildNodes(child);
             }
         }
+
+        private void button_settings_default_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "This will reset all settings to their default values.\n\nAll custom settings will be lost. Do you want to continue?",
+                "Reset to Defaults",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (result == DialogResult.Yes)
+            {
+                BSRSettings.Current.ResetToDefaults();
+                BSRSettings.Current.Save();
+
+                // Refresh the current view to show updated values
+                if (treeView_Settings.SelectedNode != null)
+                {
+                    var selectedNode = treeView_Settings.SelectedNode;
+
+                    // Reload the current view
+                    if (selectedNode.Nodes.Count > 0)
+                    {
+                        LoadCompositeView(selectedNode);
+                    }
+                    else
+                    {
+                        var newView = CreateControlForNode(selectedNode);
+                        if (newView != null)
+                        {
+                            LoadView(newView, selectedNode);
+                        }
+                    }
+                }
+
+                // Update node states
+                UpdateNodeStates();
+
+                MessageBox.Show(
+                    "All settings have been reset to their default values.",
+                    "Reset Complete",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+
+        private void button_settings_export_Click(object sender, EventArgs e)
+        {
+            using var dlg = new SaveFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                DefaultExt = "json",
+                FileName = "bsrsettings.json",
+                Title = "Export Settings"
+            };
+
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                if (BSRSettings.Current.Export(dlg.FileName))
+                {
+                    MessageBox.Show(
+                        $"Settings exported successfully to:\n{dlg.FileName}",
+                        "Export Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to export settings. Please check file permissions and try again.",
+                        "Export Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void button_settings_import_Click(object sender, EventArgs e)
+        {
+            DialogResult confirmResult = MessageBox.Show(
+                "This will overwrite all current settings with values from the imported file.\n\nAll current settings will be lost. Do you want to continue?",
+                "Import Settings",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirmResult != DialogResult.Yes) return;
+
+            using var dlg = new OpenFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*",
+                DefaultExt = "json",
+                Title = "Import Settings"
+            };
+
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                if (BSRSettings.Import(dlg.FileName))
+                {
+                    // Refresh the current view to show imported values
+                    if (treeView_Settings.SelectedNode != null)
+                    {
+                        var selectedNode = treeView_Settings.SelectedNode;
+
+                        // Reload the current view
+                        if (selectedNode.Nodes.Count > 0)
+                        {
+                            LoadCompositeView(selectedNode);
+                        }
+                        else
+                        {
+                            var newView = CreateControlForNode(selectedNode);
+                            if (newView != null)
+                            {
+                                LoadView(newView, selectedNode);
+                            }
+                        }
+                    }
+
+                    // Update node states
+                    UpdateNodeStates();
+
+                    MessageBox.Show(
+                        "Settings imported successfully.",
+                        "Import Complete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Failed to import settings. The file may be invalid or corrupted.",
+                        "Import Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
     }
 }
