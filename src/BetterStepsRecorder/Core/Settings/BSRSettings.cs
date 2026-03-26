@@ -168,31 +168,72 @@ namespace BetterStepsRecorder
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>Validates and clamps all settings values to their valid ranges.</summary>
-        private void ValidateAndClamp()
+        private bool ValidateAndClamp()
         {
-            // Clamp padding values
+            bool wasModified = false;
+
+            // Validate and clamp padding values
+            int originalClickPadding = Screenshot.Click.Cropped.Padding;
+            int originalDragPadding = Screenshot.Drag.Cropped.Padding;
+
             Screenshot.Click.Cropped.Padding = Math.Clamp(
                 Screenshot.Click.Cropped.Padding, 
                 Bounds.MinCroppedPadding, 
                 Bounds.MaxCroppedPadding);
-            
+
             Screenshot.Drag.Cropped.Padding = Math.Clamp(
                 Screenshot.Drag.Cropped.Padding, 
                 Bounds.MinCroppedPadding, 
                 Bounds.MaxCroppedPadding);
+
+            wasModified |= Screenshot.Click.Cropped.Padding != originalClickPadding;
+            wasModified |= Screenshot.Drag.Cropped.Padding != originalDragPadding;
+
+            // Validate color (ensure it's not fully transparent and has valid alpha channel)
+            var color = System.Drawing.Color.FromArgb(Indicator.Color);
+            if (color.A < 128) // If mostly transparent (less than 50% opacity), reset to default
+            {
+                Indicator.Color = Default.Indicator.Color;
+                wasModified = true;
+            }
+
+            // Validate enum values
+            if (!Enum.IsDefined(typeof(ClickIndicatorStyle), Indicator.Style))
+            {
+                Indicator.Style = Default.Indicator.Style;
+                wasModified = true;
+            }
+
+            if (!Enum.IsDefined(typeof(ClickScreenshotMode), Screenshot.Click.Mode))
+            {
+                Screenshot.Click.Mode = Default.Screenshot.Click.Mode;
+                wasModified = true;
+            }
+
+            if (!Enum.IsDefined(typeof(DragScreenshotMode), Screenshot.Drag.Mode))
+            {
+                Screenshot.Drag.Mode = Default.Screenshot.Drag.Mode;
+                wasModified = true;
+            }
+
+            if (!Enum.IsDefined(typeof(FallbackDragScreenshotMode), Screenshot.Drag.Fallback.Mode))
+            {
+                Screenshot.Drag.Fallback.Mode = Default.Screenshot.Drag.Fallback.Mode;
+                wasModified = true;
+            }
+
+            // Note: Boolean values don't need explicit validation as they're value types
+            // and JSON deserializer will use default (false) if invalid. The nested object
+            // initialization already handles null scenarios by creating new instances with
+            // proper default values from class initializers.
+
+            return wasModified;
         }
 
-        /// <summary>Auto-heals and saves settings if any values were clamped during validation.</summary>
+        /// <summary>Auto-heals and saves settings if any values were invalid or clamped during validation.</summary>
         private void AutoHealIfNeeded()
         {
-            int originalClick = Screenshot.Click.Cropped.Padding;
-            int originalDrag = Screenshot.Drag.Cropped.Padding;
-
-            ValidateAndClamp();
-
-            // If clamping occurred, save the healed values back to disk
-            if (Screenshot.Click.Cropped.Padding != originalClick || 
-                Screenshot.Drag.Cropped.Padding != originalDrag)
+            if (ValidateAndClamp())
             {
                 Save();
             }
@@ -227,7 +268,7 @@ namespace BetterStepsRecorder
                 }
 
                 // Migrate legacy HtmlExportSettings if they exist
-                settings.MigrateLegacyHtmlExportSettings();
+
             }
             catch
             {
@@ -239,32 +280,7 @@ namespace BetterStepsRecorder
             return settings;
         }
 
-        /// <summary>Migrates settings from legacy htmlexport.json if it exists and removes the old file.</summary>
-        private void MigrateLegacyHtmlExportSettings()
-        {
-            string legacyPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "BetterStepsRecorder",
-                "htmlexport.json");
 
-            try
-            {
-                if (File.Exists(legacyPath))
-                {
-                    string json = File.ReadAllText(legacyPath);
-                    var legacy = JsonSerializer.Deserialize<HtmlSettings>(json);
-                    if (legacy != null)
-                    {
-                        ExportOptions.Html = legacy;
-                        Save(); // Save migrated settings to main file
-                    }
-                    
-                    // Remove legacy file after successful migration
-                    File.Delete(legacyPath);
-                }
-            }
-            catch { }
-        }
 
         /// <summary>Saves settings to disk.</summary>
         public void Save()
