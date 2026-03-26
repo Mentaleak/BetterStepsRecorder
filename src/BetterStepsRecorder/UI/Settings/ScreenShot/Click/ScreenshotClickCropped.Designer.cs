@@ -61,7 +61,7 @@ namespace BetterStepsRecorder.UI.Settings
             nudPadding.Name = "nudPadding";
             nudPadding.Size = new Size(80, 27);
             nudPadding.TabIndex = 2;
-            nudPadding.Value = new decimal(new int[] { BSRSettings.Defaults.ClickCroppedPadding, 0, 0, 0 });
+            nudPadding.Value = new decimal(new int[] { BSRSettings.Default.Screenshot.Click.Cropped.Padding, 0, 0, 0 });
             // 
             // ScreenshotClickCropped
             // 

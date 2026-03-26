@@ -66,6 +66,12 @@ namespace BetterStepsRecorder
         private static readonly object _lock = new object();
 
         /// <summary>
+        /// Default settings instance with all default values.
+        /// Example: Default.General.MinimizeOnStartRecording
+        /// </summary>
+        public static readonly BSRSettings Default = new BSRSettings();
+
+        /// <summary>
         /// Validation constants for settings bounds.
         /// </summary>
         public static class Bounds
@@ -105,72 +111,54 @@ namespace BetterStepsRecorder
         // Default Settings Management
         // ══════════════════════════════════════════════════════════════════════
 
-        /// <summary>Resets all settings to their default values.</summary>
+        /// <summary>Resets all settings to their default values by creating fresh instances.</summary>
         public void ResetToDefaults()
         {
-            General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
-
-            Indicator.Color = Defaults.IndicatorColorArgb;
-            Indicator.Style = Defaults.IndicatorStyle;
-
-            Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
-            Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
-
-            Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
-            Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
-            Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
-
-            ExportOptions.Html.ShowSummary = Defaults.HtmlShowSummary;
-            ExportOptions.Html.ShowGeneratedDate = Defaults.HtmlShowGeneratedDate;
-            ExportOptions.Html.ShowStepTimestamps = Defaults.HtmlShowStepTimestamps;
-            ExportOptions.Html.ShowAction = Defaults.HtmlShowAction;
-            ExportOptions.Html.ShowApplication = Defaults.HtmlShowApplication;
-            ExportOptions.Html.ShowWindow = Defaults.HtmlShowWindow;
-            ExportOptions.Html.ShowElement = Defaults.HtmlShowElement;
-            ExportOptions.Html.ShowElementType = Defaults.HtmlShowElementType;
-            ExportOptions.Html.ShowMousePosition = Defaults.HtmlShowMousePosition;
+            General = new GeneralSettings();
+            Indicator = new IndicatorSettings();
+            Screenshot = new ScreenshotSettings();
+            ExportOptions = new ExportSettings();
         }
 
         /// <summary>Resets a specific setting to its default value.</summary>
-        /// <param name="settingName">The hierarchical path to the setting (e.g., "General.MinimizeOnStartRecording").</param>
+        /// <param name="settingName">The hierarchical path or legacy name of the setting to reset.</param>
         public void ResetToDefault(string settingName)
         {
             // Support both old flat names (for compatibility) and new hierarchical paths
             switch (settingName)
             {
-                // Legacy flat names
                 case "IndicatorColorArgb":
                 case "IndicatorColor":
                 case "Indicator.Color":
-                    Indicator.Color = Defaults.IndicatorColorArgb;
+                    Indicator.Color = Default.Indicator.Color;
                     break;
                 case "IndicatorStyle":
                 case "Indicator.Style":
-                    Indicator.Style = Defaults.IndicatorStyle;
+                    Indicator.Style = Default.Indicator.Style;
                     break;
                 case "ClickScreenshotMode":
                 case "Screenshot.Click.Mode":
-                    Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
+                    Screenshot.Click.Mode = Default.Screenshot.Click.Mode;
                     break;
                 case "DragScreenshotMode":
                 case "Screenshot.Drag.Mode":
-                    Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
+                    Screenshot.Drag.Mode = Default.Screenshot.Drag.Mode;
                     break;
                 case "MinimizeOnStartRecording":
                 case "General.MinimizeOnStartRecording":
-                    General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
+                    General.MinimizeOnStartRecording = Default.General.MinimizeOnStartRecording;
                     break;
                 case "DragFallbackMode":
                 case "Screenshot.Drag.Fallback.Mode":
-                    Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
+                    Screenshot.Drag.Fallback.Mode = Default.Screenshot.Drag.Fallback.Mode;
                     break;
                 case "ClickCroppedPadding":
                 case "Screenshot.Click.Cropped.Padding":
-                    Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
+                    Screenshot.Click.Cropped.Padding = Default.Screenshot.Click.Cropped.Padding;
                     break;
                 case "DragCroppedPadding":
                 case "Screenshot.Drag.Cropped.Padding":
-                    Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
+                    Screenshot.Drag.Cropped.Padding = Default.Screenshot.Drag.Cropped.Padding;
                     break;
             }
         }
@@ -220,15 +208,15 @@ namespace BetterStepsRecorder
                 {
                     string json = File.ReadAllText(SettingsPath);
                     settings = JsonSerializer.Deserialize<BSRSettings>(json) ?? new BSRSettings();
-                    
+
                     // Ensure nested objects are initialized if deserialization resulted in nulls
                     settings.General ??= new GeneralSettings();
                     settings.Indicator ??= new IndicatorSettings();
                     settings.Screenshot ??= new ScreenshotSettings();
                     settings.Screenshot.Click ??= new ClickSettings();
                     settings.Screenshot.Drag ??= new DragSettings();
-                    settings.Screenshot.Click.Cropped ??= new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
-                    settings.Screenshot.Drag.Cropped ??= new CroppedSettings { Padding = Defaults.DragCroppedPadding };
+                    settings.Screenshot.Click.Cropped ??= new CroppedSettings { Padding = Default.Screenshot.Click.Cropped.Padding };
+                    settings.Screenshot.Drag.Cropped ??= new CroppedSettings { Padding = Default.Screenshot.Drag.Cropped.Padding };
                     settings.Screenshot.Drag.Fallback ??= new DragFallbackSettings();
                     settings.ExportOptions ??= new ExportSettings();
                     settings.ExportOptions.Html ??= new HtmlSettings();

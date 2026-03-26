@@ -10,7 +10,7 @@ namespace BetterStepsRecorder
 
         public class GeneralSettings
         {
-            public bool MinimizeOnStartRecording { get; set; } = Defaults.MinimizeOnStartRecording;
+            public bool MinimizeOnStartRecording { get; set; } = true;
         }
 
         // ══════════════════════════════════════════════════════════════════════
@@ -19,10 +19,10 @@ namespace BetterStepsRecorder
 
         public class IndicatorSettings
         {
-            public ClickIndicatorStyle Style { get; set; } = Defaults.IndicatorStyle;
+            public ClickIndicatorStyle Style { get; set; } = ClickIndicatorStyle.Arrow;
 
             [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
-            public int Color { get; set; } = Defaults.IndicatorColorArgb;
+            public int Color { get; set; } = -65281; // Color.Magenta.ToArgb() = #FFFF00FF
         }
 
         // ══════════════════════════════════════════════════════════════════════
@@ -36,19 +36,19 @@ namespace BetterStepsRecorder
 
         public class ClickSettings
         {
-            public ClickScreenshotMode Mode { get; set; } = Defaults.ClickScreenshotMode;
-            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
+            public ClickScreenshotMode Mode { get; set; } = ClickScreenshotMode.ActiveWindow;
+            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = 200 };
         }
 
         public class DragFallbackSettings
         {
-            public FallbackDragScreenshotMode Mode { get; set; } = Defaults.DragFallbackMode;
+            public FallbackDragScreenshotMode Mode { get; set; } = FallbackDragScreenshotMode.Cropped;
         }
 
         public class DragSettings
         {
-            public DragScreenshotMode Mode { get; set; } = Defaults.DragScreenshotMode;
-            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.DragCroppedPadding };
+            public DragScreenshotMode Mode { get; set; } = DragScreenshotMode.ActiveWindow;
+            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = 120 };
             public DragFallbackSettings Fallback { get; set; } = new DragFallbackSettings();
         }
 
@@ -64,15 +64,15 @@ namespace BetterStepsRecorder
 
         public class HtmlSettings
         {
-            public bool ShowSummary { get; set; } = Defaults.HtmlShowSummary;
-            public bool ShowGeneratedDate { get; set; } = Defaults.HtmlShowGeneratedDate;
-            public bool ShowStepTimestamps { get; set; } = Defaults.HtmlShowStepTimestamps;
-            public bool ShowAction { get; set; } = Defaults.HtmlShowAction;
-            public bool ShowApplication { get; set; } = Defaults.HtmlShowApplication;
-            public bool ShowWindow { get; set; } = Defaults.HtmlShowWindow;
-            public bool ShowElement { get; set; } = Defaults.HtmlShowElement;
-            public bool ShowElementType { get; set; } = Defaults.HtmlShowElementType;
-            public bool ShowMousePosition { get; set; } = Defaults.HtmlShowMousePosition;
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
 
             [JsonIgnore]
             public bool IsDetailStripEmpty =>
