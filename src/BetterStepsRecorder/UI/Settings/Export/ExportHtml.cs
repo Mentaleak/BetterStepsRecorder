@@ -10,13 +10,11 @@ namespace BetterStepsRecorder.UI.Settings
 {
     public partial class ExportHtml : UserControl
     {
-        private HtmlExportSettings _settings;
-
         public ExportHtml()
         {
             InitializeComponent();
             LoadSettings();
-            
+
             // Auto-save when any checkbox changes
             chkSummary.CheckedChanged += Checkbox_CheckedChanged;
             chkGeneratedDate.CheckedChanged += Checkbox_CheckedChanged;
@@ -31,17 +29,17 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            _settings = HtmlExportSettings.Load();
-            
-            chkSummary.Checked = _settings.ShowSummary;
-            chkGeneratedDate.Checked = _settings.ShowGeneratedDate;
-            chkStepTimestamps.Checked = _settings.ShowStepTimestamps;
-            chkAction.Checked = _settings.ShowAction;
-            chkApplication.Checked = _settings.ShowApplication;
-            chkWindow.Checked = _settings.ShowWindow;
-            chkElement.Checked = _settings.ShowElement;
-            chkElementType.Checked = _settings.ShowElementType;
-            chkMousePosition.Checked = _settings.ShowMousePosition;
+            var htmlSettings = BSRSettings.Current.ExportOptions.Html;
+
+            chkSummary.Checked = htmlSettings.ShowSummary;
+            chkGeneratedDate.Checked = htmlSettings.ShowGeneratedDate;
+            chkStepTimestamps.Checked = htmlSettings.ShowStepTimestamps;
+            chkAction.Checked = htmlSettings.ShowAction;
+            chkApplication.Checked = htmlSettings.ShowApplication;
+            chkWindow.Checked = htmlSettings.ShowWindow;
+            chkElement.Checked = htmlSettings.ShowElement;
+            chkElementType.Checked = htmlSettings.ShowElementType;
+            chkMousePosition.Checked = htmlSettings.ShowMousePosition;
         }
 
         private void Checkbox_CheckedChanged(object sender, EventArgs e)
@@ -51,16 +49,19 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void SaveSettings()
         {
-            _settings.ShowSummary = chkSummary.Checked;
-            _settings.ShowGeneratedDate = chkGeneratedDate.Checked;
-            _settings.ShowStepTimestamps = chkStepTimestamps.Checked;
-            _settings.ShowAction = chkAction.Checked;
-            _settings.ShowApplication = chkApplication.Checked;
-            _settings.ShowWindow = chkWindow.Checked;
-            _settings.ShowElement = chkElement.Checked;
-            _settings.ShowElementType = chkElementType.Checked;
-            _settings.ShowMousePosition = chkMousePosition.Checked;
-            _settings.Save();
+            var htmlSettings = BSRSettings.Current.ExportOptions.Html;
+
+            htmlSettings.ShowSummary = chkSummary.Checked;
+            htmlSettings.ShowGeneratedDate = chkGeneratedDate.Checked;
+            htmlSettings.ShowStepTimestamps = chkStepTimestamps.Checked;
+            htmlSettings.ShowAction = chkAction.Checked;
+            htmlSettings.ShowApplication = chkApplication.Checked;
+            htmlSettings.ShowWindow = chkWindow.Checked;
+            htmlSettings.ShowElement = chkElement.Checked;
+            htmlSettings.ShowElementType = chkElementType.Checked;
+            htmlSettings.ShowMousePosition = chkMousePosition.Checked;
+
+            BSRSettings.Current.Save();
         }
     }
 }

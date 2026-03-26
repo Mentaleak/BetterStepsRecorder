@@ -155,11 +155,35 @@ namespace BetterStepsRecorder
             public DragSettings Drag { get; set; } = new DragSettings();
         }
 
+        public class HtmlSettings
+        {
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
+
+            [JsonIgnore]
+            public bool IsDetailStripEmpty =>
+                !ShowAction && !ShowApplication && !ShowWindow &&
+                !ShowElement && !ShowElementType && !ShowMousePosition;
+        }
+
+        public class ExportSettings
+        {
+            public HtmlSettings Html { get; set; } = new HtmlSettings();
+        }
+
         // ── Top-Level Properties ──────────────────────────────────────────────
 
         public GeneralSettings General { get; set; } = new GeneralSettings();
         public IndicatorSettings Indicator { get; set; } = new IndicatorSettings();
         public ScreenshotSettings Screenshot { get; set; } = new ScreenshotSettings();
+        public ExportSettings ExportOptions { get; set; } = new ExportSettings();
 
         // ── Backward Compatibility Properties (JsonIgnore) ───────────────────
 
@@ -333,11 +357,16 @@ namespace BetterStepsRecorder
                     settings.Screenshot.Click.Cropped ??= new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
                     settings.Screenshot.Drag.Cropped ??= new CroppedSettings { Padding = Defaults.DragCroppedPadding };
                     settings.Screenshot.Drag.Fallback ??= new DragFallbackSettings();
+                    settings.ExportOptions ??= new ExportSettings();
+                    settings.ExportOptions.Html ??= new HtmlSettings();
                 }
                 else
                 {
                     settings = new BSRSettings();
                 }
+
+                // Migrate legacy HtmlExportSettings if they exist
+                settings.MigrateLegacyHtmlExportSettings();
             }
             catch
             {
@@ -347,6 +376,33 @@ namespace BetterStepsRecorder
             settings.AutoHealIfNeeded();
 
             return settings;
+        }
+
+        /// <summary>Migrates settings from legacy htmlexport.json if it exists and removes the old file.</summary>
+        private void MigrateLegacyHtmlExportSettings()
+        {
+            string legacyPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "BetterStepsRecorder",
+                "htmlexport.json");
+
+            try
+            {
+                if (File.Exists(legacyPath))
+                {
+                    string json = File.ReadAllText(legacyPath);
+                    var legacy = JsonSerializer.Deserialize<HtmlSettings>(json);
+                    if (legacy != null)
+                    {
+                        ExportOptions.Html = legacy;
+                        Save(); // Save migrated settings to main file
+                    }
+
+                    // Remove legacy file after successful migration
+                    File.Delete(legacyPath);
+                }
+            }
+            catch { }
         }
 
         public void Save()

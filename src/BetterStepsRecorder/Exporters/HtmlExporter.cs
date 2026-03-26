@@ -28,14 +28,14 @@ namespace BetterStepsRecorder.Exporters
         /// <returns>True if export was successful, false otherwise</returns>
         public override bool Export(string filePath)
         {
-            var cfg = HtmlExportSettings.Load();
+            var cfg = BSRSettings.Current.ExportOptions.Html;
             return Export(filePath, cfg);
         }
 
         /// <summary>
         /// Exports the current steps recording to HTML format using the supplied settings
         /// </summary>
-        public bool Export(string filePath, HtmlExportSettings cfg)
+        public bool Export(string filePath, BSRSettings.HtmlSettings cfg)
         {
             try
             {
