@@ -108,11 +108,11 @@ namespace BetterStepsRecorder
         {
             using (var dlg = new ColorDialog())
             {
-                dlg.Color = BSRSettings.Current.IndicatorColor;
+                dlg.Color = Color.FromArgb(BSRSettings.Current.Indicator.Color);
                 dlg.FullOpen = true;
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    BSRSettings.Current.IndicatorColor = dlg.Color;
+                    BSRSettings.Current.Indicator.Color = dlg.Color.ToArgb();
                     BSRSettings.Current.Save();
                 }
             }

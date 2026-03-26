@@ -102,77 +102,6 @@ namespace BetterStepsRecorder
         public ExportSettings ExportOptions { get; set; } = new ExportSettings();
 
         // ══════════════════════════════════════════════════════════════════════
-        // Backward Compatibility Properties (JsonIgnore)
-        // ══════════════════════════════════════════════════════════════════════
-
-        [JsonIgnore]
-        public bool MinimizeOnStartRecording
-        {
-            get => General.MinimizeOnStartRecording;
-            set => General.MinimizeOnStartRecording = value;
-        }
-
-        [JsonIgnore]
-        public int IndicatorColorArgb
-        {
-            get => Indicator.Color;
-            set => Indicator.Color = value;
-        }
-
-        [JsonIgnore]
-        public ClickIndicatorStyle IndicatorStyle
-        {
-            get => Indicator.Style;
-            set => Indicator.Style = value;
-        }
-
-        [JsonIgnore]
-        public ClickScreenshotMode ClickScreenshotMode
-        {
-            get => Screenshot.Click.Mode;
-            set => Screenshot.Click.Mode = value;
-        }
-
-        [JsonIgnore]
-        public int ClickCroppedPadding
-        {
-            get => Screenshot.Click.Cropped.Padding;
-            set => Screenshot.Click.Cropped.Padding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
-        }
-
-        [JsonIgnore]
-        public DragScreenshotMode DragScreenshotMode
-        {
-            get => Screenshot.Drag.Mode;
-            set => Screenshot.Drag.Mode = value;
-        }
-
-        [JsonIgnore]
-        public FallbackDragScreenshotMode DragFallbackMode
-        {
-            get => Screenshot.Drag.Fallback.Mode;
-            set => Screenshot.Drag.Fallback.Mode = value;
-        }
-
-        [JsonIgnore]
-        public int DragCroppedPadding
-        {
-            get => Screenshot.Drag.Cropped.Padding;
-            set => Screenshot.Drag.Cropped.Padding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
-        }
-
-        // ══════════════════════════════════════════════════════════════════════
-        // Helper Properties
-        // ══════════════════════════════════════════════════════════════════════
-
-        [JsonIgnore]
-        public Color IndicatorColor
-        {
-            get => Color.FromArgb(IndicatorColorArgb);
-            set => IndicatorColorArgb = value.ToArgb();
-        }
-
-        // ══════════════════════════════════════════════════════════════════════
         // Default Settings Management
         // ══════════════════════════════════════════════════════════════════════
 
@@ -180,47 +109,67 @@ namespace BetterStepsRecorder
         public void ResetToDefaults()
         {
             General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
-            
+
             Indicator.Color = Defaults.IndicatorColorArgb;
             Indicator.Style = Defaults.IndicatorStyle;
-            
+
             Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
             Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
-            
+
             Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
             Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
             Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
+
+            ExportOptions.Html.ShowSummary = Defaults.HtmlShowSummary;
+            ExportOptions.Html.ShowGeneratedDate = Defaults.HtmlShowGeneratedDate;
+            ExportOptions.Html.ShowStepTimestamps = Defaults.HtmlShowStepTimestamps;
+            ExportOptions.Html.ShowAction = Defaults.HtmlShowAction;
+            ExportOptions.Html.ShowApplication = Defaults.HtmlShowApplication;
+            ExportOptions.Html.ShowWindow = Defaults.HtmlShowWindow;
+            ExportOptions.Html.ShowElement = Defaults.HtmlShowElement;
+            ExportOptions.Html.ShowElementType = Defaults.HtmlShowElementType;
+            ExportOptions.Html.ShowMousePosition = Defaults.HtmlShowMousePosition;
         }
 
         /// <summary>Resets a specific setting to its default value.</summary>
-        /// <param name="settingName">The name of the setting property to reset.</param>
+        /// <param name="settingName">The hierarchical path to the setting (e.g., "General.MinimizeOnStartRecording").</param>
         public void ResetToDefault(string settingName)
         {
+            // Support both old flat names (for compatibility) and new hierarchical paths
             switch (settingName)
             {
-                case nameof(IndicatorColorArgb):
-                case nameof(IndicatorColor):
+                // Legacy flat names
+                case "IndicatorColorArgb":
+                case "IndicatorColor":
+                case "Indicator.Color":
                     Indicator.Color = Defaults.IndicatorColorArgb;
                     break;
-                case nameof(IndicatorStyle):
+                case "IndicatorStyle":
+                case "Indicator.Style":
                     Indicator.Style = Defaults.IndicatorStyle;
                     break;
-                case nameof(ClickScreenshotMode):
+                case "ClickScreenshotMode":
+                case "Screenshot.Click.Mode":
                     Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
                     break;
-                case nameof(DragScreenshotMode):
+                case "DragScreenshotMode":
+                case "Screenshot.Drag.Mode":
                     Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
                     break;
-                case nameof(MinimizeOnStartRecording):
+                case "MinimizeOnStartRecording":
+                case "General.MinimizeOnStartRecording":
                     General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
                     break;
-                case nameof(DragFallbackMode):
+                case "DragFallbackMode":
+                case "Screenshot.Drag.Fallback.Mode":
                     Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
                     break;
-                case nameof(ClickCroppedPadding):
+                case "ClickCroppedPadding":
+                case "Screenshot.Click.Cropped.Padding":
                     Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
                     break;
-                case nameof(DragCroppedPadding):
+                case "DragCroppedPadding":
+                case "Screenshot.Drag.Cropped.Padding":
                     Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
                     break;
             }

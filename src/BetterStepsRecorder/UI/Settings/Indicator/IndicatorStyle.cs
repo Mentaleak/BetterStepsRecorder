@@ -20,16 +20,16 @@ namespace BetterStepsRecorder.UI.Settings
         {
             var settings = BSRSettings.Current;
 
-            rdoArrow.Checked = settings.IndicatorStyle == ClickIndicatorStyle.Arrow;
-            rdoCircle.Checked = settings.IndicatorStyle == ClickIndicatorStyle.Circle;
-            rdoCursor.Checked = settings.IndicatorStyle == ClickIndicatorStyle.Cursor;
+            rdoArrow.Checked = settings.Indicator.Style == ClickIndicatorStyle.Arrow;
+            rdoCircle.Checked = settings.Indicator.Style == ClickIndicatorStyle.Circle;
+            rdoCursor.Checked = settings.Indicator.Style == ClickIndicatorStyle.Cursor;
         }
 
         private void RadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (sender is RadioButton { Checked: true, Tag: ClickIndicatorStyle style })
             {
-                BSRSettings.Current.IndicatorStyle = style;
+                BSRSettings.Current.Indicator.Style = style;
                 BSRSettings.Current.Save();
             }
         }

@@ -311,22 +311,22 @@ namespace BetterStepsRecorder.UI.Settings
             // Enable/disable Click -> Cropped node based on mode
             if (clickCroppedNode != null)
             {
-                bool isCropped = settings.ClickScreenshotMode == ClickScreenshotMode.Cropped;
+                bool isCropped = settings.Screenshot.Click.Mode == ClickScreenshotMode.Cropped;
                 clickCroppedNode.ForeColor = isCropped ? SystemColors.ControlText : SystemColors.GrayText;
             }
 
             // Enable/disable Drag -> Cropped node based on mode OR fallback mode
             if (dragCroppedNode != null)
             {
-                bool isCropped = settings.DragScreenshotMode == DragScreenshotMode.Cropped;
-                bool fallbackIsCropped = settings.DragFallbackMode == FallbackDragScreenshotMode.Cropped;
+                bool isCropped = settings.Screenshot.Drag.Mode == DragScreenshotMode.Cropped;
+                bool fallbackIsCropped = settings.Screenshot.Drag.Fallback.Mode == FallbackDragScreenshotMode.Cropped;
                 dragCroppedNode.ForeColor = (isCropped || fallbackIsCropped) ? SystemColors.ControlText : SystemColors.GrayText;
             }
 
             // Enable/disable Drag -> Fallback node based on mode
             if (dragFallbackNode != null)
             {
-                bool isActiveWindow = settings.DragScreenshotMode == DragScreenshotMode.ActiveWindow;
+                bool isActiveWindow = settings.Screenshot.Drag.Mode == DragScreenshotMode.ActiveWindow;
                 dragFallbackNode.ForeColor = isActiveWindow ? SystemColors.ControlText : SystemColors.GrayText;
             }
 

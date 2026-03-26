@@ -20,17 +20,17 @@ namespace BetterStepsRecorder.UI.Settings
         {
             var settings = BSRSettings.Current;
 
-            rdoCropped.Checked = settings.DragScreenshotMode == DragScreenshotMode.Cropped;
-            rdoActiveWindow.Checked = settings.DragScreenshotMode == DragScreenshotMode.ActiveWindow;
-            rdoActiveScreen.Checked = settings.DragScreenshotMode == DragScreenshotMode.ActiveScreen;
-            rdoAllScreens.Checked = settings.DragScreenshotMode == DragScreenshotMode.AllScreens;
+            rdoCropped.Checked = settings.Screenshot.Drag.Mode == DragScreenshotMode.Cropped;
+            rdoActiveWindow.Checked = settings.Screenshot.Drag.Mode == DragScreenshotMode.ActiveWindow;
+            rdoActiveScreen.Checked = settings.Screenshot.Drag.Mode == DragScreenshotMode.ActiveScreen;
+            rdoAllScreens.Checked = settings.Screenshot.Drag.Mode == DragScreenshotMode.AllScreens;
         }
 
         private void RadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (sender is RadioButton { Checked: true, Tag: DragScreenshotMode mode })
             {
-                BSRSettings.Current.DragScreenshotMode = mode;
+                BSRSettings.Current.Screenshot.Drag.Mode = mode;
                 BSRSettings.Current.Save();
 
                 // Update the parent form's node states

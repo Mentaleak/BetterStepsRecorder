@@ -18,12 +18,12 @@ namespace BetterStepsRecorder.UI.Settings
 
         private void LoadSettings()
         {
-            chkMinimizeOnStart.Checked = BSRSettings.Current.MinimizeOnStartRecording;
+            chkMinimizeOnStart.Checked = BSRSettings.Current.General.MinimizeOnStartRecording;
         }
 
         private void Checkbox_CheckedChanged(object sender, EventArgs e)
         {
-            BSRSettings.Current.MinimizeOnStartRecording = chkMinimizeOnStart.Checked;
+            BSRSettings.Current.General.MinimizeOnStartRecording = chkMinimizeOnStart.Checked;
             BSRSettings.Current.Save();
         }
     }

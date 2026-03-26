@@ -22,7 +22,7 @@ namespace BetterStepsRecorder.UI.Settings
         private void LoadSettings()
         {
             // Load fallback mode
-            switch (BSRSettings.Current.DragFallbackMode)
+            switch (BSRSettings.Current.Screenshot.Drag.Fallback.Mode)
             {
                 case FallbackDragScreenshotMode.ActiveScreen:
                     cmbFallbackMode.SelectedIndex = 1;
@@ -51,7 +51,7 @@ namespace BetterStepsRecorder.UI.Settings
                     fallbackMode = FallbackDragScreenshotMode.Cropped;
                     break;
             }
-            BSRSettings.Current.DragFallbackMode = fallbackMode;
+            BSRSettings.Current.Screenshot.Drag.Fallback.Mode = fallbackMode;
             BSRSettings.Current.Save();
 
             // Update the parent form's node states
