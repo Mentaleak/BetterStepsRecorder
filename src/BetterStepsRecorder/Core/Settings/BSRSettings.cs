@@ -6,49 +6,6 @@ using System.Text.Json.Serialization;
 
 namespace BetterStepsRecorder
 {
-    /// <summary>
-    /// Indicator style for click visualization.
-    /// </summary>
-    public enum ClickIndicatorStyle
-    {
-        Arrow,
-        Circle,
-        Cursor
-    }
-
-    /// <summary>
-    /// Screenshot mode for click events.
-    /// </summary>
-    public enum ClickScreenshotMode
-    {
-        Cropped,
-        ActiveWindow,
-        ActiveScreen,
-        AllScreens
-    }
-
-    /// <summary>
-    /// Screenshot mode for drag events.
-    /// </summary>
-    public enum DragScreenshotMode
-    {
-        Cropped,
-        ActiveWindow,
-        ActiveScreen,
-        AllScreens
-    }
-
-    /// <summary>
-    /// Screenshot mode for drag events.
-    /// </summary>
-    public enum FallbackDragScreenshotMode
-    {
-        Cropped,
-        ActiveScreen,
-        AllScreens
-        // ActiveWindow is skipped since it is the primary mode that triggers fallback when it fails
-    }
-
 
     /// <summary>
     /// Persisted settings for the recording/capture behaviour.
