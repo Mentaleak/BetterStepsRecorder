@@ -111,40 +111,112 @@ namespace BetterStepsRecorder
             public static readonly int DragCroppedPadding = 120;
         }
 
-        // ── General Settings ──────────────────────────────────────────────────
+        // ── Nested Settings Classes ───────────────────────────────────────────
 
-        public bool MinimizeOnStartRecording { get; set; } = Defaults.MinimizeOnStartRecording;
-
-        // ── Indicator Settings ────────────────────────────────────────────────
-
-        // Stored as ARGB hex string (e.g., #FFFF00FF) for human readability
-        [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
-        public int IndicatorColorArgb { get; set; } = Defaults.IndicatorColorArgb;
-
-        public ClickIndicatorStyle IndicatorStyle { get; set; } = Defaults.IndicatorStyle;
-
-        // ── Click Screenshot Settings ─────────────────────────────────────────
-
-        public ClickScreenshotMode ClickScreenshotMode { get; set; } = Defaults.ClickScreenshotMode;
-
-        private int _clickCroppedPadding = Defaults.ClickCroppedPadding;
-        public int ClickCroppedPadding
+        public class GeneralSettings
         {
-            get => _clickCroppedPadding;
-            set => _clickCroppedPadding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
+            public bool MinimizeOnStartRecording { get; set; } = Defaults.MinimizeOnStartRecording;
         }
 
-        // ── Drag Screenshot Settings ──────────────────────────────────────────
+        public class IndicatorSettings
+        {
+            public ClickIndicatorStyle Style { get; set; } = Defaults.IndicatorStyle;
 
-        public DragScreenshotMode DragScreenshotMode { get; set; } = Defaults.DragScreenshotMode;
+            [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
+            public int Color { get; set; } = Defaults.IndicatorColorArgb;
+        }
 
-        public FallbackDragScreenshotMode DragFallbackMode { get; set; } = Defaults.DragFallbackMode;
+        public class CroppedSettings
+        {
+            public int Padding { get; set; }
+        }
 
-        private int _dragCroppedPadding = Defaults.DragCroppedPadding;
+        public class ClickSettings
+        {
+            public ClickScreenshotMode Mode { get; set; } = Defaults.ClickScreenshotMode;
+            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
+        }
+
+        public class DragFallbackSettings
+        {
+            public FallbackDragScreenshotMode Mode { get; set; } = Defaults.DragFallbackMode;
+        }
+
+        public class DragSettings
+        {
+            public DragScreenshotMode Mode { get; set; } = Defaults.DragScreenshotMode;
+            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.DragCroppedPadding };
+            public DragFallbackSettings Fallback { get; set; } = new DragFallbackSettings();
+        }
+
+        public class ScreenshotSettings
+        {
+            public ClickSettings Click { get; set; } = new ClickSettings();
+            public DragSettings Drag { get; set; } = new DragSettings();
+        }
+
+        // ── Top-Level Properties ──────────────────────────────────────────────
+
+        public GeneralSettings General { get; set; } = new GeneralSettings();
+        public IndicatorSettings Indicator { get; set; } = new IndicatorSettings();
+        public ScreenshotSettings Screenshot { get; set; } = new ScreenshotSettings();
+
+        // ── Backward Compatibility Properties (JsonIgnore) ───────────────────
+
+        [JsonIgnore]
+        public bool MinimizeOnStartRecording
+        {
+            get => General.MinimizeOnStartRecording;
+            set => General.MinimizeOnStartRecording = value;
+        }
+
+        [JsonIgnore]
+        public int IndicatorColorArgb
+        {
+            get => Indicator.Color;
+            set => Indicator.Color = value;
+        }
+
+        [JsonIgnore]
+        public ClickIndicatorStyle IndicatorStyle
+        {
+            get => Indicator.Style;
+            set => Indicator.Style = value;
+        }
+
+        [JsonIgnore]
+        public ClickScreenshotMode ClickScreenshotMode
+        {
+            get => Screenshot.Click.Mode;
+            set => Screenshot.Click.Mode = value;
+        }
+
+        [JsonIgnore]
+        public int ClickCroppedPadding
+        {
+            get => Screenshot.Click.Cropped.Padding;
+            set => Screenshot.Click.Cropped.Padding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
+        }
+
+        [JsonIgnore]
+        public DragScreenshotMode DragScreenshotMode
+        {
+            get => Screenshot.Drag.Mode;
+            set => Screenshot.Drag.Mode = value;
+        }
+
+        [JsonIgnore]
+        public FallbackDragScreenshotMode DragFallbackMode
+        {
+            get => Screenshot.Drag.Fallback.Mode;
+            set => Screenshot.Drag.Fallback.Mode = value;
+        }
+
+        [JsonIgnore]
         public int DragCroppedPadding
         {
-            get => _dragCroppedPadding;
-            set => _dragCroppedPadding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
+            get => Screenshot.Drag.Cropped.Padding;
+            set => Screenshot.Drag.Cropped.Padding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────
@@ -161,21 +233,17 @@ namespace BetterStepsRecorder
         /// <summary>Resets all settings to their default values.</summary>
         public void ResetToDefaults()
         {
-            // General
-            MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
+            General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
 
-            // Indicator
-            IndicatorColorArgb = Defaults.IndicatorColorArgb;
-            IndicatorStyle = Defaults.IndicatorStyle;
+            Indicator.Color = Defaults.IndicatorColorArgb;
+            Indicator.Style = Defaults.IndicatorStyle;
 
-            // Click Screenshot
-            ClickScreenshotMode = Defaults.ClickScreenshotMode;
-            ClickCroppedPadding = Defaults.ClickCroppedPadding;
+            Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
+            Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
 
-            // Drag Screenshot
-            DragScreenshotMode = Defaults.DragScreenshotMode;
-            DragFallbackMode = Defaults.DragFallbackMode;
-            DragCroppedPadding = Defaults.DragCroppedPadding;
+            Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
+            Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
+            Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
         }
 
         /// <summary>Resets a specific setting to its default value.</summary>
@@ -186,28 +254,28 @@ namespace BetterStepsRecorder
             {
                 case nameof(IndicatorColorArgb):
                 case nameof(IndicatorColor):
-                    IndicatorColorArgb = Defaults.IndicatorColorArgb;
+                    Indicator.Color = Defaults.IndicatorColorArgb;
                     break;
                 case nameof(IndicatorStyle):
-                    IndicatorStyle = Defaults.IndicatorStyle;
+                    Indicator.Style = Defaults.IndicatorStyle;
                     break;
                 case nameof(ClickScreenshotMode):
-                    ClickScreenshotMode = Defaults.ClickScreenshotMode;
+                    Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
                     break;
                 case nameof(DragScreenshotMode):
-                    DragScreenshotMode = Defaults.DragScreenshotMode;
+                    Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
                     break;
                 case nameof(MinimizeOnStartRecording):
-                    MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
+                    General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
                     break;
                 case nameof(DragFallbackMode):
-                    DragFallbackMode = Defaults.DragFallbackMode;
+                    Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
                     break;
                 case nameof(ClickCroppedPadding):
-                    ClickCroppedPadding = Defaults.ClickCroppedPadding;
+                    Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
                     break;
                 case nameof(DragCroppedPadding):
-                    DragCroppedPadding = Defaults.DragCroppedPadding;
+                    Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
                     break;
             }
         }
@@ -217,23 +285,29 @@ namespace BetterStepsRecorder
         /// <summary>Validates and clamps all settings values to their valid ranges.</summary>
         private void ValidateAndClamp()
         {
-            // Properties with validation in setters will auto-clamp when assigned
-            // Force clamping by re-assigning to trigger setters
-            ClickCroppedPadding = _clickCroppedPadding;
-            DragCroppedPadding = _dragCroppedPadding;
+            // Clamp padding values
+            Screenshot.Click.Cropped.Padding = Math.Clamp(
+                Screenshot.Click.Cropped.Padding, 
+                Bounds.MinCroppedPadding, 
+                Bounds.MaxCroppedPadding);
+
+            Screenshot.Drag.Cropped.Padding = Math.Clamp(
+                Screenshot.Drag.Cropped.Padding, 
+                Bounds.MinCroppedPadding, 
+                Bounds.MaxCroppedPadding);
         }
 
         /// <summary>Auto-heals and saves settings if any values were clamped during validation.</summary>
         private void AutoHealIfNeeded()
         {
-            int originalClick = _clickCroppedPadding;
-            int originalDrag = _dragCroppedPadding;
+            int originalClick = Screenshot.Click.Cropped.Padding;
+            int originalDrag = Screenshot.Drag.Cropped.Padding;
 
             ValidateAndClamp();
 
             // If clamping occurred, save the healed values back to disk
-            if (_clickCroppedPadding != originalClick || 
-                _dragCroppedPadding != originalDrag)
+            if (Screenshot.Click.Cropped.Padding != originalClick || 
+                Screenshot.Drag.Cropped.Padding != originalDrag)
             {
                 Save();
             }
@@ -249,6 +323,16 @@ namespace BetterStepsRecorder
                 {
                     string json = File.ReadAllText(SettingsPath);
                     settings = JsonSerializer.Deserialize<BSRSettings>(json) ?? new BSRSettings();
+
+                    // Ensure nested objects are initialized if deserialization resulted in nulls
+                    settings.General ??= new GeneralSettings();
+                    settings.Indicator ??= new IndicatorSettings();
+                    settings.Screenshot ??= new ScreenshotSettings();
+                    settings.Screenshot.Click ??= new ClickSettings();
+                    settings.Screenshot.Drag ??= new DragSettings();
+                    settings.Screenshot.Click.Cropped ??= new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
+                    settings.Screenshot.Drag.Cropped ??= new CroppedSettings { Padding = Defaults.DragCroppedPadding };
+                    settings.Screenshot.Drag.Fallback ??= new DragFallbackSettings();
                 }
                 else
                 {
