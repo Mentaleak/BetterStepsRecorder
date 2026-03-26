@@ -53,8 +53,9 @@ namespace BetterStepsRecorder
     /// <summary>
     /// Persisted settings for the recording/capture behaviour.
     /// Saved to %LOCALAPPDATA%\BetterStepsRecorder\bsrsettings.json.
+    /// Settings are organized hierarchically to match the Settings UI TreeView.
     /// </summary>
-    public class BSRSettings
+    public partial class BSRSettings
     {
         private static readonly string SettingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -91,101 +92,18 @@ namespace BetterStepsRecorder
             }
         }
 
-        /// <summary>
-        /// Default values for all settings.
-        /// </summary>
-        public static class Defaults
-        {
-            //General
-            public static readonly bool MinimizeOnStartRecording = true;
-            //Indicator
-            public static readonly Color IndicatorColor = Color.Magenta;
-            public static readonly int IndicatorColorArgb = Color.Magenta.ToArgb();
-            public static readonly ClickIndicatorStyle IndicatorStyle = ClickIndicatorStyle.Arrow;
-            //Click Screenshot
-            public static readonly ClickScreenshotMode ClickScreenshotMode = ClickScreenshotMode.ActiveWindow;
-            public static readonly int ClickCroppedPadding = 200;
-            //Drag Screenshot
-            public static readonly DragScreenshotMode DragScreenshotMode = DragScreenshotMode.ActiveWindow;
-            public static readonly FallbackDragScreenshotMode DragFallbackMode = FallbackDragScreenshotMode.Cropped;
-            public static readonly int DragCroppedPadding = 120;
-        }
-
-        // ── Nested Settings Classes ───────────────────────────────────────────
-
-        public class GeneralSettings
-        {
-            public bool MinimizeOnStartRecording { get; set; } = Defaults.MinimizeOnStartRecording;
-        }
-
-        public class IndicatorSettings
-        {
-            public ClickIndicatorStyle Style { get; set; } = Defaults.IndicatorStyle;
-
-            [JsonConverter(typeof(JsonTools.ArgbHexConverter))]
-            public int Color { get; set; } = Defaults.IndicatorColorArgb;
-        }
-
-        public class CroppedSettings
-        {
-            public int Padding { get; set; }
-        }
-
-        public class ClickSettings
-        {
-            public ClickScreenshotMode Mode { get; set; } = Defaults.ClickScreenshotMode;
-            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.ClickCroppedPadding };
-        }
-
-        public class DragFallbackSettings
-        {
-            public FallbackDragScreenshotMode Mode { get; set; } = Defaults.DragFallbackMode;
-        }
-
-        public class DragSettings
-        {
-            public DragScreenshotMode Mode { get; set; } = Defaults.DragScreenshotMode;
-            public CroppedSettings Cropped { get; set; } = new CroppedSettings { Padding = Defaults.DragCroppedPadding };
-            public DragFallbackSettings Fallback { get; set; } = new DragFallbackSettings();
-        }
-
-        public class ScreenshotSettings
-        {
-            public ClickSettings Click { get; set; } = new ClickSettings();
-            public DragSettings Drag { get; set; } = new DragSettings();
-        }
-
-        public class HtmlSettings
-        {
-            public bool ShowSummary { get; set; } = true;
-            public bool ShowGeneratedDate { get; set; } = true;
-            public bool ShowStepTimestamps { get; set; } = false;
-            public bool ShowAction { get; set; } = false;
-            public bool ShowApplication { get; set; } = false;
-            public bool ShowWindow { get; set; } = false;
-            public bool ShowElement { get; set; } = false;
-            public bool ShowElementType { get; set; } = false;
-            public bool ShowMousePosition { get; set; } = false;
-
-            [JsonIgnore]
-            public bool IsDetailStripEmpty =>
-                !ShowAction && !ShowApplication && !ShowWindow &&
-                !ShowElement && !ShowElementType && !ShowMousePosition;
-        }
-
-        public class ExportSettings
-        {
-            public HtmlSettings Html { get; set; } = new HtmlSettings();
-        }
-
-        // ── Top-Level Properties ──────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════════
+        // Top-Level Properties (match TreeView structure)
+        // ══════════════════════════════════════════════════════════════════════
 
         public GeneralSettings General { get; set; } = new GeneralSettings();
         public IndicatorSettings Indicator { get; set; } = new IndicatorSettings();
         public ScreenshotSettings Screenshot { get; set; } = new ScreenshotSettings();
         public ExportSettings ExportOptions { get; set; } = new ExportSettings();
 
-        // ── Backward Compatibility Properties (JsonIgnore) ───────────────────
+        // ══════════════════════════════════════════════════════════════════════
+        // Backward Compatibility Properties (JsonIgnore)
+        // ══════════════════════════════════════════════════════════════════════
 
         [JsonIgnore]
         public bool MinimizeOnStartRecording
@@ -243,7 +161,9 @@ namespace BetterStepsRecorder
             set => Screenshot.Drag.Cropped.Padding = Math.Clamp(value, Bounds.MinCroppedPadding, Bounds.MaxCroppedPadding);
         }
 
-        // ── Helpers ────────────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════════
+        // Helper Properties
+        // ══════════════════════════════════════════════════════════════════════
 
         [JsonIgnore]
         public Color IndicatorColor
@@ -252,19 +172,21 @@ namespace BetterStepsRecorder
             set => IndicatorColorArgb = value.ToArgb();
         }
 
-        // ── Default Settings Management ───────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════════
+        // Default Settings Management
+        // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>Resets all settings to their default values.</summary>
         public void ResetToDefaults()
         {
             General.MinimizeOnStartRecording = Defaults.MinimizeOnStartRecording;
-
+            
             Indicator.Color = Defaults.IndicatorColorArgb;
             Indicator.Style = Defaults.IndicatorStyle;
-
+            
             Screenshot.Click.Mode = Defaults.ClickScreenshotMode;
             Screenshot.Click.Cropped.Padding = Defaults.ClickCroppedPadding;
-
+            
             Screenshot.Drag.Mode = Defaults.DragScreenshotMode;
             Screenshot.Drag.Cropped.Padding = Defaults.DragCroppedPadding;
             Screenshot.Drag.Fallback.Mode = Defaults.DragFallbackMode;
@@ -304,7 +226,9 @@ namespace BetterStepsRecorder
             }
         }
 
-        // ── Persistence ────────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════════
+        // Persistence & Validation
+        // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>Validates and clamps all settings values to their valid ranges.</summary>
         private void ValidateAndClamp()
@@ -314,7 +238,7 @@ namespace BetterStepsRecorder
                 Screenshot.Click.Cropped.Padding, 
                 Bounds.MinCroppedPadding, 
                 Bounds.MaxCroppedPadding);
-
+            
             Screenshot.Drag.Cropped.Padding = Math.Clamp(
                 Screenshot.Drag.Cropped.Padding, 
                 Bounds.MinCroppedPadding, 
@@ -347,7 +271,7 @@ namespace BetterStepsRecorder
                 {
                     string json = File.ReadAllText(SettingsPath);
                     settings = JsonSerializer.Deserialize<BSRSettings>(json) ?? new BSRSettings();
-
+                    
                     // Ensure nested objects are initialized if deserialization resulted in nulls
                     settings.General ??= new GeneralSettings();
                     settings.Indicator ??= new IndicatorSettings();
@@ -397,7 +321,7 @@ namespace BetterStepsRecorder
                         ExportOptions.Html = legacy;
                         Save(); // Save migrated settings to main file
                     }
-
+                    
                     // Remove legacy file after successful migration
                     File.Delete(legacyPath);
                 }
@@ -405,6 +329,7 @@ namespace BetterStepsRecorder
             catch { }
         }
 
+        /// <summary>Saves settings to disk.</summary>
         public void Save()
         {
             try
