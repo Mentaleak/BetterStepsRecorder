@@ -81,9 +81,28 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
+        public class MarkdownSettings
+        {
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
+
+            [JsonIgnore]
+            public bool IsDetailTableEmpty =>
+                !ShowAction && !ShowApplication && !ShowWindow &&
+                !ShowElement && !ShowElementType && !ShowMousePosition;
+        }
+
         public class ExportSettings
         {
             public HtmlSettings Html { get; set; } = new HtmlSettings();
+            public MarkdownSettings Markdown { get; set; } = new MarkdownSettings();
         }
     }
 

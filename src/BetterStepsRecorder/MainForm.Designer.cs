@@ -63,6 +63,7 @@
             exportToRtfToolStripMenuItem = new ToolStripMenuItem();
             exportToHtmlToolStripMenuItem = new ToolStripMenuItem();
             exportToOdtToolStripMenuItem = new ToolStripMenuItem();
+            exportToMarkdownToolStripMenuItem = new ToolStripMenuItem();
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
@@ -377,7 +378,7 @@
             // 
             // exportToFileToolStripMenuItem
             // 
-            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToMarkdownToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
             exportToFileToolStripMenuItem.Size = new Size(194, 24);
             exportToFileToolStripMenuItem.Text = "To File";
@@ -402,6 +403,13 @@
             exportToOdtToolStripMenuItem.Size = new Size(180, 24);
             exportToOdtToolStripMenuItem.Text = "ODT";
             exportToOdtToolStripMenuItem.Click += exportToOdtToolStripMenuItem_Click;
+            // 
+            // exportToMarkdownToolStripMenuItem
+            // 
+            exportToMarkdownToolStripMenuItem.Name = "exportToMarkdownToolStripMenuItem";
+            exportToMarkdownToolStripMenuItem.Size = new Size(180, 24);
+            exportToMarkdownToolStripMenuItem.Text = "Markdown";
+            exportToMarkdownToolStripMenuItem.Click += exportToMarkdownToolStripMenuItem_Click;
             // 
             // exportToObsidianVaultToolStripMenuItem
             // 
@@ -490,6 +498,7 @@
         private ToolStripMenuItem exportToRtfToolStripMenuItem;
         private ToolStripMenuItem exportToHtmlToolStripMenuItem;
         private ToolStripMenuItem exportToOdtToolStripMenuItem;
+        private ToolStripMenuItem exportToMarkdownToolStripMenuItem;
         private ContextMenuStrip contextMenu_ListBox_Events;
         private ToolStripMenuItem moveUpToolStripMenuItem;
         private ToolStripMenuItem moveDownToolStripMenuItem;
