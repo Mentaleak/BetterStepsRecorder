@@ -11,6 +11,7 @@ namespace BetterStepsRecorder
         public class GeneralSettings
         {
             public bool MinimizeOnStartRecording { get; set; } = true;
+            public bool AllowRecordSelf { get; set; } = false;
         }
 
         // ══════════════════════════════════════════════════════════════════════

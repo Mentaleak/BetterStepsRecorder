@@ -31,6 +31,7 @@ namespace BetterStepsRecorder.UI.Settings
             lblNote = new Label();
             lblRecording = new Label();
             chkMinimizeOnStart = new CheckBox();
+            chkAllowRecordSelf = new CheckBox();
             SuspendLayout();
             // 
             // lblNote
@@ -63,10 +64,22 @@ namespace BetterStepsRecorder.UI.Settings
             chkMinimizeOnStart.UseVisualStyleBackColor = true;
             chkMinimizeOnStart.CheckedChanged += Checkbox_CheckedChanged;
             // 
+            // chkAllowRecordSelf
+            // 
+            chkAllowRecordSelf.AutoSize = true;
+            chkAllowRecordSelf.Location = new Point(20, 125);
+            chkAllowRecordSelf.Name = "chkAllowRecordSelf";
+            chkAllowRecordSelf.Size = new Size(200, 24);
+            chkAllowRecordSelf.TabIndex = 3;
+            chkAllowRecordSelf.Text = "Allow recording BSR itself";
+            chkAllowRecordSelf.UseVisualStyleBackColor = true;
+            chkAllowRecordSelf.CheckedChanged += Checkbox_CheckedChanged;
+            // 
             // GeneralSettings
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(chkAllowRecordSelf);
             Controls.Add(chkMinimizeOnStart);
             Controls.Add(lblRecording);
             Controls.Add(lblNote);
@@ -81,5 +94,6 @@ namespace BetterStepsRecorder.UI.Settings
         private Label lblNote;
         private Label lblRecording;
         private CheckBox chkMinimizeOnStart;
+        private CheckBox chkAllowRecordSelf;
     }
 }
