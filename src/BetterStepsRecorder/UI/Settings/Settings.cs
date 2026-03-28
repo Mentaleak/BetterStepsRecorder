@@ -14,6 +14,7 @@ namespace BetterStepsRecorder.UI.Settings
         private Dictionary<string, List<string>> nodeSearchIndex;
         private System.Windows.Forms.Timer searchDebounceTimer;
         private Dictionary<UserControl, TreeNode> controlNodeMap;
+        private List<TreeNodeData> originalTreeStructure;
 
         public Settings()
         {
@@ -28,6 +29,9 @@ namespace BetterStepsRecorder.UI.Settings
 
             // Initialize control-node mapping
             controlNodeMap = new Dictionary<UserControl, TreeNode>();
+
+            // Store original tree structure for search restore
+            originalTreeStructure = CaptureTreeStructure();
 
             // Build search index
             BuildSearchIndex();
@@ -547,95 +551,125 @@ namespace BetterStepsRecorder.UI.Settings
 
             if (string.IsNullOrEmpty(searchText))
             {
-                // Show all nodes
-                ShowAllNodes(treeView_Settings.Nodes);
+                // Restore all nodes from original structure
+                RestoreTreeStructure();
                 treeView_Settings.ExpandAll();
                 UpdateNodeStates();
                 treeView_Settings.EndUpdate();
                 return;
             }
 
-            // Hide all nodes first
-            HideAllNodes(treeView_Settings.Nodes);
-
-            // Show matching nodes and their parents
-            bool anyMatches = false;
+            // Find all matching node names
+            HashSet<string> matchingNodeNames = new HashSet<string>();
             foreach (var kvp in nodeSearchIndex)
             {
-                bool matches = false;
                 foreach (var term in kvp.Value)
                 {
                     if (term.Contains(searchText))
                     {
-                        matches = true;
+                        matchingNodeNames.Add(kvp.Key);
                         break;
                     }
                 }
-
-                if (matches)
-                {
-                    anyMatches = true;
-                    TreeNode node = FindNodeByName(kvp.Key);
-                    if (node != null)
-                    {
-                        ShowNodeAndParents(node);
-                    }
-                }
             }
 
-            if (anyMatches)
-            {
-                treeView_Settings.ExpandAll();
-                UpdateNodeStates();
-            }
+            // Rebuild tree with only matching nodes (and their parents)
+            RebuildTreeWithMatches(matchingNodeNames);
 
+            treeView_Settings.ExpandAll();
+            UpdateNodeStates();
             treeView_Settings.EndUpdate();
         }
 
-        private void ShowAllNodes(TreeNodeCollection nodes)
+        private class TreeNodeData
         {
-            foreach (TreeNode node in nodes)
-            {
-                node.BackColor = Color.Empty;
-                ShowAllNodes(node.Nodes);
-            }
+            public string Name { get; set; }
+            public string Text { get; set; }
+            public List<TreeNodeData> Children { get; set; } = new List<TreeNodeData>();
         }
 
-        private void HideAllNodes(TreeNodeCollection nodes)
+        private List<TreeNodeData> CaptureTreeStructure()
         {
-            foreach (TreeNode node in nodes)
+            var result = new List<TreeNodeData>();
+            foreach (TreeNode node in treeView_Settings.Nodes)
             {
-                node.BackColor = SystemColors.Control;
-                HideAllNodes(node.Nodes);
+                result.Add(CaptureNode(node));
             }
+            return result;
         }
 
-        private void ShowNodeAndParents(TreeNode node)
+        private TreeNodeData CaptureNode(TreeNode node)
         {
-            if (node == null) return;
-
-            // Highlight the matching node with yellow background
-            node.BackColor = Color.LightYellow;
-
-            // Show parent nodes without highlight
-            TreeNode parent = node.Parent;
-            while (parent != null)
+            var data = new TreeNodeData
             {
-                parent.BackColor = Color.Empty;
-                parent = parent.Parent;
-            }
-
-            // Show child nodes without highlight
-            ShowChildNodes(node);
-        }
-
-        private void ShowChildNodes(TreeNode node)
-        {
+                Name = node.Name,
+                Text = node.Text
+            };
             foreach (TreeNode child in node.Nodes)
             {
-                child.BackColor = Color.Empty;
-                ShowChildNodes(child);
+                data.Children.Add(CaptureNode(child));
             }
+            return data;
+        }
+
+        private void RestoreTreeStructure()
+        {
+            treeView_Settings.Nodes.Clear();
+            foreach (var nodeData in originalTreeStructure)
+            {
+                treeView_Settings.Nodes.Add(RestoreNode(nodeData));
+            }
+        }
+
+        private TreeNode RestoreNode(TreeNodeData data)
+        {
+            var node = new TreeNode(data.Text) { Name = data.Name };
+            foreach (var childData in data.Children)
+            {
+                node.Nodes.Add(RestoreNode(childData));
+            }
+            return node;
+        }
+
+        private void RebuildTreeWithMatches(HashSet<string> matchingNodeNames)
+        {
+            treeView_Settings.Nodes.Clear();
+            foreach (var nodeData in originalTreeStructure)
+            {
+                var filteredNode = BuildFilteredNode(nodeData, matchingNodeNames);
+                if (filteredNode != null)
+                {
+                    treeView_Settings.Nodes.Add(filteredNode);
+                }
+            }
+        }
+
+        private TreeNode BuildFilteredNode(TreeNodeData data, HashSet<string> matchingNodeNames)
+        {
+            bool selfMatches = matchingNodeNames.Contains(data.Name);
+            List<TreeNode> matchingChildren = new List<TreeNode>();
+
+            foreach (var childData in data.Children)
+            {
+                var filteredChild = BuildFilteredNode(childData, matchingNodeNames);
+                if (filteredChild != null)
+                {
+                    matchingChildren.Add(filteredChild);
+                }
+            }
+
+            // Include this node if it matches or has matching descendants
+            if (selfMatches || matchingChildren.Count > 0)
+            {
+                var node = new TreeNode(data.Text) { Name = data.Name };
+                foreach (var child in matchingChildren)
+                {
+                    node.Nodes.Add(child);
+                }
+                return node;
+            }
+
+            return null;
         }
 
         private void button_settings_default_Click(object sender, EventArgs e)
