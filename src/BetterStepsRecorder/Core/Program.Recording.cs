@@ -157,16 +157,27 @@ namespace BetterStepsRecorder
                                 int uiW = endUIrect.Right  - endUIrect.Left;
                                 int uiH = endUIrect.Bottom - endUIrect.Top;
 
-                                // Capture region: padded crop, the screen containing the drag end, or all screens
+                                // Determine if drag spans multiple windows by comparing top-level window rects
+                                RECT endWinRect = GetTopLevelWindowRect(hwnd);
+                                bool multiWindowDrag = !RectsEqual(winRect, endWinRect);
+
+                                // Use fallback mode if ActiveWindow mode but drag spans multiple windows
+                                DragScreenshotMode effectiveMode = BSRSettings.Current.Screenshot.Drag.Mode;
+                                if (effectiveMode == DragScreenshotMode.ActiveWindow && multiWindowDrag)
+                                {
+                                    effectiveMode = (DragScreenshotMode)BSRSettings.Current.Screenshot.Drag.Fallback.Mode;
+                                }
+
+                                // Capture region: padded crop, active window, the screen containing the drag end, or all screens
                                 int cropLeft, cropTop, cropW, cropH;
-                                if (DragScreenshotMode == DragScreenshotMode.AllScreens)
+                                if (effectiveMode == DragScreenshotMode.AllScreens)
                                 {
                                     cropLeft = SystemInformation.VirtualScreen.Left;
                                     cropTop  = SystemInformation.VirtualScreen.Top;
                                     cropW    = SystemInformation.VirtualScreen.Width;
                                     cropH    = SystemInformation.VirtualScreen.Height;
                                 }
-                                else if (DragScreenshotMode == DragScreenshotMode.ActiveScreen)
+                                else if (effectiveMode == DragScreenshotMode.ActiveScreen)
                                 {
                                     // Use the screen that contains the drag end point
                                     var screen = Screen.FromPoint(new System.Drawing.Point(dragEnd.X, dragEnd.Y));
@@ -175,13 +186,21 @@ namespace BetterStepsRecorder
                                     cropW    = screen.Bounds.Width;
                                     cropH    = screen.Bounds.Height;
                                 }
-                                else
+                                else if (effectiveMode == DragScreenshotMode.ActiveWindow)
                                 {
-                                    const int DragPad = 120;
-                                    int cropRight  = Math.Min(SystemInformation.VirtualScreen.Right,  Math.Max(dragStart.X, dragEnd.X) + DragPad);
-                                    int cropBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, Math.Max(dragStart.Y, dragEnd.Y) + DragPad);
-                                    cropLeft = Math.Max(SystemInformation.VirtualScreen.Left, Math.Min(dragStart.X, dragEnd.X) - DragPad);
-                                    cropTop  = Math.Max(SystemInformation.VirtualScreen.Top,  Math.Min(dragStart.Y, dragEnd.Y) - DragPad);
+                                    // Use the window that was dragged in
+                                    cropLeft = winRect.Left;
+                                    cropTop  = winRect.Top;
+                                    cropW    = winW;
+                                    cropH    = winH;
+                                }
+                                else // Cropped
+                                {
+                                    int dragPad = BSRSettings.Current.Screenshot.Drag.Cropped.Padding;
+                                    int cropRight  = Math.Min(SystemInformation.VirtualScreen.Right,  Math.Max(dragStart.X, dragEnd.X) + dragPad);
+                                    int cropBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, Math.Max(dragStart.Y, dragEnd.Y) + dragPad);
+                                    cropLeft = Math.Max(SystemInformation.VirtualScreen.Left, Math.Min(dragStart.X, dragEnd.X) - dragPad);
+                                    cropTop  = Math.Max(SystemInformation.VirtualScreen.Top,  Math.Min(dragStart.Y, dragEnd.Y) - dragPad);
                                     cropW = cropRight  - cropLeft;
                                     cropH = cropBottom - cropTop;
                                 }
@@ -301,18 +320,51 @@ namespace BetterStepsRecorder
 
                                 GetWindowRect(hwnd, out RECT UIrect);
                                 RECT rect         = GetTopLevelWindowRect(hwnd);
-                                int  windowWidth  = rect.Right  - rect.Left;
-                                int  windowHeight = rect.Bottom - rect.Top;
                                 int  UIWidth      = UIrect.Right  - UIrect.Left;
                                 int  UIHeight     = UIrect.Bottom - UIrect.Top;
+
+                                // Determine screenshot region based on ClickScreenshotMode
+                                int captureLeft, captureTop, captureWidth, captureHeight;
+                                if (BSRSettings.Current.Screenshot.Click.Mode == ClickScreenshotMode.AllScreens)
+                                {
+                                    captureLeft = SystemInformation.VirtualScreen.Left;
+                                    captureTop = SystemInformation.VirtualScreen.Top;
+                                    captureWidth = SystemInformation.VirtualScreen.Width;
+                                    captureHeight = SystemInformation.VirtualScreen.Height;
+                                }
+                                else if (BSRSettings.Current.Screenshot.Click.Mode == ClickScreenshotMode.ActiveScreen)
+                                {
+                                    var screen = Screen.FromPoint(new System.Drawing.Point(cursorPos.X, cursorPos.Y));
+                                    captureLeft = screen.Bounds.Left;
+                                    captureTop = screen.Bounds.Top;
+                                    captureWidth = screen.Bounds.Width;
+                                    captureHeight = screen.Bounds.Height;
+                                }
+                                else if (BSRSettings.Current.Screenshot.Click.Mode == ClickScreenshotMode.ActiveWindow)
+                                {
+                                    captureLeft = rect.Left;
+                                    captureTop = rect.Top;
+                                    captureWidth = rect.Right - rect.Left;
+                                    captureHeight = rect.Bottom - rect.Top;
+                                }
+                                else // Cropped
+                                {
+                                    int clickPad = BSRSettings.Current.Screenshot.Click.Cropped.Padding;
+                                    captureLeft = Math.Max(SystemInformation.VirtualScreen.Left, cursorPos.X - clickPad);
+                                    captureTop = Math.Max(SystemInformation.VirtualScreen.Top, cursorPos.Y - clickPad);
+                                    int captureRight = Math.Min(SystemInformation.VirtualScreen.Right, cursorPos.X + clickPad);
+                                    int captureBottom = Math.Min(SystemInformation.VirtualScreen.Bottom, cursorPos.Y + clickPad);
+                                    captureWidth = captureRight - captureLeft;
+                                    captureHeight = captureBottom - captureTop;
+                                }
 
                                 Bitmap? preClickBitmap = null;
                                 try
                                 {
-                                    preClickBitmap = new Bitmap(windowWidth, windowHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                                    preClickBitmap = new Bitmap(captureWidth, captureHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                                     using (Graphics gfx = Graphics.FromImage(preClickBitmap))
-                                        gfx.CopyFromScreen(rect.Left, rect.Top, 0, 0,
-                                            new System.Drawing.Size(windowWidth, windowHeight),
+                                        gfx.CopyFromScreen(captureLeft, captureTop, 0, 0,
+                                            new System.Drawing.Size(captureWidth, captureHeight),
                                             CopyPixelOperation.SourceCopy);
                                 }
                                 catch
@@ -322,14 +374,14 @@ namespace BetterStepsRecorder
                                 }
 
                                 var snapshot = (cursorPos, hwnd, windowTitle, applicationName, clickType,
-                                                UIrect, rect, windowWidth, windowHeight, UIWidth, UIHeight,
-                                                preClickBitmap);
+                                                UIrect, rect, captureWidth, captureHeight, UIWidth, UIHeight,
+                                                captureLeft, captureTop, preClickBitmap);
 
                                 ThreadPool.QueueUserWorkItem(_ =>
                                 {
                                     var (cp, _, wt, appName, ct,
                                          uiRect, winRect, winW, winH, uiW, uiH,
-                                         preBitmap) = snapshot;
+                                         capLeft, capTop, preBitmap) = snapshot;
 
                                     AutomationElement? element = GetElementFromPoint(new System.Drawing.Point(cp.X, cp.Y));
                                     string? elementName = null;
@@ -372,7 +424,7 @@ namespace BetterStepsRecorder
                                         using (preBitmap)
                                         {
                                             using (Graphics gfx = Graphics.FromImage(preBitmap))
-                                                DrawArrowAtCursor(gfx, winW, winH, winRect.Left, winRect.Top, cp);
+                                                DrawArrowAtCursor(gfx, winW, winH, capLeft, capTop, cp);
                                             using (var ms = new System.IO.MemoryStream())
                                             {
                                                 preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
@@ -382,7 +434,7 @@ namespace BetterStepsRecorder
                                     }
                                     else
                                     {
-                                        string? b64 = SaveScreenRegionScreenshot(winRect.Left, winRect.Top, winW, winH, recordEvent.ID, cp);
+                                        string? b64 = SaveScreenRegionScreenshot(capLeft, capTop, winW, winH, recordEvent.ID, cp);
                                         if (b64 != null) pngBytes = Convert.FromBase64String(b64);
                                     }
 
@@ -534,6 +586,15 @@ namespace BetterStepsRecorder
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        /// <summary>
+        /// Helper method to compare two RECT structures for equality
+        /// </summary>
+        private static bool RectsEqual(RECT r1, RECT r2)
+        {
+            return r1.Left == r2.Left && r1.Top == r2.Top && 
+                   r1.Right == r2.Right && r1.Bottom == r2.Bottom;
         }
 
         /// <summary>

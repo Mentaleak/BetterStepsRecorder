@@ -3,12 +3,12 @@ using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace BetterStepsRecorder.UI.Dialogs
+namespace BetterStepsRecorder.UI.Dialogs.Obsidian
 {
     /// <summary>
     /// A custom folder browser that restricts navigation to within a specific root folder
     /// </summary>
-    public class RestrictedFolderBrowser : Form
+    public class ObsidianExporterRestrictedFolderBrowser : Form
     {
         private TreeView folderTreeView;
         private Button okButton;
@@ -18,7 +18,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         private readonly string rootPath;
         public string SelectedPath { get; private set; }
 
-        public RestrictedFolderBrowser(string rootPath)
+        public ObsidianExporterRestrictedFolderBrowser(string rootPath)
         {
             this.rootPath = rootPath;
             InitializeComponents();

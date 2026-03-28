@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using BetterStepsRecorder.Exporters;
+using BetterStepsRecorder.UI.Dialogs.Obsidian;
 
 namespace BetterStepsRecorder.UI.Dialogs
 {
@@ -123,7 +124,7 @@ namespace BetterStepsRecorder.UI.Dialogs
         public static string SelectSubfolder(string vaultPath)
         {
             // Create a custom folder browser that restricts navigation to within the vault
-            using (RestrictedFolderBrowser restrictedBrowser = new RestrictedFolderBrowser(vaultPath))
+            using (ObsidianExporterRestrictedFolderBrowser restrictedBrowser = new ObsidianExporterRestrictedFolderBrowser(vaultPath))
             {
                 if (restrictedBrowser.ShowDialog() == DialogResult.OK)
                 {

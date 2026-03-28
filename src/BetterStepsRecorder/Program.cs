@@ -42,8 +42,8 @@ namespace BetterStepsRecorder
         {
             ApplicationConfiguration.Initialize();
 
-            // Load persisted recording settings (arrow colour, indicator style)
-            RecordingSettings.Load().Apply();
+            // Load persisted recording settings (singleton pattern - loads once)
+            _ = BSRSettings.Current;
 
             // Create the spool directory for this session
             Directory.CreateDirectory(SessionSpoolDir);

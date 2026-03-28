@@ -289,7 +289,7 @@ namespace BetterStepsRecorder
                 case ImageTool.Arrow:
                 {
                     using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(6, 6);
-                    using var pen = new Pen(Program.ArrowColor, 3f);
+                    using var pen = new Pen(Color.FromArgb(BSRSettings.Current.Indicator.Color), 3f);
                     pen.CustomEndCap = arrowCap;
                     e.Graphics.DrawLine(pen, _arrowStart, _toolCurrent);
                     break;
@@ -370,7 +370,7 @@ namespace BetterStepsRecorder
             using var g = Graphics.FromImage(bmp);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(7, 7);
-            using var pen = new Pen(Program.ArrowColor, 4f);
+            using var pen = new Pen(Color.FromArgb(BSRSettings.Current.Indicator.Color), 4f);
             pen.CustomEndCap = arrowCap;
             g.DrawLine(pen, start, end);
         }

@@ -18,7 +18,7 @@ namespace BetterStepsRecorder
         private int ActivityDelay = DefaultActivityDelay;
         private Point _mouseDownLocation;
         private HelpPopup? _helpPopup;
-        
+
         public MainForm()
         {
             InitializeComponent();
@@ -35,11 +35,11 @@ namespace BetterStepsRecorder
         {
             // Initialize the global status manager instead of a local instance
             StatusManager.Initialize(this);
-            
+
             // Show initial ready message using the global manager
             StatusManager.ShowMessage("Ready to record steps");
         }
-        
+
         private void Form1_Load(object sender, EventArgs e)
         {
             DisableRecording();
@@ -59,6 +59,14 @@ namespace BetterStepsRecorder
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Program.SaveRecordEvents();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var settingsForm = new UI.Settings.Settings())
+            {
+                settingsForm.ShowDialog(this);
+            }
         }
     }
 }

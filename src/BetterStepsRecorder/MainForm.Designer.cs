@@ -40,6 +40,17 @@
             splitContainer2 = new SplitContainer();
             splitContainer3 = new SplitContainer();
             pictureBox1 = new PictureBox();
+            pictureBoxToolStrip = new ToolStrip();
+            undoToolStripButton = new ToolStripButton();
+            toolStripSeparator2 = new ToolStripSeparator();
+            blurRegionToolStripButton = new ToolStripButton();
+            highlightToolStripButton = new ToolStripButton();
+            highlightColourToolStripButton = new ToolStripButton();
+            toolStripSeparator3 = new ToolStripSeparator();
+            textLabelToolStripButton = new ToolStripButton();
+            arrowToolStripButton = new ToolStripButton();
+            toolStripSeparator4 = new ToolStripSeparator();
+            cropToolStripButton = new ToolStripButton();
             richTextBox_stepText = new RichTextBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -53,20 +64,8 @@
             exportToHtmlToolStripMenuItem = new ToolStripMenuItem();
             exportToOdtToolStripMenuItem = new ToolStripMenuItem();
             exportToObsidianVaultToolStripMenuItem = new ToolStripMenuItem();
-            pictureBoxToolStrip = new ToolStrip();
-            undoToolStripButton = new ToolStripButton();
-            blurRegionToolStripButton = new ToolStripButton();
-            highlightToolStripButton = new ToolStripButton();
-            highlightColourToolStripButton = new ToolStripButton();
-            textLabelToolStripButton = new ToolStripButton();
-            arrowToolStripButton = new ToolStripButton();
-            cropToolStripButton = new ToolStripButton();
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
-            arrowColourToolStripMenuItem = new ToolStripMenuItem();
-            clickIndicatorStyleToolStripMenuItem = new ToolStripMenuItem();
-            dragScreenshotModeToolStripMenuItem = new ToolStripMenuItem();
-            htmlExportOptionsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
@@ -81,8 +80,8 @@
             splitContainer3.Panel1.SuspendLayout();
             splitContainer3.Panel2.SuspendLayout();
             splitContainer3.SuspendLayout();
-            pictureBoxToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            pictureBoxToolStrip.SuspendLayout();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -91,11 +90,11 @@
             Listbox_Events.AllowDrop = true;
             Listbox_Events.Dock = DockStyle.Fill;
             Listbox_Events.FormattingEnabled = true;
-            Listbox_Events.ItemHeight = 15;
             Listbox_Events.Location = new Point(0, 0);
+            Listbox_Events.Margin = new Padding(3, 4, 3, 4);
             Listbox_Events.Name = "Listbox_Events";
             Listbox_Events.SelectionMode = SelectionMode.MultiExtended;
-            Listbox_Events.Size = new Size(354, 156);
+            Listbox_Events.Size = new Size(405, 209);
             Listbox_Events.TabIndex = 1;
             Listbox_Events.SelectedIndexChanged += Listbox_Events_SelectedIndexChanged;
             Listbox_Events.DragDrop += Listbox_Events_DragDrop;
@@ -108,26 +107,26 @@
             // 
             contextMenu_ListBox_Events.Items.AddRange(new ToolStripItem[] { moveUpToolStripMenuItem, moveDownToolStripMenuItem, deleteToolStripMenuItem });
             contextMenu_ListBox_Events.Name = "contextMenuStrip1";
-            contextMenu_ListBox_Events.Size = new Size(139, 70);
+            contextMenu_ListBox_Events.Size = new Size(159, 76);
             // 
             // moveUpToolStripMenuItem
             // 
             moveUpToolStripMenuItem.Name = "moveUpToolStripMenuItem";
-            moveUpToolStripMenuItem.Size = new Size(138, 22);
+            moveUpToolStripMenuItem.Size = new Size(158, 24);
             moveUpToolStripMenuItem.Text = "Move Up";
             moveUpToolStripMenuItem.Click += moveUpToolStripMenuItem_Click;
             // 
             // moveDownToolStripMenuItem
             // 
             moveDownToolStripMenuItem.Name = "moveDownToolStripMenuItem";
-            moveDownToolStripMenuItem.Size = new Size(138, 22);
+            moveDownToolStripMenuItem.Size = new Size(158, 24);
             moveDownToolStripMenuItem.Text = "Move Down";
             moveDownToolStripMenuItem.Click += moveDownToolStripMenuItem_Click;
             // 
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(138, 22);
+            deleteToolStripMenuItem.Size = new Size(158, 24);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -137,9 +136,10 @@
             propertyGrid_RecordEvent.Dock = DockStyle.Fill;
             propertyGrid_RecordEvent.Enabled = false;
             propertyGrid_RecordEvent.Location = new Point(0, 0);
+            propertyGrid_RecordEvent.Margin = new Padding(3, 4, 3, 4);
             propertyGrid_RecordEvent.Name = "propertyGrid_RecordEvent";
             propertyGrid_RecordEvent.RightToLeft = RightToLeft.Yes;
-            propertyGrid_RecordEvent.Size = new Size(354, 427);
+            propertyGrid_RecordEvent.Size = new Size(405, 573);
             propertyGrid_RecordEvent.TabIndex = 4;
             propertyGrid_RecordEvent.ToolbarVisible = false;
             // 
@@ -149,6 +149,7 @@
             splitContainer1.BorderStyle = BorderStyle.Fixed3D;
             splitContainer1.Dock = DockStyle.Fill;
             splitContainer1.Location = new Point(0, 0);
+            splitContainer1.Margin = new Padding(3, 4, 3, 4);
             splitContainer1.Name = "splitContainer1";
             splitContainer1.Orientation = Orientation.Horizontal;
             // 
@@ -161,10 +162,10 @@
             // 
             splitContainer1.Panel2.BackColor = SystemColors.ActiveCaption;
             splitContainer1.Panel2.Controls.Add(propertyGrid_RecordEvent);
-            splitContainer1.Size = new Size(358, 601);
-            splitContainer1.SplitterDistance = 160;
+            splitContainer1.Size = new Size(409, 803);
+            splitContainer1.SplitterDistance = 213;
             splitContainer1.SplitterIncrement = 5;
-            splitContainer1.SplitterWidth = 10;
+            splitContainer1.SplitterWidth = 13;
             splitContainer1.TabIndex = 5;
             // 
             // splitContainer2
@@ -172,7 +173,8 @@
             splitContainer2.BackColor = SystemColors.Control;
             splitContainer2.BorderStyle = BorderStyle.Fixed3D;
             splitContainer2.Dock = DockStyle.Fill;
-            splitContainer2.Location = new Point(0, 24);
+            splitContainer2.Location = new Point(0, 30);
+            splitContainer2.Margin = new Padding(3, 4, 3, 4);
             splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -183,16 +185,17 @@
             // 
             splitContainer2.Panel2.BackColor = SystemColors.Control;
             splitContainer2.Panel2.Controls.Add(splitContainer3);
-            splitContainer2.Size = new Size(938, 601);
-            splitContainer2.SplitterDistance = 358;
+            splitContainer2.Size = new Size(1072, 803);
+            splitContainer2.SplitterDistance = 409;
             splitContainer2.SplitterIncrement = 5;
-            splitContainer2.SplitterWidth = 10;
+            splitContainer2.SplitterWidth = 11;
             splitContainer2.TabIndex = 7;
             // 
             // splitContainer3
             // 
             splitContainer3.Dock = DockStyle.Fill;
             splitContainer3.Location = new Point(0, 0);
+            splitContainer3.Margin = new Padding(3, 4, 3, 4);
             splitContainer3.Name = "splitContainer3";
             splitContainer3.Orientation = Orientation.Horizontal;
             // 
@@ -204,27 +207,117 @@
             // splitContainer3.Panel2
             // 
             splitContainer3.Panel2.Controls.Add(richTextBox_stepText);
-            splitContainer3.Size = new Size(566, 597);
-            splitContainer3.SplitterDistance = 502;
+            splitContainer3.Size = new Size(648, 799);
+            splitContainer3.SplitterDistance = 670;
+            splitContainer3.SplitterWidth = 5;
             splitContainer3.TabIndex = 2;
             // 
             // pictureBox1
             // 
             pictureBox1.BackColor = SystemColors.ControlDarkDark;
             pictureBox1.Dock = DockStyle.Fill;
-            pictureBox1.Location = new Point(0, 0);
+            pictureBox1.Location = new Point(0, 27);
+            pictureBox1.Margin = new Padding(3, 4, 3, 4);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(566, 502);
+            pictureBox1.Size = new Size(648, 643);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            // 
+            // pictureBoxToolStrip
+            // 
+            pictureBoxToolStrip.BackColor = SystemColors.Control;
+            pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Location = new Point(0, 0);
+            pictureBoxToolStrip.Name = "pictureBoxToolStrip";
+            pictureBoxToolStrip.Size = new Size(648, 27);
+            pictureBoxToolStrip.TabIndex = 1;
+            // 
+            // undoToolStripButton
+            // 
+            undoToolStripButton.Enabled = false;
+            undoToolStripButton.Name = "undoToolStripButton";
+            undoToolStripButton.Size = new Size(66, 24);
+            undoToolStripButton.Text = "↩ Undo";
+            undoToolStripButton.ToolTipText = "Undo last annotation (Ctrl+Z)";
+            undoToolStripButton.Click += undoToolStripButton_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(6, 27);
+            // 
+            // blurRegionToolStripButton
+            // 
+            blurRegionToolStripButton.CheckOnClick = true;
+            blurRegionToolStripButton.Name = "blurRegionToolStripButton";
+            blurRegionToolStripButton.Size = new Size(39, 24);
+            blurRegionToolStripButton.Text = "Blur";
+            blurRegionToolStripButton.ToolTipText = "Draw a rectangle to blur/redact sensitive info";
+            blurRegionToolStripButton.Click += blurRegionToolStripButton_Click;
+            // 
+            // highlightToolStripButton
+            // 
+            highlightToolStripButton.CheckOnClick = true;
+            highlightToolStripButton.Name = "highlightToolStripButton";
+            highlightToolStripButton.Size = new Size(75, 24);
+            highlightToolStripButton.Text = "Highlight";
+            highlightToolStripButton.ToolTipText = "Draw a coloured highlight rectangle";
+            highlightToolStripButton.Click += highlightToolStripButton_Click;
+            // 
+            // highlightColourToolStripButton
+            // 
+            highlightColourToolStripButton.Name = "highlightColourToolStripButton";
+            highlightColourToolStripButton.Size = new Size(34, 24);
+            highlightColourToolStripButton.Text = "🎨";
+            highlightColourToolStripButton.ToolTipText = "Pick highlight colour";
+            highlightColourToolStripButton.Click += highlightColourToolStripButton_Click;
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(6, 27);
+            // 
+            // textLabelToolStripButton
+            // 
+            textLabelToolStripButton.CheckOnClick = true;
+            textLabelToolStripButton.Name = "textLabelToolStripButton";
+            textLabelToolStripButton.Size = new Size(40, 24);
+            textLabelToolStripButton.Text = "Text";
+            textLabelToolStripButton.ToolTipText = "Click to place a text label on the screenshot";
+            textLabelToolStripButton.Click += textLabelToolStripButton_Click;
+            // 
+            // arrowToolStripButton
+            // 
+            arrowToolStripButton.CheckOnClick = true;
+            arrowToolStripButton.Name = "arrowToolStripButton";
+            arrowToolStripButton.Size = new Size(53, 24);
+            arrowToolStripButton.Text = "Arrow";
+            arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
+            arrowToolStripButton.Click += arrowToolStripButton_Click;
+            // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(6, 27);
+            // 
+            // cropToolStripButton
+            // 
+            cropToolStripButton.CheckOnClick = true;
+            cropToolStripButton.Name = "cropToolStripButton";
+            cropToolStripButton.Size = new Size(45, 24);
+            cropToolStripButton.Text = "Crop";
+            cropToolStripButton.ToolTipText = "Crop the screenshot to the selected area";
+            cropToolStripButton.Click += cropToolStripButton_Click;
             // 
             // richTextBox_stepText
             // 
             richTextBox_stepText.Dock = DockStyle.Fill;
             richTextBox_stepText.Location = new Point(0, 0);
+            richTextBox_stepText.Margin = new Padding(3, 4, 3, 4);
             richTextBox_stepText.Name = "richTextBox_stepText";
-            richTextBox_stepText.Size = new Size(566, 91);
+            richTextBox_stepText.Size = new Size(648, 124);
             richTextBox_stepText.TabIndex = 1;
             richTextBox_stepText.Text = "";
             richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
@@ -235,7 +328,8 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, ToolStripMenuItem_Recording, settingsToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(938, 24);
+            menuStrip1.Padding = new Padding(7, 3, 0, 3);
+            menuStrip1.Size = new Size(1072, 30);
             menuStrip1.TabIndex = 8;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -243,20 +337,20 @@
             // 
             fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, toolStripMenuItem1_SaveAs, toolStripSeparator1, exportToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Size = new Size(44, 24);
             fileToolStripMenuItem.Text = "File";
             // 
             // newToolStripMenuItem
             // 
             newToolStripMenuItem.Name = "newToolStripMenuItem";
-            newToolStripMenuItem.Size = new Size(114, 22);
+            newToolStripMenuItem.Size = new Size(180, 24);
             newToolStripMenuItem.Text = "New";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
             // 
             // openToolStripMenuItem
             // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.Size = new Size(114, 22);
+            openToolStripMenuItem.Size = new Size(180, 24);
             openToolStripMenuItem.Text = "Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
@@ -264,55 +358,55 @@
             // 
             toolStripMenuItem1_SaveAs.Enabled = false;
             toolStripMenuItem1_SaveAs.Name = "toolStripMenuItem1_SaveAs";
-            toolStripMenuItem1_SaveAs.Size = new Size(114, 22);
+            toolStripMenuItem1_SaveAs.Size = new Size(180, 24);
             toolStripMenuItem1_SaveAs.Text = "Save As";
             toolStripMenuItem1_SaveAs.Click += toolStripMenuItem1_SaveAs_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(111, 6);
+            toolStripSeparator1.Size = new Size(177, 6);
             // 
             // exportToolStripMenuItem
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToFileToolStripMenuItem, exportToObsidianVaultToolStripMenuItem });
             exportToolStripMenuItem.Enabled = false;
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(114, 22);
+            exportToolStripMenuItem.Size = new Size(180, 24);
             exportToolStripMenuItem.Text = "Export";
             // 
             // exportToFileToolStripMenuItem
             // 
-            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToRtfToolStripMenuItem, exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem });
+            exportToFileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { exportToHtmlToolStripMenuItem, exportToOdtToolStripMenuItem, exportToRtfToolStripMenuItem });
             exportToFileToolStripMenuItem.Name = "exportToFileToolStripMenuItem";
-            exportToFileToolStripMenuItem.Size = new Size(165, 22);
+            exportToFileToolStripMenuItem.Size = new Size(194, 24);
             exportToFileToolStripMenuItem.Text = "To File";
             // 
             // exportToRtfToolStripMenuItem
             // 
             exportToRtfToolStripMenuItem.Name = "exportToRtfToolStripMenuItem";
-            exportToRtfToolStripMenuItem.Size = new Size(106, 22);
+            exportToRtfToolStripMenuItem.Size = new Size(180, 24);
             exportToRtfToolStripMenuItem.Text = "RTF";
             exportToRtfToolStripMenuItem.Click += exportToRtfToolStripMenuItem_Click;
             // 
             // exportToHtmlToolStripMenuItem
             // 
             exportToHtmlToolStripMenuItem.Name = "exportToHtmlToolStripMenuItem";
-            exportToHtmlToolStripMenuItem.Size = new Size(106, 22);
+            exportToHtmlToolStripMenuItem.Size = new Size(180, 24);
             exportToHtmlToolStripMenuItem.Text = "HTML";
             exportToHtmlToolStripMenuItem.Click += exportToHtmlToolStripMenuItem_Click;
             // 
             // exportToOdtToolStripMenuItem
             // 
             exportToOdtToolStripMenuItem.Name = "exportToOdtToolStripMenuItem";
-            exportToOdtToolStripMenuItem.Size = new Size(106, 22);
+            exportToOdtToolStripMenuItem.Size = new Size(180, 24);
             exportToOdtToolStripMenuItem.Text = "ODT";
             exportToOdtToolStripMenuItem.Click += exportToOdtToolStripMenuItem_Click;
             // 
             // exportToObsidianVaultToolStripMenuItem
             // 
             exportToObsidianVaultToolStripMenuItem.Name = "exportToObsidianVaultToolStripMenuItem";
-            exportToObsidianVaultToolStripMenuItem.Size = new Size(165, 22);
+            exportToObsidianVaultToolStripMenuItem.Size = new Size(194, 24);
             exportToObsidianVaultToolStripMenuItem.Text = "To Obsidian Vault";
             exportToObsidianVaultToolStripMenuItem.Click += exportToObsidianVaultToolStripMenuItem_Click;
             // 
@@ -323,136 +417,34 @@
             ToolStripMenuItem_Recording.Image = Properties.Resources.RecordTiny;
             ToolStripMenuItem_Recording.Name = "ToolStripMenuItem_Recording";
             ToolStripMenuItem_Recording.RightToLeft = RightToLeft.No;
-            ToolStripMenuItem_Recording.Size = new Size(116, 20);
+            ToolStripMenuItem_Recording.Size = new Size(140, 24);
             ToolStripMenuItem_Recording.Text = "Start Recording";
             ToolStripMenuItem_Recording.Click += ToolStripMenuItem_Recording_Click;
-            //
-            // pictureBoxToolStrip
-            //
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] {
-                undoToolStripButton,
-                new ToolStripSeparator(),
-                blurRegionToolStripButton,
-                highlightToolStripButton,
-                highlightColourToolStripButton,
-                new ToolStripSeparator(),
-                textLabelToolStripButton,
-                arrowToolStripButton,
-                new ToolStripSeparator(),
-                cropToolStripButton
-            });
-            pictureBoxToolStrip.Location = new Point(0, 0);
-            pictureBoxToolStrip.Name = "pictureBoxToolStrip";
-            pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Dock = DockStyle.Top;
-            pictureBoxToolStrip.BackColor = System.Drawing.SystemColors.Control;
-            //
-            // undoToolStripButton
-            //
-            undoToolStripButton.Name = "undoToolStripButton";
-            undoToolStripButton.Text = "↩ Undo";
-            undoToolStripButton.ToolTipText = "Undo last annotation (Ctrl+Z)";
-            undoToolStripButton.Enabled = false;
-            undoToolStripButton.Click += undoToolStripButton_Click;
-            //
-            // blurRegionToolStripButton
-            //
-            blurRegionToolStripButton.Name = "blurRegionToolStripButton";
-            blurRegionToolStripButton.Text = "Blur";
-            blurRegionToolStripButton.ToolTipText = "Draw a rectangle to blur/redact sensitive info";
-            blurRegionToolStripButton.CheckOnClick = true;
-            blurRegionToolStripButton.Click += blurRegionToolStripButton_Click;
-            //
-            // highlightToolStripButton
-            //
-            highlightToolStripButton.Name = "highlightToolStripButton";
-            highlightToolStripButton.Text = "Highlight";
-            highlightToolStripButton.ToolTipText = "Draw a coloured highlight rectangle";
-            highlightToolStripButton.CheckOnClick = true;
-            highlightToolStripButton.Click += highlightToolStripButton_Click;
-            //
-            // highlightColourToolStripButton
-            //
-            highlightColourToolStripButton.Name = "highlightColourToolStripButton";
-            highlightColourToolStripButton.Text = "🎨";
-            highlightColourToolStripButton.ToolTipText = "Pick highlight colour";
-            highlightColourToolStripButton.Click += highlightColourToolStripButton_Click;
-            //
-            // textLabelToolStripButton
-            //
-            textLabelToolStripButton.Name = "textLabelToolStripButton";
-            textLabelToolStripButton.Text = "Text";
-            textLabelToolStripButton.ToolTipText = "Click to place a text label on the screenshot";
-            textLabelToolStripButton.CheckOnClick = true;
-            textLabelToolStripButton.Click += textLabelToolStripButton_Click;
-            //
-            // arrowToolStripButton
-            //
-            arrowToolStripButton.Name = "arrowToolStripButton";
-            arrowToolStripButton.Text = "Arrow";
-            arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
-            arrowToolStripButton.CheckOnClick = true;
-            arrowToolStripButton.Click += arrowToolStripButton_Click;
-            //
-            // cropToolStripButton
-            //
-            cropToolStripButton.Name = "cropToolStripButton";
-            cropToolStripButton.Text = "Crop";
-            cropToolStripButton.ToolTipText = "Crop the screenshot to the selected area";
-            cropToolStripButton.CheckOnClick = true;
-            cropToolStripButton.Click += cropToolStripButton_Click;
-            //
+            // 
             // settingsToolStripMenuItem
-            //
-            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { arrowColourToolStripMenuItem, clickIndicatorStyleToolStripMenuItem, dragScreenshotModeToolStripMenuItem, htmlExportOptionsToolStripMenuItem });
+            // 
             settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            settingsToolStripMenuItem.Size = new Size(61, 20);
+            settingsToolStripMenuItem.Size = new Size(74, 24);
             settingsToolStripMenuItem.Text = "Settings";
-            //
-            // arrowColourToolStripMenuItem
-            //
-            arrowColourToolStripMenuItem.Name = "arrowColourToolStripMenuItem";
-            arrowColourToolStripMenuItem.Size = new Size(200, 22);
-            arrowColourToolStripMenuItem.Text = "Arrow Colour...";
-            arrowColourToolStripMenuItem.Click += arrowColourToolStripMenuItem_Click;
-            //
-            // clickIndicatorStyleToolStripMenuItem
-            //
-            clickIndicatorStyleToolStripMenuItem.Name = "clickIndicatorStyleToolStripMenuItem";
-            clickIndicatorStyleToolStripMenuItem.Size = new Size(200, 22);
-            clickIndicatorStyleToolStripMenuItem.Text = "Click Indicator Style...";
-            clickIndicatorStyleToolStripMenuItem.Click += clickIndicatorStyleToolStripMenuItem_Click;
-            //
-            // dragScreenshotModeToolStripMenuItem
-            //
-            dragScreenshotModeToolStripMenuItem.Name = "dragScreenshotModeToolStripMenuItem";
-            dragScreenshotModeToolStripMenuItem.Size = new Size(200, 22);
-            dragScreenshotModeToolStripMenuItem.Text = "Drag Screenshot Mode...";
-            dragScreenshotModeToolStripMenuItem.Click += dragScreenshotModeToolStripMenuItem_Click;
-            //
-            // htmlExportOptionsToolStripMenuItem
-            //
-            htmlExportOptionsToolStripMenuItem.Name = "htmlExportOptionsToolStripMenuItem";
-            htmlExportOptionsToolStripMenuItem.Size = new Size(180, 22);
-            htmlExportOptionsToolStripMenuItem.Text = "HTML Export Options...";
-            htmlExportOptionsToolStripMenuItem.Click += htmlExportOptionsToolStripMenuItem_Click;
-            //
+            settingsToolStripMenuItem.Click += settingsToolStripMenuItem_Click;
+            // 
             // helpToolStripMenuItem
-            //
+            // 
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            helpToolStripMenuItem.Size = new Size(44, 20);
+            helpToolStripMenuItem.Size = new Size(53, 24);
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(938, 625);
+            ClientSize = new Size(1072, 833);
             Controls.Add(splitContainer2);
             Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainForm";
             Text = "Better Steps Recorder";
             FormClosing += Form1_FormClosing;
@@ -467,6 +459,7 @@
             ((System.ComponentModel.ISupportInitialize)splitContainer2).EndInit();
             splitContainer2.ResumeLayout(false);
             splitContainer3.Panel1.ResumeLayout(false);
+            splitContainer3.Panel1.PerformLayout();
             splitContainer3.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
             splitContainer3.ResumeLayout(false);
@@ -506,17 +499,16 @@
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem exportToObsidianVaultToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripMenuItem arrowColourToolStripMenuItem;
-        private ToolStripMenuItem clickIndicatorStyleToolStripMenuItem;
-        private ToolStripMenuItem dragScreenshotModeToolStripMenuItem;
-        private ToolStripMenuItem htmlExportOptionsToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
         private ToolStripButton undoToolStripButton;
+        private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton blurRegionToolStripButton;
         private ToolStripButton highlightToolStripButton;
         private ToolStripButton highlightColourToolStripButton;
+        private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton textLabelToolStripButton;
         private ToolStripButton arrowToolStripButton;
+        private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
     }
 }
