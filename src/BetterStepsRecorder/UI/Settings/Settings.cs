@@ -84,6 +84,9 @@ namespace BetterStepsRecorder.UI.Settings
                 case "Settings_ExportHtml":
                     newView = new ExportHtml();
                     break;
+                case "Settings_ExportMarkdown":
+                    newView = new ExportMarkdown();
+                    break;
             }
 
             if (newView != null)
@@ -296,6 +299,8 @@ namespace BetterStepsRecorder.UI.Settings
                     return new ScreenshotDragFallback();
                 case "Settings_ExportHtml":
                     return new ExportHtml();
+                case "Settings_ExportMarkdown":
+                    return new ExportMarkdown();
                 default:
                     return null;
             }
@@ -481,6 +486,9 @@ namespace BetterStepsRecorder.UI.Settings
                         break;
                     case "Settings_ExportHtml":
                         tempControl = new ExportHtml();
+                        break;
+                    case "Settings_ExportMarkdown":
+                        tempControl = new ExportMarkdown();
                         break;
                 }
 

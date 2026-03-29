@@ -64,6 +64,28 @@ namespace BetterStepsRecorder.UI.Dialogs
         }
 
         /// <summary>
+        /// Shows a save file dialog for Markdown export
+        /// </summary>
+        /// <param name="defaultFileName">The default filename to use (without extension)</param>
+        /// <returns>The selected file path, or null if canceled</returns>
+        public static string ShowMarkdownSaveDialog(string defaultFileName = "Steps Recording")
+        {
+            using (SaveFileDialog saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "Markdown Files (*.md)|*.md";
+                saveDialog.Title = "Save Steps as Markdown";
+                saveDialog.DefaultExt = "md";
+                saveDialog.FileName = $"{defaultFileName}.md";
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    return saveDialog.FileName;
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Shows a save file dialog for ODT export
         /// </summary>
         /// <param name="defaultFileName">The default filename to use (without extension)</param>
@@ -223,6 +245,26 @@ namespace BetterStepsRecorder.UI.Dialogs
 
             OdtExporter exporter = new OdtExporter();
             return exporter.Export(filePath);
+        }
+
+        /// <summary>
+        /// Handles the complete Markdown export process including all dialogs
+        /// </summary>
+        /// <param name="defaultFileName">The default filename to use (without extension)</param>
+        /// <returns>True if export was successful, false otherwise</returns>
+        public static bool HandleMarkdownExport(string defaultFileName = "Steps Recording")
+        {
+            string filePath = ShowMarkdownSaveDialog(defaultFileName);
+            if (string.IsNullOrEmpty(filePath))
+                return false;
+
+            MarkdownExporter exporter = new MarkdownExporter();
+            bool success = exporter.Export(filePath);
+            if (success)
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(filePath) { UseShellExecute = true });
+            }
+            return success;
         }
     }
 }

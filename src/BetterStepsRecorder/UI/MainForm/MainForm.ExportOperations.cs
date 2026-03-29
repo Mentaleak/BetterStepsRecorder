@@ -76,6 +76,16 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Handles export to Markdown format
+        /// </summary>
+        private void exportToMarkdownToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.SaveRecordEvents();
+            // Use the new MarkdownExporter class through the ExportDialogs helper with default filename
+            ExportDialogs.HandleMarkdownExport(GetDefaultExportFileName());
+        }
+
+        /// <summary>
         /// Enables or disables the export menu items based on whether there are items to export
         /// </summary>
         private void EnableDisable_exportToolStripMenuItem()

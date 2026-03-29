@@ -102,7 +102,7 @@ namespace BetterStepsRecorder
                         if (hwnd != IntPtr.Zero)
                         {
                             string? appName = GetApplicationName(hwnd);
-                            if (appName != _ownProcessName)
+                            if (appName != _ownProcessName || BSRSettings.Current.General.AllowRecordSelf)
                             {
                                 _leftButtonDown       = true;
                                 _isDragging           = false;
@@ -215,7 +215,7 @@ namespace BetterStepsRecorder
                                          uiRect, wr, wW, wH, uW, uH,
                                          cLeft, cTop, cW, cH) = snapshot;
 
-                                    if (app == _ownProcessName) return;
+                                    if (app == _ownProcessName && !BSRSettings.Current.General.AllowRecordSelf) return;
 
                                     // Give the UI time to settle after the drop before capturing
                                     Thread.Sleep(200);
@@ -394,7 +394,7 @@ namespace BetterStepsRecorder
                                         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Could not read element ControlType: {ex.Message}"); }
                                     }
 
-                                    if (appName == _ownProcessName) { preBitmap?.Dispose(); return; }
+                                    if (appName == _ownProcessName && !BSRSettings.Current.General.AllowRecordSelf) { preBitmap?.Dispose(); return; }
 
                                     RecordEvent recordEvent;
                                     lock (_recordEventsLock)
@@ -518,7 +518,7 @@ namespace BetterStepsRecorder
                                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Could not read element ControlType: {ex.Message}"); }
                                 }
 
-                                if (appName == _ownProcessName) { preBitmap?.Dispose(); return; }
+                                if (appName == _ownProcessName && !BSRSettings.Current.General.AllowRecordSelf) { preBitmap?.Dispose(); return; }
 
                                 RecordEvent recordEvent;
                                 lock (_recordEventsLock)
