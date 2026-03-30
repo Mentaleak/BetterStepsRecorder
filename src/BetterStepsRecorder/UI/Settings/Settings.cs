@@ -87,6 +87,15 @@ namespace BetterStepsRecorder.UI.Settings
                 case "Settings_ExportMarkdown":
                     newView = new ExportMarkdown();
                     break;
+                case "Settings_ExportRtf":
+                    newView = new ExportRtf();
+                    break;
+                case "Settings_ExportOdt":
+                    newView = new ExportOdt();
+                    break;
+                case "Settings_ExportObsidian":
+                    newView = new ExportObsidian();
+                    break;
             }
 
             if (newView != null)
@@ -301,6 +310,12 @@ namespace BetterStepsRecorder.UI.Settings
                     return new ExportHtml();
                 case "Settings_ExportMarkdown":
                     return new ExportMarkdown();
+                case "Settings_ExportRtf":
+                    return new ExportRtf();
+                case "Settings_ExportOdt":
+                    return new ExportOdt();
+                case "Settings_ExportObsidian":
+                    return new ExportObsidian();
                 default:
                     return null;
             }
@@ -489,6 +504,15 @@ namespace BetterStepsRecorder.UI.Settings
                         break;
                     case "Settings_ExportMarkdown":
                         tempControl = new ExportMarkdown();
+                        break;
+                    case "Settings_ExportRtf":
+                        tempControl = new ExportRtf();
+                        break;
+                    case "Settings_ExportOdt":
+                        tempControl = new ExportOdt();
+                        break;
+                    case "Settings_ExportObsidian":
+                        tempControl = new ExportObsidian();
                         break;
                 }
 
