@@ -40,6 +40,48 @@ namespace BetterStepsRecorder
             StatusManager.ShowMessage("Ready to record steps");
         }
 
+        private void InitializeTrayIcon()
+        {
+            notifyIcon.Text = "Better Steps Recorder";
+        }
+
+        private void Form_Resize(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                var minimizeBehavior = BSRSettings.Current.General.MinimizeOnStartRecording;
+                if (minimizeBehavior == MinimizeBehavior.MinimizeToSystemTray && Program.IsRecording)
+                {
+                    Hide();
+                    notifyIcon.Visible = true;
+                    StatusManager.ShowMessage("Minimized to system tray");
+                }
+            }
+        }
+
+        private void notifyIcon_DoubleClick(object sender, EventArgs e)
+        {
+            RestoreFromTray();
+        }
+
+        private void restoreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RestoreFromTray();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void RestoreFromTray()
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+            notifyIcon.Visible = false;
+            Activate();
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             DisableRecording();

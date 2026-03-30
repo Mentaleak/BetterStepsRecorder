@@ -27,6 +27,9 @@ namespace BetterStepsRecorder
         // Highlight colour (user-configurable via toolbar button)
         public static Color HighlightColor { get; set; } = Color.FromArgb(160, 255, 255, 0);
 
+        // Arrow colour (user-configurable via toolbar button)
+        public static Color ArrowColor { get; set; } = Color.FromArgb(255, 255, 0, 255);
+
         // Undo stack: keyed by RecordEvent.ID, stores previous Screenshotb64 values
         private readonly Dictionary<Guid, Stack<string>> _undoStacks = new();
 
@@ -75,6 +78,13 @@ namespace BetterStepsRecorder
             using var dlg = new ColorDialog { Color = Color.FromArgb(255, HighlightColor), FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
                 HighlightColor = Color.FromArgb(160, dlg.Color.R, dlg.Color.G, dlg.Color.B);
+        }
+
+        private void arrowColourToolStripButton_Click(object sender, EventArgs e)
+        {
+            using var dlg = new ColorDialog { Color = ArrowColor, FullOpen = true };
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+                ArrowColor = dlg.Color;
         }
 
         private void textLabelToolStripButton_Click(object sender, EventArgs e)
@@ -289,7 +299,7 @@ namespace BetterStepsRecorder
                 case ImageTool.Arrow:
                 {
                     using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(6, 6);
-                    using var pen = new Pen(Color.FromArgb(BSRSettings.Current.Indicator.Color), 3f);
+                    using var pen = new Pen(ArrowColor, 3f);
                     pen.CustomEndCap = arrowCap;
                     e.Graphics.DrawLine(pen, _arrowStart, _toolCurrent);
                     break;
@@ -365,12 +375,15 @@ namespace BetterStepsRecorder
         // Static accessor for use in static lambda context
         private static Color MainForm_GetHighlightColor() => HighlightColor;
 
+        // Static accessor for arrow color in static lambda context
+        private static Color MainForm_GetArrowColor() => ArrowColor;
+
         private static void DrawArrowOnBitmap(Bitmap bmp, Point start, Point end)
         {
             using var g = Graphics.FromImage(bmp);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(7, 7);
-            using var pen = new Pen(Color.FromArgb(BSRSettings.Current.Indicator.Color), 4f);
+            using var pen = new Pen(MainForm_GetArrowColor(), 4f);
             pen.CustomEndCap = arrowCap;
             g.DrawLine(pen, start, end);
         }

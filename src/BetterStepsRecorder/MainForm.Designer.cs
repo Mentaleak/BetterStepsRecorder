@@ -49,6 +49,7 @@
             toolStripSeparator3 = new ToolStripSeparator();
             textLabelToolStripButton = new ToolStripButton();
             arrowToolStripButton = new ToolStripButton();
+            arrowColourToolStripButton = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
             cropToolStripButton = new ToolStripButton();
             richTextBox_stepText = new RichTextBox();
@@ -68,6 +69,10 @@
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            notifyIcon = new NotifyIcon(components);
+            notifyIconContextMenu = new ContextMenuStrip(components);
+            restoreToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -229,7 +234,7 @@
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(648, 27);
@@ -297,6 +302,15 @@
             arrowToolStripButton.Text = "Arrow";
             arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
             arrowToolStripButton.Click += arrowToolStripButton_Click;
+            // 
+            // arrowColourToolStripButton
+            // 
+            arrowColourToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            arrowColourToolStripButton.Name = "arrowColourToolStripButton";
+            arrowColourToolStripButton.Size = new Size(34, 24);
+            arrowColourToolStripButton.Text = "🎨";
+            arrowColourToolStripButton.ToolTipText = "Pick arrow colour";
+            arrowColourToolStripButton.Click += arrowColourToolStripButton_Click;
             // 
             // toolStripSeparator4
             // 
@@ -443,6 +457,34 @@
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
             // 
+            // notifyIcon
+            // 
+            notifyIcon.ContextMenuStrip = notifyIconContextMenu;
+            notifyIcon.Icon = (Icon)resources.GetObject("$this.Icon");
+            notifyIcon.Text = "Better Steps Recorder";
+            notifyIcon.Visible = false;
+            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
+            // 
+            // notifyIconContextMenu
+            // 
+            notifyIconContextMenu.Items.AddRange(new ToolStripItem[] { restoreToolStripMenuItem, exitToolStripMenuItem });
+            notifyIconContextMenu.Name = "notifyIconContextMenu";
+            notifyIconContextMenu.Size = new Size(121, 52);
+            // 
+            // restoreToolStripMenuItem
+            // 
+            restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
+            restoreToolStripMenuItem.Size = new Size(120, 24);
+            restoreToolStripMenuItem.Text = "Restore";
+            restoreToolStripMenuItem.Click += restoreToolStripMenuItem_Click;
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new Size(120, 24);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -457,7 +499,9 @@
             Text = "Better Steps Recorder";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
+            Resize += Form_Resize;
             contextMenu_ListBox_Events.ResumeLayout(false);
+            notifyIconContextMenu.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -517,7 +561,12 @@
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton textLabelToolStripButton;
         private ToolStripButton arrowToolStripButton;
+        private ToolStripButton arrowColourToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
+        private NotifyIcon notifyIcon;
+        private ContextMenuStrip notifyIconContextMenu;
+        private ToolStripMenuItem restoreToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }

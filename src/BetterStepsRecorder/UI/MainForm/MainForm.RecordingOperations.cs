@@ -29,8 +29,13 @@ namespace BetterStepsRecorder
                 ToolStripMenuItem_Recording.Image = Properties.Resources.RecordPauseTiny;
                 ActivityDelay = 15000;
 
-                // Minimize window if setting is enabled
-                if (BSRSettings.Current.General.MinimizeOnStartRecording)
+                // Minimize window based on setting
+                var minimizeBehavior = BSRSettings.Current.General.MinimizeOnStartRecording;
+                if (minimizeBehavior == MinimizeBehavior.MinimizeToTaskbar)
+                {
+                    WindowState = FormWindowState.Minimized;
+                }
+                else if (minimizeBehavior == MinimizeBehavior.MinimizeToSystemTray)
                 {
                     WindowState = FormWindowState.Minimized;
                 }
