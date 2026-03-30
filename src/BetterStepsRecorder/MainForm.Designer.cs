@@ -68,6 +68,10 @@
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
+            notifyIcon = new NotifyIcon(components);
+            notifyIconContextMenu = new ContextMenuStrip(components);
+            restoreToolStripMenuItem = new ToolStripMenuItem();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -443,6 +447,34 @@
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
             // 
+            // notifyIcon
+            // 
+            notifyIcon.ContextMenuStrip = notifyIconContextMenu;
+            notifyIcon.Icon = (Icon)resources.GetObject("$this.Icon");
+            notifyIcon.Text = "Better Steps Recorder";
+            notifyIcon.Visible = false;
+            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
+            // 
+            // notifyIconContextMenu
+            // 
+            notifyIconContextMenu.Items.AddRange(new ToolStripItem[] { restoreToolStripMenuItem, exitToolStripMenuItem });
+            notifyIconContextMenu.Name = "notifyIconContextMenu";
+            notifyIconContextMenu.Size = new Size(121, 52);
+            // 
+            // restoreToolStripMenuItem
+            // 
+            restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
+            restoreToolStripMenuItem.Size = new Size(120, 24);
+            restoreToolStripMenuItem.Text = "Restore";
+            restoreToolStripMenuItem.Click += restoreToolStripMenuItem_Click;
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new Size(120, 24);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -457,7 +489,9 @@
             Text = "Better Steps Recorder";
             FormClosing += Form1_FormClosing;
             Load += Form1_Load;
+            Resize += Form_Resize;
             contextMenu_ListBox_Events.ResumeLayout(false);
+            notifyIconContextMenu.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -519,5 +553,9 @@
         private ToolStripButton arrowToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
+        private NotifyIcon notifyIcon;
+        private ContextMenuStrip notifyIconContextMenu;
+        private ToolStripMenuItem restoreToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
     }
 }

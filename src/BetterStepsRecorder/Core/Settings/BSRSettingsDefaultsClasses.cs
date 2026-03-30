@@ -2,6 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace BetterStepsRecorder
 {
+    public enum MinimizeBehavior
+    {
+        DoNotMinimize = 0,
+        MinimizeToTaskbar = 1,
+        MinimizeToSystemTray = 2
+    }
+
     public partial class BSRSettings
     {
         // ══════════════════════════════════════════════════════════════════════
@@ -10,7 +17,7 @@ namespace BetterStepsRecorder
 
         public class GeneralSettings
         {
-            public bool MinimizeOnStartRecording { get; set; } = true;
+            public MinimizeBehavior MinimizeOnStartRecording { get; set; } = MinimizeBehavior.MinimizeToTaskbar;
             public bool AllowRecordSelf { get; set; } = false;
         }
 

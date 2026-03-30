@@ -30,8 +30,12 @@ namespace BetterStepsRecorder.UI.Settings
         {
             lblNote = new Label();
             lblRecording = new Label();
-            chkMinimizeOnStart = new CheckBox();
+            grpMinimizeBehavior = new GroupBox();
+            rbDoNotMinimize = new RadioButton();
+            rbMinimizeToTaskbar = new RadioButton();
+            rbMinimizeToSystemTray = new RadioButton();
             chkAllowRecordSelf = new CheckBox();
+            grpMinimizeBehavior.SuspendLayout();
             SuspendLayout();
             // 
             // lblNote
@@ -53,21 +57,57 @@ namespace BetterStepsRecorder.UI.Settings
             lblRecording.TabIndex = 1;
             lblRecording.Text = "Recording";
             // 
-            // chkMinimizeOnStart
+            // grpMinimizeBehavior
             // 
-            chkMinimizeOnStart.AutoSize = true;
-            chkMinimizeOnStart.Location = new Point(20, 95);
-            chkMinimizeOnStart.Name = "chkMinimizeOnStart";
-            chkMinimizeOnStart.Size = new Size(200, 24);
-            chkMinimizeOnStart.TabIndex = 2;
-            chkMinimizeOnStart.Text = "Minimize on start recording";
-            chkMinimizeOnStart.UseVisualStyleBackColor = true;
-            chkMinimizeOnStart.CheckedChanged += Checkbox_CheckedChanged;
+            grpMinimizeBehavior.Controls.Add(rbMinimizeToSystemTray);
+            grpMinimizeBehavior.Controls.Add(rbMinimizeToTaskbar);
+            grpMinimizeBehavior.Controls.Add(rbDoNotMinimize);
+            grpMinimizeBehavior.Location = new Point(20, 95);
+            grpMinimizeBehavior.Name = "grpMinimizeBehavior";
+            grpMinimizeBehavior.Size = new Size(400, 120);
+            grpMinimizeBehavior.TabIndex = 2;
+            grpMinimizeBehavior.TabStop = false;
+            grpMinimizeBehavior.Text = "When starting recording:";
+            // 
+            // rbDoNotMinimize
+            // 
+            rbDoNotMinimize.AutoSize = true;
+            rbDoNotMinimize.Location = new Point(15, 30);
+            rbDoNotMinimize.Name = "rbDoNotMinimize";
+            rbDoNotMinimize.Size = new Size(130, 24);
+            rbDoNotMinimize.TabIndex = 0;
+            rbDoNotMinimize.Text = "Do not minimize";
+            rbDoNotMinimize.UseVisualStyleBackColor = true;
+            rbDoNotMinimize.CheckedChanged += RadioButton_CheckedChanged;
+            // 
+            // rbMinimizeToTaskbar
+            // 
+            rbMinimizeToTaskbar.AutoSize = true;
+            rbMinimizeToTaskbar.Checked = true;
+            rbMinimizeToTaskbar.Location = new Point(15, 60);
+            rbMinimizeToTaskbar.Name = "rbMinimizeToTaskbar";
+            rbMinimizeToTaskbar.Size = new Size(160, 24);
+            rbMinimizeToTaskbar.TabIndex = 1;
+            rbMinimizeToTaskbar.TabStop = true;
+            rbMinimizeToTaskbar.Text = "Minimize to taskbar";
+            rbMinimizeToTaskbar.UseVisualStyleBackColor = true;
+            rbMinimizeToTaskbar.CheckedChanged += RadioButton_CheckedChanged;
+            // 
+            // rbMinimizeToSystemTray
+            // 
+            rbMinimizeToSystemTray.AutoSize = true;
+            rbMinimizeToSystemTray.Location = new Point(15, 90);
+            rbMinimizeToSystemTray.Name = "rbMinimizeToSystemTray";
+            rbMinimizeToSystemTray.Size = new Size(195, 24);
+            rbMinimizeToSystemTray.TabIndex = 2;
+            rbMinimizeToSystemTray.Text = "Minimize to system tray";
+            rbMinimizeToSystemTray.UseVisualStyleBackColor = true;
+            rbMinimizeToSystemTray.CheckedChanged += RadioButton_CheckedChanged;
             // 
             // chkAllowRecordSelf
             // 
             chkAllowRecordSelf.AutoSize = true;
-            chkAllowRecordSelf.Location = new Point(20, 125);
+            chkAllowRecordSelf.Location = new Point(20, 230);
             chkAllowRecordSelf.Name = "chkAllowRecordSelf";
             chkAllowRecordSelf.Size = new Size(200, 24);
             chkAllowRecordSelf.TabIndex = 3;
@@ -80,11 +120,13 @@ namespace BetterStepsRecorder.UI.Settings
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(chkAllowRecordSelf);
-            Controls.Add(chkMinimizeOnStart);
+            Controls.Add(grpMinimizeBehavior);
             Controls.Add(lblRecording);
             Controls.Add(lblNote);
             Name = "GeneralSettings";
             Size = new Size(472, 280);
+            grpMinimizeBehavior.ResumeLayout(false);
+            grpMinimizeBehavior.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -93,7 +135,10 @@ namespace BetterStepsRecorder.UI.Settings
 
         private Label lblNote;
         private Label lblRecording;
-        private CheckBox chkMinimizeOnStart;
+        private GroupBox grpMinimizeBehavior;
+        private RadioButton rbDoNotMinimize;
+        private RadioButton rbMinimizeToTaskbar;
+        private RadioButton rbMinimizeToSystemTray;
         private CheckBox chkAllowRecordSelf;
     }
 }
