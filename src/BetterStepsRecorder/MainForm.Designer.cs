@@ -49,6 +49,7 @@
             toolStripSeparator3 = new ToolStripSeparator();
             textLabelToolStripButton = new ToolStripButton();
             arrowToolStripButton = new ToolStripButton();
+            arrowColourToolStripButton = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
             cropToolStripButton = new ToolStripButton();
             richTextBox_stepText = new RichTextBox();
@@ -233,7 +234,7 @@
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(648, 27);
@@ -301,6 +302,15 @@
             arrowToolStripButton.Text = "Arrow";
             arrowToolStripButton.ToolTipText = "Draw an arrow on the screenshot";
             arrowToolStripButton.Click += arrowToolStripButton_Click;
+            // 
+            // arrowColourToolStripButton
+            // 
+            arrowColourToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            arrowColourToolStripButton.Name = "arrowColourToolStripButton";
+            arrowColourToolStripButton.Size = new Size(34, 24);
+            arrowColourToolStripButton.Text = "🎨";
+            arrowColourToolStripButton.ToolTipText = "Pick arrow colour";
+            arrowColourToolStripButton.Click += arrowColourToolStripButton_Click;
             // 
             // toolStripSeparator4
             // 
@@ -551,6 +561,7 @@
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton textLabelToolStripButton;
         private ToolStripButton arrowToolStripButton;
+        private ToolStripButton arrowColourToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
         private NotifyIcon notifyIcon;
