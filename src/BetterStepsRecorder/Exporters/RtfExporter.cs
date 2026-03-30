@@ -12,6 +12,15 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class RtfExporter : ExporterBase
     {
+        private static string FormatDuration(TimeSpan ts)
+        {
+            if (ts.TotalHours >= 1)
+                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
+            if (ts.TotalMinutes >= 1)
+                return $"{ts.Minutes}m {ts.Seconds:D2}s";
+            return $"{ts.Seconds}s";
+        }
+
         /// <summary>
         /// Exports the current steps recording to RTF format
         /// </summary>
@@ -19,17 +28,43 @@ namespace BetterStepsRecorder.Exporters
         /// <returns>True if export was successful, false otherwise</returns>
         public override bool Export(string filePath)
         {
+            var cfg = BSRSettings.Current.ExportOptions.Rtf;
+            return Export(filePath, cfg);
+        }
+
+        /// <summary>
+        /// Exports the current steps recording to RTF format using the supplied settings
+        /// </summary>
+        public bool Export(string filePath, BSRSettings.RtfSettings cfg)
+        {
             try
             {
                 EnsureDirectoryExists(filePath);
-                
+
                 // Get the filename without extension to use as title
                 string title = Path.GetFileNameWithoutExtension(filePath);
-                
+
+                int totalSteps = Program._recordEvents.Count;
+                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+
+                // Compute recording start/end/duration from event timestamps
+                DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
+                DateTime? recordingEnd = totalSteps > 0 ? Program._recordEvents[totalSteps - 1].CreationTime : (DateTime?)null;
+                TimeSpan totalDuration = (recordingStart.HasValue && recordingEnd.HasValue)
+                    ? recordingEnd.Value - recordingStart.Value
+                    : TimeSpan.Zero;
+
+                string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
+                string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
+
                 using (RichTextBox rtfBox = new RichTextBox())
                 using (var fontBody     = new Font("Segoe UI", 10))
                 using (var fontTitle    = new Font("Segoe UI", 16, FontStyle.Bold))
+                using (var fontMeta     = new Font("Segoe UI", 9))
                 using (var fontStep     = new Font("Segoe UI", 12, FontStyle.Bold))
+                using (var fontDetail   = new Font("Segoe UI", 9))
+                using (var fontDetailLabel = new Font("Segoe UI", 9, FontStyle.Bold))
                 using (var fontSep      = new Font("Segoe UI", 9))
                 using (var fontFooter   = new Font("Segoe UI", 8))
                 using (var fontLink     = new Font("Segoe UI", 8, FontStyle.Underline))
@@ -39,29 +74,107 @@ namespace BetterStepsRecorder.Exporters
 
                     // Add title using the filename
                     rtfBox.SelectionFont = fontTitle;
-                    rtfBox.AppendText($"{title}\n\n");
+                    rtfBox.AppendText($"{title}\n");
+
+                    // Add generated date
+                    if (cfg.ShowGeneratedDate)
+                    {
+                        rtfBox.SelectionFont = fontMeta;
+                        rtfBox.SelectionColor = Color.Gray;
+                        rtfBox.AppendText($"Generated {generated}\n");
+                        rtfBox.SelectionColor = rtfBox.ForeColor;
+                    }
+
+                    rtfBox.AppendText("\n");
+
+                    // Add summary section
+                    if (cfg.ShowSummary)
+                    {
+                        rtfBox.SelectionFont = fontDetailLabel;
+                        rtfBox.AppendText("Summary\n");
+                        rtfBox.SelectionFont = fontDetail;
+                        rtfBox.AppendText($"Steps: {totalSteps}\n");
+                        rtfBox.AppendText($"Started: {startStr}\n");
+                        rtfBox.AppendText($"Finished: {endStr}\n");
+                        rtfBox.AppendText($"Duration: {durationStr}\n");
+                        rtfBox.AppendText("\n");
+                    }
 
                     // Add each step
+                    DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
                     {
                         // Add step header
                         rtfBox.SelectionFont = fontStep;
                         rtfBox.AppendText($"Step {recordEvent.Step}: {recordEvent._StepText}\n");
 
-                        /* Add element details if available
-                        if (!string.IsNullOrEmpty(recordEvent.ElementName))
+                        // Add timestamp
+                        if (cfg.ShowStepTimestamps)
                         {
-                            rtfBox.SelectionFont = new Font("Segoe UI", 9);
-                            rtfBox.AppendText($"Element: {recordEvent.ElementName}\n");
-
-                            // Get automation ID if available
-                            string automationId = RecordEvent.GetAutomationId(recordEvent.UIElement);
-                            if (!string.IsNullOrEmpty(automationId))
+                            rtfBox.SelectionFont = fontMeta;
+                            rtfBox.SelectionColor = Color.Gray;
+                            string timeStr;
+                            if (prevTime.HasValue)
                             {
-                                rtfBox.AppendText($"Automation ID: {automationId}\n");
+                                TimeSpan delta = recordEvent.CreationTime - prevTime.Value;
+                                timeStr = $"{prevTime.Value:HH:mm:ss} → {recordEvent.CreationTime:HH:mm:ss} (+{FormatDuration(delta)})";
+                            }
+                            else
+                            {
+                                timeStr = recordEvent.CreationTime.ToString("HH:mm:ss");
+                            }
+                            rtfBox.AppendText($"{timeStr}\n");
+                            rtfBox.SelectionColor = rtfBox.ForeColor;
+                        }
+                        prevTime = recordEvent.CreationTime;
+
+                        // Add detail strip - only if at least one detail option is on
+                        if (!cfg.IsDetailStripEmpty)
+                        {
+                            rtfBox.AppendText("\n");
+                            if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Action: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.EventType}\n");
+                            }
+                            if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Application: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.ApplicationName}\n");
+                            }
+                            if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Window: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.WindowTitle}\n");
+                            }
+                            if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Element: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.ElementName}\n");
+                            }
+                            if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Element Type: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.ElementType}\n");
+                            }
+                            if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
+                            {
+                                rtfBox.SelectionFont = fontDetailLabel;
+                                rtfBox.AppendText("Mouse Position: ");
+                                rtfBox.SelectionFont = fontDetail;
+                                rtfBox.AppendText($"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}\n");
                             }
                         }
-                        */
 
                         // Add screenshot if available
                         if (recordEvent.HasScreenshot)
@@ -103,7 +216,7 @@ namespace BetterStepsRecorder.Exporters
                     // Save the RTF file
                     rtfBox.SaveFile(filePath);
                 }
-                
+
                 ShowExportSuccess(filePath);
                 return true;
             }

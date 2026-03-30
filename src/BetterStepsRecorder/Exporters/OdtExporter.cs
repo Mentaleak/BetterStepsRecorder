@@ -16,6 +16,15 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class OdtExporter : ExporterBase
     {
+        private static string FormatDuration(TimeSpan ts)
+        {
+            if (ts.TotalHours >= 1)
+                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
+            if (ts.TotalMinutes >= 1)
+                return $"{ts.Minutes}m {ts.Seconds:D2}s";
+            return $"{ts.Seconds}s";
+        }
+
         /// <summary>
         /// Exports the current steps recording to ODT format
         /// </summary>
@@ -23,20 +32,29 @@ namespace BetterStepsRecorder.Exporters
         /// <returns>True if export was successful, false otherwise</returns>
         public override bool Export(string filePath)
         {
+            var cfg = BSRSettings.Current.ExportOptions.Odt;
+            return Export(filePath, cfg);
+        }
+
+        /// <summary>
+        /// Exports the current steps recording to ODT format using the supplied settings
+        /// </summary>
+        public bool Export(string filePath, BSRSettings.OdtSettings cfg)
+        {
             try
             {
                 EnsureDirectoryExists(filePath);
-                
+
                 // Create a temporary directory for ODT contents
                 string tempDir = Path.Combine(Path.GetTempPath(), "BSR_ODT_" + Guid.NewGuid().ToString());
                 Directory.CreateDirectory(tempDir);
-                
+
                 try
                 {
                     // Create ODT structure
                     Directory.CreateDirectory(Path.Combine(tempDir, "META-INF"));
                     Directory.CreateDirectory(Path.Combine(tempDir, "Pictures"));
-                    
+
                     // Create manifest file
                     CreateManifestFile(tempDir);
 
@@ -44,19 +62,19 @@ namespace BetterStepsRecorder.Exporters
                     var imageDimensions = SaveImages(tempDir);
 
                     // Create content files
-                    CreateContentFile(tempDir, imageDimensions);
+                    CreateContentFile(tempDir, imageDimensions, cfg);
                     CreateStylesFile(tempDir);
                     CreateMetaFile(tempDir);
 
                     // Create mimetype file
                     File.WriteAllText(Path.Combine(tempDir, "mimetype"), "application/vnd.oasis.opendocument.text");
-                    
+
                     // Create the ODT file (ZIP)
                     if (File.Exists(filePath))
                         File.Delete(filePath);
-                    
+
                     ZipFile.CreateFromDirectory(tempDir, filePath);
-                    
+
                     ShowExportSuccess(filePath);
                     return true;
                 }
@@ -131,10 +149,24 @@ namespace BetterStepsRecorder.Exporters
             }
         }
         
-        private void CreateContentFile(string tempDir, Dictionary<Guid, Size> imageDimensions)
+        private void CreateContentFile(string tempDir, Dictionary<Guid, Size> imageDimensions, BSRSettings.OdtSettings cfg)
         {
             string contentPath = Path.Combine(tempDir, "content.xml");
-            
+
+            int totalSteps = Program._recordEvents.Count;
+            string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+
+            // Compute recording start/end/duration from event timestamps
+            DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
+            DateTime? recordingEnd = totalSteps > 0 ? Program._recordEvents[totalSteps - 1].CreationTime : (DateTime?)null;
+            TimeSpan totalDuration = (recordingStart.HasValue && recordingEnd.HasValue)
+                ? recordingEnd.Value - recordingStart.Value
+                : TimeSpan.Zero;
+
+            string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+            string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
+            string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
+
             XmlWriterSettings settings = new XmlWriterSettings { 
                 Indent = true,
                 IndentChars = "  "
@@ -263,11 +295,11 @@ namespace BetterStepsRecorder.Exporters
                 // Document content
                 writer.WriteStartElement("body", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
                 writer.WriteStartElement("text", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
-                
+
                 // Title
                 writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                 writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Title");
-                
+
                 // Use the filename if available
                 string title = "Steps Recording";
                 if (Program.zip?.ZipFilePath != null)
@@ -276,8 +308,45 @@ namespace BetterStepsRecorder.Exporters
                 }
                 writer.WriteString(title);
                 writer.WriteEndElement(); // text:p
-                
+
+                // Generated date
+                if (cfg.ShowGeneratedDate)
+                {
+                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+                    writer.WriteString($"Generated {generated}");
+                    writer.WriteEndElement(); // text:p
+                }
+
+                // Summary table
+                if (cfg.ShowSummary)
+                {
+                    writer.WriteStartElement("table", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                    writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:table:1.0", "SummaryTable");
+
+                    // Define columns
+                    writer.WriteStartElement("table-column", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("table-column", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                    writer.WriteEndElement();
+
+                    // Add rows
+                    WriteTableRow(writer, "Steps", totalSteps.ToString());
+                    WriteTableRow(writer, "Started", startStr);
+                    WriteTableRow(writer, "Finished", endStr);
+                    WriteTableRow(writer, "Duration", durationStr);
+
+                    writer.WriteEndElement(); // table:table
+
+                    // Empty paragraph for spacing
+                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+                    writer.WriteString(" ");
+                    writer.WriteEndElement(); // text:p
+                }
+
                 // Add each step
+                DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
                 {
                     // Step header
@@ -285,7 +354,62 @@ namespace BetterStepsRecorder.Exporters
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
                     writer.WriteString($"Step {recordEvent.Step}: {recordEvent._StepText}");
                     writer.WriteEndElement(); // text:p
-                    
+
+                    // Timestamp
+                    if (cfg.ShowStepTimestamps)
+                    {
+                        writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+                        string timeStr;
+                        if (prevTime.HasValue)
+                        {
+                            TimeSpan delta = recordEvent.CreationTime - prevTime.Value;
+                            timeStr = $"{prevTime.Value:HH:mm:ss} → {recordEvent.CreationTime:HH:mm:ss} (+{FormatDuration(delta)})";
+                        }
+                        else
+                        {
+                            timeStr = recordEvent.CreationTime.ToString("HH:mm:ss");
+                        }
+                        writer.WriteString(timeStr);
+                        writer.WriteEndElement(); // text:p
+                    }
+                    prevTime = recordEvent.CreationTime;
+
+                    // Detail table - only rendered when at least one detail option is on
+                    if (!cfg.IsDetailTableEmpty)
+                    {
+                        writer.WriteStartElement("table", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                        writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:table:1.0", $"DetailTable{recordEvent.Step}");
+
+                        // Define columns
+                        writer.WriteStartElement("table-column", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                        writer.WriteEndElement();
+                        writer.WriteStartElement("table-column", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+                        writer.WriteEndElement();
+
+                        // Add rows
+                        if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
+                            WriteTableRow(writer, "Action", recordEvent.EventType);
+                        if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
+                            WriteTableRow(writer, "Application", recordEvent.ApplicationName);
+                        if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
+                            WriteTableRow(writer, "Window", recordEvent.WindowTitle);
+                        if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
+                            WriteTableRow(writer, "Element", recordEvent.ElementName);
+                        if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
+                            WriteTableRow(writer, "Element Type", recordEvent.ElementType);
+                        if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
+                            WriteTableRow(writer, "Mouse Position", $"{recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y}");
+
+                        writer.WriteEndElement(); // table:table
+
+                        // Empty paragraph for spacing
+                        writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+                        writer.WriteString(" ");
+                        writer.WriteEndElement(); // text:p
+                    }
+
                     /* Add description text if there is any (split by line breaks)
                     if (!string.IsNullOrEmpty(recordEvent._StepText))
                     {
@@ -557,6 +681,29 @@ namespace BetterStepsRecorder.Exporters
                 return new Size(800, 600); // Default size if we can't determine actual size
             }
         }
-        
+
+        private void WriteTableRow(XmlWriter writer, string label, string value)
+        {
+            writer.WriteStartElement("table-row", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+
+            // First cell (label)
+            writer.WriteStartElement("table-cell", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+            writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+            writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+            writer.WriteString(label);
+            writer.WriteEndElement(); // text:p
+            writer.WriteEndElement(); // table:table-cell
+
+            // Second cell (value)
+            writer.WriteStartElement("table-cell", "urn:oasis:names:tc:opendocument:xmlns:table:1.0");
+            writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+            writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+            writer.WriteString(value);
+            writer.WriteEndElement(); // text:p
+            writer.WriteEndElement(); // table:table-cell
+
+            writer.WriteEndElement(); // table:table-row
+        }
+
     }
 }

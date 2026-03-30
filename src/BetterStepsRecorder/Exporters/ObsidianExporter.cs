@@ -14,6 +14,15 @@ namespace BetterStepsRecorder.Exporters
     /// </summary>
     public class ObsidianExporter : ExporterBase
     {
+        private static string FormatDuration(TimeSpan ts)
+        {
+            if (ts.TotalHours >= 1)
+                return $"{(int)ts.TotalHours}h {ts.Minutes:D2}m {ts.Seconds:D2}s";
+            if (ts.TotalMinutes >= 1)
+                return $"{ts.Minutes}m {ts.Seconds:D2}s";
+            return $"{ts.Seconds}s";
+        }
+
         /// <summary>
         /// Exports the current steps recording to an Obsidian vault
         /// </summary>
@@ -34,6 +43,15 @@ namespace BetterStepsRecorder.Exporters
         /// <param name="subfolderPath">Optional subfolder path within the vault</param>
         /// <returns>True if export was successful, false otherwise</returns>
         public bool ExportToObsidianVault(string vaultPath, string fileName, string subfolderPath = "")
+        {
+            var cfg = BSRSettings.Current.ExportOptions.Obsidian;
+            return ExportToObsidianVault(vaultPath, fileName, subfolderPath, cfg);
+        }
+
+        /// <summary>
+        /// Exports the current steps recording to an Obsidian vault using the supplied settings
+        /// </summary>
+        public bool ExportToObsidianVault(string vaultPath, string fileName, string subfolderPath, BSRSettings.ObsidianSettings cfg)
         {
             try
             {
@@ -64,6 +82,20 @@ namespace BetterStepsRecorder.Exporters
                     mdFilePath = Path.Combine(fullSubfolderPath, $"{fileName}.md");
                 }
 
+                int totalSteps = Program._recordEvents.Count;
+                string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
+
+                // Compute recording start/end/duration from event timestamps
+                DateTime? recordingStart = totalSteps > 0 ? Program._recordEvents[0].CreationTime : (DateTime?)null;
+                DateTime? recordingEnd = totalSteps > 0 ? Program._recordEvents[totalSteps - 1].CreationTime : (DateTime?)null;
+                TimeSpan totalDuration = (recordingStart.HasValue && recordingEnd.HasValue)
+                    ? recordingEnd.Value - recordingStart.Value
+                    : TimeSpan.Zero;
+
+                string startStr = recordingStart?.ToString("dd MMM yyyy, HH:mm:ss") ?? "—";
+                string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
+                string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
+
                 // Track used image filenames to avoid duplicates
                 HashSet<string> usedImageNames = new HashSet<string>();
 
@@ -71,15 +103,83 @@ namespace BetterStepsRecorder.Exporters
                 using (StreamWriter writer = new StreamWriter(mdFilePath))
                 {
                     // Add title (using the filename)
-                    //writer.WriteLine($"# {fileName}");
-                    //writer.WriteLine();
+                    writer.WriteLine($"# {fileName}");
+                    writer.WriteLine();
+
+                    // Generated date
+                    if (cfg.ShowGeneratedDate)
+                    {
+                        writer.WriteLine($"*Generated {generated}*");
+                        writer.WriteLine();
+                    }
+
+                    // Summary section
+                    if (cfg.ShowSummary)
+                    {
+                        writer.WriteLine("## Summary");
+                        writer.WriteLine();
+                        writer.WriteLine("| Property | Value |");
+                        writer.WriteLine("|----------|-------|");
+                        writer.WriteLine($"| Steps | {totalSteps} |");
+                        writer.WriteLine($"| Started | {startStr} |");
+                        writer.WriteLine($"| Finished | {endStr} |");
+                        writer.WriteLine($"| Duration | {durationStr} |");
+                        writer.WriteLine();
+                    }
+
+                    // Steps section
+                    writer.WriteLine("## Steps");
+                    writer.WriteLine();
 
                     // Add each step
+                    DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
                     {
-                        // Write the step number and text
-                        writer.WriteLine($"## Step {recordEvent.Step}: {recordEvent._StepText}");
+                        string stepText = recordEvent._StepText ?? string.Empty;
+
+                        // Step header
+                        writer.WriteLine($"### Step {recordEvent.Step}");
                         writer.WriteLine();
+                        writer.WriteLine($"**{stepText}**");
+                        writer.WriteLine();
+
+                        // Timestamp
+                        if (cfg.ShowStepTimestamps)
+                        {
+                            string timeStr;
+                            if (prevTime.HasValue)
+                            {
+                                TimeSpan delta = recordEvent.CreationTime - prevTime.Value;
+                                timeStr = $"⏱️ {prevTime.Value:HH:mm:ss} → {recordEvent.CreationTime:HH:mm:ss} (+{FormatDuration(delta)})";
+                            }
+                            else
+                            {
+                                timeStr = $"⏱️ {recordEvent.CreationTime:HH:mm:ss}";
+                            }
+                            writer.WriteLine(timeStr);
+                            writer.WriteLine();
+                        }
+                        prevTime = recordEvent.CreationTime;
+
+                        // Detail table - only rendered when at least one detail option is on
+                        if (!cfg.IsDetailTableEmpty)
+                        {
+                            writer.WriteLine("| Detail | Value |");
+                            writer.WriteLine("|--------|-------|");
+                            if (cfg.ShowAction && !string.IsNullOrWhiteSpace(recordEvent.EventType))
+                                writer.WriteLine($"| Action | {recordEvent.EventType} |");
+                            if (cfg.ShowApplication && !string.IsNullOrWhiteSpace(recordEvent.ApplicationName))
+                                writer.WriteLine($"| Application | {recordEvent.ApplicationName} |");
+                            if (cfg.ShowWindow && !string.IsNullOrWhiteSpace(recordEvent.WindowTitle))
+                                writer.WriteLine($"| Window | {recordEvent.WindowTitle} |");
+                            if (cfg.ShowElement && !string.IsNullOrWhiteSpace(recordEvent.ElementName))
+                                writer.WriteLine($"| Element | {recordEvent.ElementName} |");
+                            if (cfg.ShowElementType && !string.IsNullOrWhiteSpace(recordEvent.ElementType))
+                                writer.WriteLine($"| Element Type | {recordEvent.ElementType} |");
+                            if (cfg.ShowMousePosition && (recordEvent.MouseCoordinates.X != 0 || recordEvent.MouseCoordinates.Y != 0))
+                                writer.WriteLine($"| Mouse Position | {recordEvent.MouseCoordinates.X}, {recordEvent.MouseCoordinates.Y} |");
+                            writer.WriteLine();
+                        }
 
                         // Process and save image if available
                         if (recordEvent.HasScreenshot)
@@ -97,22 +197,26 @@ namespace BetterStepsRecorder.Exporters
 
                             // Get the relative path for the image link
                             string relativeImagePath = GetRelativeImagePath(vaultPath, imageFolderPath, imageFileName);
-                            
+
                             // Add the image link to the markdown
                             writer.WriteLine($"![[{relativeImagePath}]]");
                             writer.WriteLine();
                         }
 
-                        // Add separator between steps
-                        writer.WriteLine("---");
-                        writer.WriteLine();
+                        // Add separator between steps (except after last step)
+                        if (recordEvent.Step < totalSteps)
+                        {
+                            writer.WriteLine("---");
+                            writer.WriteLine();
+                        }
                     }
-                    
+
                     // Add footer with link to GitHub
                     writer.WriteLine();
-                    
-                    writer.WriteLine("Generated with [Better Steps Recorder](https://github.com/Mentaleak/BetterStepsRecorder)");
-                    
+                    writer.WriteLine("---");
+                    writer.WriteLine();
+                    writer.WriteLine("*Generated with [Better Steps Recorder](https://github.com/Mentaleak/BetterStepsRecorder)*");
+
                 }
 
                 ShowExportSuccess(mdFilePath);

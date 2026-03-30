@@ -45,7 +45,10 @@
             TreeNode treeNode10 = new TreeNode("Screenshot", new TreeNode[] { treeNode6, treeNode9 });
             TreeNode treeNode11 = new TreeNode("HTML");
             TreeNode treeNode12 = new TreeNode("Markdown");
-            TreeNode treeNode13 = new TreeNode("Export", new TreeNode[] { treeNode11, treeNode12 });
+            TreeNode treeNode13 = new TreeNode("RTF");
+            TreeNode treeNode14 = new TreeNode("ODT");
+            TreeNode treeNode15 = new TreeNode("Obsidian");
+            TreeNode treeNode16 = new TreeNode("Export", new TreeNode[] { treeNode11, treeNode12, treeNode13, treeNode14, treeNode15 });
             treeView_Settings = new TreeView();
             textBox_SearchSettings = new TextBox();
             panel_settings = new Panel();
@@ -83,9 +86,15 @@
             treeNode11.Text = "HTML";
             treeNode12.Name = "Settings_ExportMarkdown";
             treeNode12.Text = "Markdown";
-            treeNode13.Name = "Settings_Export";
-            treeNode13.Text = "Export";
-            treeView_Settings.Nodes.AddRange(new TreeNode[] { treeNode1, treeNode4, treeNode10, treeNode13 });
+            treeNode13.Name = "Settings_ExportRtf";
+            treeNode13.Text = "RTF";
+            treeNode14.Name = "Settings_ExportOdt";
+            treeNode14.Text = "ODT";
+            treeNode15.Name = "Settings_ExportObsidian";
+            treeNode15.Text = "Obsidian";
+            treeNode16.Name = "Settings_Export";
+            treeNode16.Text = "Export";
+            treeView_Settings.Nodes.AddRange(new TreeNode[] { treeNode1, treeNode4, treeNode10, treeNode16 });
             treeView_Settings.Size = new Size(244, 367);
             treeView_Settings.TabIndex = 0;
             // 

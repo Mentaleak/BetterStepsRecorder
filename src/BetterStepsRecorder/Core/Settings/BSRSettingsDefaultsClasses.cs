@@ -99,10 +99,67 @@ namespace BetterStepsRecorder
                 !ShowElement && !ShowElementType && !ShowMousePosition;
         }
 
+        public class RtfSettings
+        {
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
+
+            [JsonIgnore]
+            public bool IsDetailStripEmpty =>
+                !ShowAction && !ShowApplication && !ShowWindow &&
+                !ShowElement && !ShowElementType && !ShowMousePosition;
+        }
+
+        public class OdtSettings
+        {
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
+
+            [JsonIgnore]
+            public bool IsDetailTableEmpty =>
+                !ShowAction && !ShowApplication && !ShowWindow &&
+                !ShowElement && !ShowElementType && !ShowMousePosition;
+        }
+
+        public class ObsidianSettings
+        {
+            public bool ShowSummary { get; set; } = true;
+            public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowStepTimestamps { get; set; } = false;
+            public bool ShowAction { get; set; } = false;
+            public bool ShowApplication { get; set; } = false;
+            public bool ShowWindow { get; set; } = false;
+            public bool ShowElement { get; set; } = false;
+            public bool ShowElementType { get; set; } = false;
+            public bool ShowMousePosition { get; set; } = false;
+
+            [JsonIgnore]
+            public bool IsDetailTableEmpty =>
+                !ShowAction && !ShowApplication && !ShowWindow &&
+                !ShowElement && !ShowElementType && !ShowMousePosition;
+        }
+
         public class ExportSettings
         {
             public HtmlSettings Html { get; set; } = new HtmlSettings();
             public MarkdownSettings Markdown { get; set; } = new MarkdownSettings();
+            public RtfSettings Rtf { get; set; } = new RtfSettings();
+            public OdtSettings Odt { get; set; } = new OdtSettings();
+            public ObsidianSettings Obsidian { get; set; } = new ObsidianSettings();
         }
     }
 
