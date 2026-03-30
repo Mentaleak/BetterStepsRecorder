@@ -2,12 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace BetterStepsRecorder
 {
-    public enum MinimizeBehavior
-    {
-        DoNotMinimize = 0,
-        MinimizeToTaskbar = 1,
-        MinimizeToSystemTray = 2
-    }
 
     public partial class BSRSettings
     {
@@ -221,6 +215,16 @@ namespace BetterStepsRecorder
         ActiveScreen,
         AllScreens
         // ActiveWindow is skipped since it is the primary mode that triggers fallback when it fails
+    }
+
+    /// <summary>
+    /// Mode of minimize on recording start.
+    /// </summary>
+    public enum MinimizeBehavior
+    {
+        DoNotMinimize = 0,
+        MinimizeToTaskbar = 1,
+        MinimizeToSystemTray = 2
     }
 
 
