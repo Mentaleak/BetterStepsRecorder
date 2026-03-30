@@ -271,6 +271,25 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Writes base (un-annotated) PNG bytes to the session spool directory with a "_base" suffix.
+        /// Returns the file path, or null if the write fails.
+        /// </summary>
+        public static string? SpoolBaseScreenshot(byte[] pngBytes, Guid eventId)
+        {
+            try
+            {
+                string filePath = Path.Combine(SessionSpoolDir, $"{eventId:N}_base.png");
+                File.WriteAllBytes(filePath, pngBytes);
+                return filePath;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Base spool write failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Reads raw PNG bytes for a RecordEvent, whether stored in RAM (Screenshotb64)
         /// or on disk (ScreenshotSpoolPath). Returns null if neither is available.
         /// </summary>
@@ -282,6 +301,19 @@ namespace BetterStepsRecorder
             if (!string.IsNullOrEmpty(recordEvent.ScreenshotSpoolPath) &&
                 File.Exists(recordEvent.ScreenshotSpoolPath))
                 return File.ReadAllBytes(recordEvent.ScreenshotSpoolPath);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Reads raw PNG bytes for the base (un-annotated) screenshot of a RecordEvent.
+        /// Returns null if not available.
+        /// </summary>
+        public static byte[]? GetBaseScreenshotBytes(RecordEvent recordEvent)
+        {
+            if (!string.IsNullOrEmpty(recordEvent.BaseScreenshotSpoolPath) &&
+                File.Exists(recordEvent.BaseScreenshotSpoolPath))
+                return File.ReadAllBytes(recordEvent.BaseScreenshotSpoolPath);
 
             return null;
         }

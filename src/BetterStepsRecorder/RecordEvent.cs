@@ -48,6 +48,13 @@ namespace BetterStepsRecorder
         [JsonIgnore]
         public string? ScreenshotSpoolPath { get; set; }
 
+        /// <summary>
+        /// Base screenshot without any indicators, stored for undo functionality.
+        /// When set, this allows users to undo the initial indicator drawing.
+        /// </summary>
+        [JsonIgnore]
+        public string? BaseScreenshotSpoolPath { get; set; }
+
         /// <summary>True when a screenshot is available either in RAM or via a spool file on disk.</summary>
         [JsonIgnore]
         public bool HasScreenshot => !string.IsNullOrEmpty(Screenshotb64) || !string.IsNullOrEmpty(ScreenshotSpoolPath);

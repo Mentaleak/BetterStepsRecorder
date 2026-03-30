@@ -275,30 +275,47 @@ namespace BetterStepsRecorder
                                         _recordEvents.Add(recordEvent);
                                     }
 
-                                    // Annotate and store post-drop screenshot
-                                    byte[]? pngBytes = null;
+                                    // Save base and annotated screenshots for drag event
+                                    byte[]? baseBytes = null;
+                                    byte[]? annotatedBytes = null;
                                     if (dragBmp != null)
                                     {
-                                        using (dragBmp)
+                                        // First save the base screenshot (without drag arrow)
+                                        using (var msBase = new System.IO.MemoryStream())
                                         {
-                                            using (Graphics gfx = Graphics.FromImage(dragBmp))
-                                                DrawDragArrow(gfx, cW, cH, cLeft, cTop, ds, arrowEnd);
-                                            using (var ms = new System.IO.MemoryStream())
-                                            {
-                                                dragBmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                                pngBytes = ms.ToArray();
-                                            }
+                                            dragBmp.Save(msBase, System.Drawing.Imaging.ImageFormat.Png);
+                                            baseBytes = msBase.ToArray();
                                         }
+
+                                        // Then draw the drag arrow and save annotated version
+                                        using (Graphics gfx = Graphics.FromImage(dragBmp))
+                                            DrawDragArrow(gfx, cW, cH, cLeft, cTop, ds, arrowEnd);
+                                        using (var ms = new System.IO.MemoryStream())
+                                        {
+                                            dragBmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                            annotatedBytes = ms.ToArray();
+                                        }
+                                        dragBmp.Dispose();
                                     }
 
-                                    if (pngBytes != null)
+                                    // Store base screenshot for undo
+                                    if (baseBytes != null)
                                     {
-                                        string? spoolPath = SpoolScreenshot(pngBytes, recordEvent.ID);
+                                        string? baseSpoolPath = SpoolBaseScreenshot(baseBytes, recordEvent.ID);
+                                        if (baseSpoolPath != null)
+                                            recordEvent.BaseScreenshotSpoolPath = baseSpoolPath;
+                                        baseBytes = null;
+                                    }
+
+                                    // Store annotated screenshot
+                                    if (annotatedBytes != null)
+                                    {
+                                        string? spoolPath = SpoolScreenshot(annotatedBytes, recordEvent.ID);
                                         if (spoolPath != null)
                                             recordEvent.ScreenshotSpoolPath = spoolPath;
                                         else
-                                            recordEvent.Screenshotb64 = Convert.ToBase64String(pngBytes);
-                                        pngBytes = null;
+                                            recordEvent.Screenshotb64 = Convert.ToBase64String(annotatedBytes);
+                                        annotatedBytes = null;
                                     }
 
                                     GC.Collect(2, GCCollectionMode.Optimized, blocking: false);
@@ -418,34 +435,52 @@ namespace BetterStepsRecorder
                                         _recordEvents.Add(recordEvent);
                                     }
 
-                                    byte[]? pngBytes = null;
+                                    // Save base screenshot (without indicator) for undo functionality
+                                    byte[]? baseBytes = null;
+                                    byte[]? annotatedBytes = null;
                                     if (preBitmap != null)
                                     {
-                                        using (preBitmap)
+                                        // First save the base screenshot (without indicators)
+                                        using (var msBase = new System.IO.MemoryStream())
                                         {
-                                            using (Graphics gfx = Graphics.FromImage(preBitmap))
-                                                DrawArrowAtCursor(gfx, winW, winH, capLeft, capTop, cp);
-                                            using (var ms = new System.IO.MemoryStream())
-                                            {
-                                                preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                                pngBytes = ms.ToArray();
-                                            }
+                                            preBitmap.Save(msBase, System.Drawing.Imaging.ImageFormat.Png);
+                                            baseBytes = msBase.ToArray();
                                         }
+
+                                        // Then draw the indicator and save annotated version
+                                        using (Graphics gfx = Graphics.FromImage(preBitmap))
+                                            DrawArrowAtCursor(gfx, winW, winH, capLeft, capTop, cp);
+                                        using (var ms = new System.IO.MemoryStream())
+                                        {
+                                            preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                            annotatedBytes = ms.ToArray();
+                                        }
+                                        preBitmap.Dispose();
                                     }
                                     else
                                     {
                                         string? b64 = SaveScreenRegionScreenshot(capLeft, capTop, winW, winH, recordEvent.ID, cp);
-                                        if (b64 != null) pngBytes = Convert.FromBase64String(b64);
+                                        if (b64 != null) annotatedBytes = Convert.FromBase64String(b64);
                                     }
 
-                                    if (pngBytes != null)
+                                    // Store base screenshot for undo
+                                    if (baseBytes != null)
                                     {
-                                        string? spoolPath = SpoolScreenshot(pngBytes, recordEvent.ID);
+                                        string? baseSpoolPath = SpoolBaseScreenshot(baseBytes, recordEvent.ID);
+                                        if (baseSpoolPath != null)
+                                            recordEvent.BaseScreenshotSpoolPath = baseSpoolPath;
+                                        baseBytes = null;
+                                    }
+
+                                    // Store annotated screenshot
+                                    if (annotatedBytes != null)
+                                    {
+                                        string? spoolPath = SpoolScreenshot(annotatedBytes, recordEvent.ID);
                                         if (spoolPath != null)
                                             recordEvent.ScreenshotSpoolPath = spoolPath;
                                         else
-                                            recordEvent.Screenshotb64 = Convert.ToBase64String(pngBytes);
-                                        pngBytes = null;
+                                            recordEvent.Screenshotb64 = Convert.ToBase64String(annotatedBytes);
+                                        annotatedBytes = null;
                                     }
 
                                     GC.Collect(2, GCCollectionMode.Optimized, blocking: false);
@@ -542,34 +577,52 @@ namespace BetterStepsRecorder
                                     _recordEvents.Add(recordEvent);
                                 }
 
-                                byte[]? pngBytes = null;
+                                // Save base screenshot (without indicator) for undo functionality
+                                byte[]? baseBytes = null;
+                                byte[]? annotatedBytes = null;
                                 if (preBitmap != null)
                                 {
-                                    using (preBitmap)
+                                    // First save the base screenshot (without indicators)
+                                    using (var msBase = new System.IO.MemoryStream())
                                     {
-                                        using (Graphics gfx = Graphics.FromImage(preBitmap))
-                                            DrawArrowAtCursor(gfx, winW, winH, winRect.Left, winRect.Top, cp);
-                                        using (var ms = new System.IO.MemoryStream())
-                                        {
-                                            preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                                            pngBytes = ms.ToArray();
-                                        }
+                                        preBitmap.Save(msBase, System.Drawing.Imaging.ImageFormat.Png);
+                                        baseBytes = msBase.ToArray();
                                     }
+
+                                    // Then draw the indicator and save annotated version
+                                    using (Graphics gfx = Graphics.FromImage(preBitmap))
+                                        DrawArrowAtCursor(gfx, winW, winH, winRect.Left, winRect.Top, cp);
+                                    using (var ms = new System.IO.MemoryStream())
+                                    {
+                                        preBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                                        annotatedBytes = ms.ToArray();
+                                    }
+                                    preBitmap.Dispose();
                                 }
                                 else
                                 {
                                     string? b64 = SaveScreenRegionScreenshot(winRect.Left, winRect.Top, winW, winH, recordEvent.ID, cp);
-                                    if (b64 != null) pngBytes = Convert.FromBase64String(b64);
+                                    if (b64 != null) annotatedBytes = Convert.FromBase64String(b64);
                                 }
 
-                                if (pngBytes != null)
+                                // Store base screenshot for undo
+                                if (baseBytes != null)
                                 {
-                                    string? spoolPath = SpoolScreenshot(pngBytes, recordEvent.ID);
+                                    string? baseSpoolPath = SpoolBaseScreenshot(baseBytes, recordEvent.ID);
+                                    if (baseSpoolPath != null)
+                                        recordEvent.BaseScreenshotSpoolPath = baseSpoolPath;
+                                    baseBytes = null;
+                                }
+
+                                // Store annotated screenshot
+                                if (annotatedBytes != null)
+                                {
+                                    string? spoolPath = SpoolScreenshot(annotatedBytes, recordEvent.ID);
                                     if (spoolPath != null)
                                         recordEvent.ScreenshotSpoolPath = spoolPath;
                                     else
-                                        recordEvent.Screenshotb64 = Convert.ToBase64String(pngBytes);
-                                    pngBytes = null;
+                                        recordEvent.Screenshotb64 = Convert.ToBase64String(annotatedBytes);
+                                    annotatedBytes = null;
                                 }
 
                                 GC.Collect(2, GCCollectionMode.Optimized, blocking: false);

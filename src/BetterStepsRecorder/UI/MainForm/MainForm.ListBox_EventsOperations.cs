@@ -61,9 +61,24 @@ namespace BetterStepsRecorder
                 // Set the step text
                 richTextBox_stepText.Text = selectedEvent._StepText;
 
-                // Re-enable undo if this step has history
-                if (_undoStacks.TryGetValue(selectedEvent.ID, out var existingStack) && existingStack.Count > 0)
-                    undoToolStripButton.Enabled = true;
+                // Initialize undo stack with base screenshot if available and not yet initialized
+                if (!_undoStacks.ContainsKey(selectedEvent.ID))
+                {
+                    byte[]? baseBytes = Program.GetBaseScreenshotBytes(selectedEvent);
+                    if (baseBytes != null)
+                    {
+                        var stack = new Stack<string>();
+                        stack.Push(Convert.ToBase64String(baseBytes));
+                        _undoStacks[selectedEvent.ID] = stack;
+                        undoToolStripButton.Enabled = true;
+                    }
+                }
+                else
+                {
+                    // Re-enable undo if this step has history
+                    if (_undoStacks.TryGetValue(selectedEvent.ID, out var existingStack) && existingStack.Count > 0)
+                        undoToolStripButton.Enabled = true;
+                }
             }
             else
             {
