@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using BetterStepsRecorder.Core.ImageOperations;
 
 namespace BetterStepsRecorder
 {
@@ -308,6 +309,80 @@ namespace BetterStepsRecorder
                 pictureBox1.Image = null;
                 selectedEvent.Screenshotb64 = "";
             }
+        }
+
+        /// <summary>
+        /// Handles the reset indicator toolbar button click.
+        /// Removes any existing indicator operation and recreates it from the stored coordinates.
+        /// </summary>
+        private void resetIndicatorToolStripButton_Click(object sender, EventArgs e)
+        {
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            // Find and remove any existing indicator operations
+            var indicatorTypes = new[] { typeof(ClickIndicatorOperation), typeof(DragIndicatorOperation) };
+            var indicatorsToRemove = selectedEvent.ImageOperations.Operations
+                .Where(op => indicatorTypes.Contains(op.GetType()))
+                .Select(op => op.Id)
+                .ToList();
+
+            foreach (var id in indicatorsToRemove)
+            {
+                selectedEvent.ImageOperations.RemoveOperation(id);
+            }
+
+            // Recreate the indicator from the stored RecordEvent data
+            ImageOperation? newIndicator = null;
+
+            // Calculate image-relative position using WindowCoordinates as the offset
+            int offsetX = selectedEvent.WindowCoordinates.Left;
+            int offsetY = selectedEvent.WindowCoordinates.Top;
+
+            if (selectedEvent.EventType == "Drag" && 
+                selectedEvent.DragStartCoordinates.HasValue && 
+                selectedEvent.DragEndCoordinates.HasValue)
+            {
+                // Drag event - create DragIndicatorOperation
+                int startX = selectedEvent.DragStartCoordinates.Value.X - offsetX;
+                int startY = selectedEvent.DragStartCoordinates.Value.Y - offsetY;
+                int endX = selectedEvent.DragEndCoordinates.Value.X - offsetX;
+                int endY = selectedEvent.DragEndCoordinates.Value.Y - offsetY;
+
+                newIndicator = new DragIndicatorOperation(
+                    new System.Drawing.Point(startX, startY),
+                    new System.Drawing.Point(endX, endY),
+                    System.Drawing.Color.FromArgb(BSRSettings.Current.Indicator.Color));
+            }
+            else
+            {
+                // Click event - create ClickIndicatorOperation
+                int cursorX = selectedEvent.MouseCoordinates.X - offsetX;
+                int cursorY = selectedEvent.MouseCoordinates.Y - offsetY;
+
+                newIndicator = new ClickIndicatorOperation(
+                    new System.Drawing.Point(cursorX, cursorY),
+                    System.Drawing.Color.FromArgb(BSRSettings.Current.Indicator.Color),
+                    BSRSettings.Current.Indicator.Style);
+            }
+
+            // Insert at index 0 so indicator is at the back (first operation applied)
+            var operations = selectedEvent.ImageOperations.Operations.ToList();
+            selectedEvent.ImageOperations.Clear();
+            selectedEvent.ImageOperations.AddOperation(newIndicator);
+            foreach (var op in operations)
+            {
+                selectedEvent.ImageOperations.AddOperation(op);
+            }
+
+            // Clear selection highlight
+            ClearSelectionHighlight();
+
+            // Rebuild the image with the restored indicator
+            RebuildImageFromOperations(selectedEvent);
+            RefreshOperationsListBox();
+
+            // Update undo button state
+            undoToolStripButton.Enabled = selectedEvent.ImageOperations.Count > 0;
         }
 
         /// <summary>

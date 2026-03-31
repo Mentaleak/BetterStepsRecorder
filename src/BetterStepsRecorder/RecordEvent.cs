@@ -138,7 +138,7 @@ namespace BetterStepsRecorder
                 }
             }
         }
-        
+
         // Helper methods to get element properties using FlaUI
         public static string? GetDetailedElementDescription(AutomationElement element)
         {

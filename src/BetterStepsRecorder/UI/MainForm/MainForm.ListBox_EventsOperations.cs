@@ -68,6 +68,9 @@ namespace BetterStepsRecorder
                 // Update undo button state based on operations
                 undoToolStripButton.Enabled = selectedEvent.ImageOperations.Count > 0;
 
+                // Enable reset indicator button - we can always recreate from stored coordinates
+                resetIndicatorToolStripButton.Enabled = true;
+
                 // Initialize undo stack with base screenshot if available and not yet initialized
                 if (!_undoStacks.ContainsKey(selectedEvent.ID))
                 {
@@ -84,6 +87,8 @@ namespace BetterStepsRecorder
             {
                 // Clear the edits list when no event is selected
                 listBox_Edits.Items.Clear();
+                // Disable reset indicator when no event selected
+                resetIndicatorToolStripButton.Enabled = false;
             }
         }
 

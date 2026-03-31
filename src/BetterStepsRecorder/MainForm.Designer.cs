@@ -55,6 +55,7 @@
             pictureBox1 = new PictureBox();
             pictureBoxToolStrip = new ToolStrip();
             undoToolStripButton = new ToolStripButton();
+            resetIndicatorToolStripButton = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
             blurRegionToolStripButton = new ToolStripButton();
             highlightToolStripButton = new ToolStripButton();
@@ -241,7 +242,7 @@
             deletePictureBoxMenuItem.Click += deleteEditToolStripMenuItem_Click;
             // 
             // propertyGrid_RecordEvent
-            // 
+            //
             propertyGrid_RecordEvent.BackColor = SystemColors.Control;
             propertyGrid_RecordEvent.Dock = DockStyle.Fill;
             propertyGrid_RecordEvent.Enabled = false;
@@ -358,7 +359,7 @@
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, resetIndicatorToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(902, 27);
@@ -372,6 +373,15 @@
             undoToolStripButton.Text = "↩ Undo";
             undoToolStripButton.ToolTipText = "Undo last annotation (Ctrl+Z)";
             undoToolStripButton.Click += undoToolStripButton_Click;
+            // 
+            // resetIndicatorToolStripButton
+            // 
+            resetIndicatorToolStripButton.Enabled = false;
+            resetIndicatorToolStripButton.Name = "resetIndicatorToolStripButton";
+            resetIndicatorToolStripButton.Size = new Size(112, 24);
+            resetIndicatorToolStripButton.Text = "🎯 Reset Indicator";
+            resetIndicatorToolStripButton.ToolTipText = "Reset the click/drag indicator to its original position";
+            resetIndicatorToolStripButton.Click += resetIndicatorToolStripButton_Click;
             // 
             // toolStripSeparator2
             // 
@@ -726,6 +736,7 @@
         private ToolStripMenuItem settingsToolStripMenuItem;
         private ToolStrip pictureBoxToolStrip;
         private ToolStripButton undoToolStripButton;
+        private ToolStripButton resetIndicatorToolStripButton;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton blurRegionToolStripButton;
         private ToolStripButton highlightToolStripButton;
