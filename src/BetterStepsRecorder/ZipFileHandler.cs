@@ -53,22 +53,48 @@ namespace BetterStepsRecorder
 
                         var eventEntryName = $"events/event_{snapshot[i].ID}.json";
 
-                        // If the screenshot is spooled on disk, load it into Screenshotb64
-                        // temporarily for serialisation, one at a time, then release it immediately.
+                        // Prepare the event for saving (convert operations to DTOs)
+                        snapshot[i].PrepareForSave();
+
+                        // For new save format: Save BASE screenshot (without operations applied)
+                        // Priority: BaseScreenshotSpoolPath > BaseScreenshotb64 > fall back to annotated
                         bool borrowedBase64 = false;
-                        if (string.IsNullOrEmpty(snapshot[i].Screenshotb64) &&
-                            !string.IsNullOrEmpty(snapshot[i].ScreenshotSpoolPath) &&
-                            File.Exists(snapshot[i].ScreenshotSpoolPath))
+
+                        // Try to get the base screenshot first
+                        if (!string.IsNullOrEmpty(snapshot[i].BaseScreenshotSpoolPath) &&
+                            File.Exists(snapshot[i].BaseScreenshotSpoolPath))
                         {
                             try
                             {
-                                snapshot[i].Screenshotb64 = Convert.ToBase64String(
-                                    File.ReadAllBytes(snapshot[i].ScreenshotSpoolPath));
+                                snapshot[i].BaseScreenshotb64 = Convert.ToBase64String(
+                                    File.ReadAllBytes(snapshot[i].BaseScreenshotSpoolPath));
+                                // Clear the legacy Screenshotb64 since we're using the new format
+                                snapshot[i].Screenshotb64 = null;
                                 borrowedBase64 = true;
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine($"SaveToZip: could not read spool file: {ex.Message}");
+                                Debug.WriteLine($"SaveToZip: could not read base spool file: {ex.Message}");
+                            }
+                        }
+
+                        // If no base screenshot available, fall back to annotated screenshot (for backward compatibility)
+                        if (string.IsNullOrEmpty(snapshot[i].BaseScreenshotb64))
+                        {
+                            if (string.IsNullOrEmpty(snapshot[i].Screenshotb64) &&
+                                !string.IsNullOrEmpty(snapshot[i].ScreenshotSpoolPath) &&
+                                File.Exists(snapshot[i].ScreenshotSpoolPath))
+                            {
+                                try
+                                {
+                                    snapshot[i].Screenshotb64 = Convert.ToBase64String(
+                                        File.ReadAllBytes(snapshot[i].ScreenshotSpoolPath));
+                                    borrowedBase64 = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"SaveToZip: could not read spool file: {ex.Message}");
+                                }
                             }
                         }
 
@@ -82,6 +108,7 @@ namespace BetterStepsRecorder
                         // Release borrowed base64 immediately — don't hold it for the next iteration
                         if (borrowedBase64)
                         {
+                            snapshot[i].BaseScreenshotb64 = null;
                             snapshot[i].Screenshotb64 = null;
                             // Nudge GC: the large base64 string just became unreachable
                             GC.Collect(2, GCCollectionMode.Optimized, blocking: false);

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Windows.Forms;
+using BetterStepsRecorder.Core;
 using BetterStepsRecorder.UI;
 
 namespace BetterStepsRecorder
@@ -34,9 +37,60 @@ namespace BetterStepsRecorder
 
                                     if (recordEvent != null)
                                     {
-                                        // If the JSON contains an embedded Base64 screenshot, spool it to disk
-                                        // immediately and clear the in-RAM string to free memory.
-                                        if (!string.IsNullOrEmpty(recordEvent.Screenshotb64))
+                                        // Restore operations from serialized DTOs
+                                        recordEvent.RestoreFromLoad();
+
+                                        // Handle new format: BaseScreenshotb64 contains the base image
+                                        if (!string.IsNullOrEmpty(recordEvent.BaseScreenshotb64))
+                                        {
+                                            try
+                                            {
+                                                byte[] pngBytes = Convert.FromBase64String(recordEvent.BaseScreenshotb64);
+
+                                                // Spool the base screenshot
+                                                string? baseSpoolPath = SpoolBaseScreenshot(pngBytes, recordEvent.ID);
+                                                if (baseSpoolPath != null)
+                                                {
+                                                    recordEvent.BaseScreenshotSpoolPath = baseSpoolPath;
+                                                }
+
+                                                // Also create the annotated version by applying operations
+                                                if (recordEvent.ImageOperations.Count > 0)
+                                                {
+                                                    using (var ms = new System.IO.MemoryStream(pngBytes))
+                                                    using (var baseBitmap = new System.Drawing.Bitmap(ms))
+                                                    {
+                                                        using (var annotatedBitmap = recordEvent.ImageOperations.ApplyOperationsToImage(baseBitmap))
+                                                        using (var annotatedMs = new System.IO.MemoryStream())
+                                                        {
+                                                            annotatedBitmap.Save(annotatedMs, System.Drawing.Imaging.ImageFormat.Png);
+                                                            string? spoolPath = SpoolScreenshot(annotatedMs.ToArray(), recordEvent.ID);
+                                                            if (spoolPath != null)
+                                                            {
+                                                                recordEvent.ScreenshotSpoolPath = spoolPath;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    // No operations, base and annotated are the same
+                                                    string? spoolPath = SpoolScreenshot(pngBytes, recordEvent.ID);
+                                                    if (spoolPath != null)
+                                                    {
+                                                        recordEvent.ScreenshotSpoolPath = spoolPath;
+                                                    }
+                                                }
+
+                                                recordEvent.BaseScreenshotb64 = null;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                System.Diagnostics.Debug.WriteLine($"Failed to process base screenshot: {ex.Message}");
+                                            }
+                                        }
+                                        // Handle legacy format: Screenshotb64 contains the annotated image
+                                        else if (!string.IsNullOrEmpty(recordEvent.Screenshotb64))
                                         {
                                             try
                                             {

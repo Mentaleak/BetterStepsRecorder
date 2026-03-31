@@ -275,3 +275,135 @@ The ImageOperationsManager:
 This redesign transforms the image editing system from a **destructive, state-based** approach to a **non-destructive, operation-based** approach. This is a significant architectural improvement that enables powerful editing features, reduces memory usage, and makes the data portable and editable in the future.
 
 The system is now ready for advanced features like operation parameter editing, copy/paste, presets, and most importantly: **saving and loading edited screenshots with full edit history**.
+
+---
+
+## Save/Load Implementation (Added)
+
+### New Save Format
+
+The BSR zip file now stores:
+1. **Base screenshot** (`BaseScreenshotb64`) - The original screenshot without any operations applied
+2. **Operations list** (`Operations`) - Serialized list of all image operations (indicators, edits, etc.)
+
+This approach provides:
+- **Smaller file sizes** - Base image stored once, operations are just JSON
+- **Full editability** - Operations can be modified, reordered, or deleted after reopening
+- **Backward compatibility** - Old files with `Screenshotb64` are still supported
+
+### RecordEvent JSON Structure
+
+```json
+{
+  "ID": "a1b2c3d4-...",
+  "Step": 1,
+  "EventType": "Left Click",
+  "BaseScreenshotb64": "iVBORw0KGgo...",
+  "Operations": [
+    {
+      "Type": "ClickIndicator",
+      "Id": "...",
+      "CreatedAt": "2024-01-15T10:30:00",
+      "Parameters": {
+        "X": 150,
+        "Y": 200,
+        "Color": -65281,
+        "Style": "Circle"
+      }
+    },
+    {
+      "Type": "Blur",
+      "Id": "...",
+      "CreatedAt": "2024-01-15T10:31:00",
+      "Parameters": {
+        "X": 50,
+        "Y": 100,
+        "Width": 200,
+        "Height": 50
+      }
+    }
+  ],
+  ...other fields...
+}
+```
+
+### Supported Operation Types
+
+| Type | Parameters |
+|------|------------|
+| `Blur` | X, Y, Width, Height |
+| `Highlight` | X, Y, Width, Height, Color (ARGB int) |
+| `Arrow` | StartX, StartY, EndX, EndY, Color, Width |
+| `TextLabel` | Text, X, Y, Width, Height, FontFamily, FontSize, TextColor, BackgroundColor |
+| `Crop` | X, Y, Width, Height |
+| `ClickIndicator` | X, Y, Color, Style ("Arrow", "Circle", "Cursor") |
+| `DragIndicator` | StartX, StartY, EndX, EndY, Color |
+
+### Key Components
+
+#### ImageOperationDto
+Located in `Core/ImageOperations/ImageOperationDto.cs`
+
+Handles serialization/deserialization of operations:
+- `FromOperation(operation)` - Converts runtime operation to DTO
+- `ToOperation()` - Converts DTO back to runtime operation
+- Uses JSON-based `Parameters` property for operation-specific data
+
+#### RecordEvent Methods
+- `PrepareForSave()` - Converts `ImageOperations` to serializable `Operations` list
+- `RestoreFromLoad()` - Reconstructs `ImageOperations` from serialized `Operations`
+
+#### ZipFileHandler.SaveToZip()
+Updated workflow:
+1. Snapshot all events
+2. For each event:
+   - Call `PrepareForSave()` to serialize operations
+   - Load base screenshot from `BaseScreenshotSpoolPath` → `BaseScreenshotb64`
+   - Serialize to JSON and add to zip
+
+#### LoadRecordEventsFromFile()
+Updated workflow:
+1. For each event in zip:
+   - Deserialize JSON
+   - Call `RestoreFromLoad()` to reconstruct operations
+   - If `BaseScreenshotb64` exists (new format):
+     - Spool base screenshot
+     - Apply operations to generate annotated version for display
+   - Else if `Screenshotb64` exists (legacy format):
+     - Spool as annotated screenshot (backward compatible)
+
+### Export Behavior
+
+Exports **always render the final flattened image** by applying all operations:
+
+```csharp
+// ExporterBase.GetRenderedImage()
+1. Try to get base screenshot
+2. If base exists and operations exist:
+   - Apply all operations to base
+   - Return rendered result
+3. Else fall back to pre-rendered screenshot
+```
+
+This ensures exports contain the complete, final image with all edits applied, regardless of the internal storage format.
+
+### Migration Notes
+
+#### Old Files (Pre-Operations)
+- Store only `Screenshotb64` (annotated image)
+- No `Operations` array
+- Loaded as-is, displayed with existing annotations
+- Operations list will be empty
+- New edits will use operations system
+
+#### New Files (With Operations)
+- Store `BaseScreenshotb64` (clean image) + `Operations`
+- `Screenshotb64` is null
+- On load: base + operations → annotated display
+- Full edit capability restored
+
+#### Hybrid Scenario
+If user loads old file and adds new edits:
+- Old image becomes the "base" (with its annotations baked in)
+- New operations are added on top
+- Save will store the current state as new base + new operations

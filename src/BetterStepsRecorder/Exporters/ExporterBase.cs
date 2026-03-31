@@ -34,13 +34,93 @@ namespace BetterStepsRecorder.Exporters
         }
 
         /// <summary>
-        /// Saves a screenshot from a RecordEvent to a file, reading from spool disk or RAM as needed.
+        /// Saves a screenshot from a RecordEvent to a file, rendering the final image by applying all operations.
         /// </summary>
         protected bool SaveImageFromEvent(RecordEvent recordEvent, string filePath, ImageFormat format = null)
         {
+            try
+            {
+                // Get the rendered image with all operations applied
+                using (var renderedBitmap = GetRenderedImage(recordEvent))
+                {
+                    if (renderedBitmap == null) return false;
+
+                    using (var ms = new MemoryStream())
+                    {
+                        renderedBitmap.Save(ms, format ?? ImageFormat.Png);
+                        return SaveImageBytes(ms.ToArray(), filePath, format);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ReportImageError(ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the fully rendered image for a RecordEvent by applying all operations to the base screenshot.
+        /// </summary>
+        /// <param name="recordEvent">The record event to render</param>
+        /// <returns>A bitmap with all operations applied, or null if no screenshot is available. Caller must dispose.</returns>
+        protected Bitmap? GetRenderedImage(RecordEvent recordEvent)
+        {
+            // First, try to get the base screenshot and apply operations
+            byte[]? baseBytes = Program.GetBaseScreenshotBytes(recordEvent);
+            if (baseBytes != null && recordEvent.ImageOperations.Count > 0)
+            {
+                try
+                {
+                    using (var ms = new MemoryStream(baseBytes))
+                    using (var baseBitmap = new Bitmap(ms))
+                    {
+                        // Apply all operations to get the final rendered image
+                        return recordEvent.ImageOperations.ApplyOperationsToImage(baseBitmap);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to render image with operations: {ex.Message}");
+                    // Fall through to try other methods
+                }
+            }
+
+            // Fall back to the already-rendered screenshot (for legacy files or when no operations)
             byte[]? bytes = Program.GetScreenshotBytes(recordEvent);
-            if (bytes == null) return false;
-            return SaveImageBytes(bytes, filePath, format);
+            if (bytes != null)
+            {
+                try
+                {
+                    using (var ms = new MemoryStream(bytes))
+                    {
+                        return new Bitmap(ms);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the rendered image as a byte array for a RecordEvent.
+        /// </summary>
+        protected byte[]? GetRenderedImageBytes(RecordEvent recordEvent, ImageFormat? format = null)
+        {
+            using (var bitmap = GetRenderedImage(recordEvent))
+            {
+                if (bitmap == null) return null;
+
+                using (var ms = new MemoryStream())
+                {
+                    bitmap.Save(ms, format ?? ImageFormat.Png);
+                    return ms.ToArray();
+                }
+            }
         }
 
         private bool SaveImageBytes(byte[] imageBytes, string filePath, ImageFormat format = null)

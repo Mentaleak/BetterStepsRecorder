@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FlaUI.Core.AutomationElements;
 using BetterStepsRecorder.Core;
+using BetterStepsRecorder.Core.ImageOperations;
 
 namespace BetterStepsRecorder
 {
@@ -22,7 +23,7 @@ namespace BetterStepsRecorder
             get { return _CreationTime; }
             set { _CreationTime = value; }
         }
-        
+
         public string? WindowTitle { get; set; }
         public string? ApplicationName { get; set; }
         public WindowHelper.RECT WindowCoordinates { get; set; }
@@ -30,15 +31,32 @@ namespace BetterStepsRecorder
         public WindowHelper.RECT UICoordinates { get; set; }
         public WindowHelper.Size UISize { get; set; }
         public int Step { get; set; }
-        
+
         [JsonIgnore] 
         public AutomationElement? UIElement { get; set; }
-        
+
         public WindowHelper.POINT MouseCoordinates { get; set; }
         public WindowHelper.POINT? DragStartCoordinates { get; set; }
         public WindowHelper.POINT? DragEndCoordinates { get; set; }
         public string? EventType { get; set; }
+
+        /// <summary>
+        /// Base screenshot without any operations applied (used for save files).
+        /// This is serialized to JSON and represents the clean screenshot.
+        /// </summary>
+        public string? BaseScreenshotb64 { get; set; }
+
+        /// <summary>
+        /// Legacy: Annotated screenshot with all operations applied.
+        /// Kept for backward compatibility with older save files.
+        /// New saves will only use BaseScreenshotb64 + Operations.
+        /// </summary>
         public string? Screenshotb64 { get; set; }
+
+        /// <summary>
+        /// Serialized list of image operations to apply to the base screenshot.
+        /// </summary>
+        public List<ImageOperationDto>? Operations { get; set; }
 
         public string? _StepText { get; set; }
 
@@ -64,7 +82,10 @@ namespace BetterStepsRecorder
 
         /// <summary>True when a screenshot is available either in RAM or via a spool file on disk.</summary>
         [JsonIgnore]
-        public bool HasScreenshot => !string.IsNullOrEmpty(Screenshotb64) || !string.IsNullOrEmpty(ScreenshotSpoolPath);
+        public bool HasScreenshot => !string.IsNullOrEmpty(Screenshotb64) || 
+                                      !string.IsNullOrEmpty(BaseScreenshotb64) ||
+                                      !string.IsNullOrEmpty(ScreenshotSpoolPath) ||
+                                      !string.IsNullOrEmpty(BaseScreenshotSpoolPath);
 
         /// <summary>Returns the first 8 hex characters of the ID for use in filenames.</summary>
         public string ShortId => ID.ToString("N")[..8];
@@ -77,6 +98,46 @@ namespace BetterStepsRecorder
 
         public string? ElementName { get; set; }
         public string? ElementType { get; set; }
+
+        /// <summary>
+        /// Prepares the event for serialization by converting runtime operations to DTOs
+        /// and setting up the base screenshot for saving.
+        /// </summary>
+        public void PrepareForSave()
+        {
+            // Convert runtime ImageOperations to serializable DTOs
+            if (ImageOperations.Count > 0)
+            {
+                Operations = ImageOperationDto.FromOperations(ImageOperations.Operations);
+            }
+            else
+            {
+                Operations = null;
+            }
+        }
+
+        /// <summary>
+        /// Restores runtime state after deserialization by converting DTOs back to operations.
+        /// </summary>
+        public void RestoreFromLoad()
+        {
+            // Convert serialized DTOs back to runtime ImageOperations
+            ImageOperations = new ImageOperationsManager();
+            if (Operations != null && Operations.Count > 0)
+            {
+                foreach (var dto in Operations)
+                {
+                    try
+                    {
+                        ImageOperations.AddOperation(dto.ToOperation());
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to restore operation: {ex.Message}");
+                    }
+                }
+            }
+        }
         
         // Helper methods to get element properties using FlaUI
         public static string? GetDetailedElementDescription(AutomationElement element)
