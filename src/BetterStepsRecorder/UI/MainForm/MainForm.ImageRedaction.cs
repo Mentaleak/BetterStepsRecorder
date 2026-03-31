@@ -22,11 +22,11 @@ namespace BetterStepsRecorder
         private Point   _toolCurrent;
         private Rectangle _toolRect;
 
-        // Selection highlight state
+        // Selection highlight state (marching ants)
         private int _selectedOperationIndex = -1;
         private Rectangle _selectedOperationBounds = Rectangle.Empty;
         private Point[] _selectedOperationPoints = null;
-        private bool _selectionHighlightVisible = true;
+        private float _marchingAntsOffset = 0f;
         private System.Windows.Forms.Timer _selectionFlashTimer;
 
         // Arrow tool: two endpoints
@@ -52,21 +52,23 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Initializes the selection flash timer for the edit selection highlight
+        /// Initializes the marching ants timer for the edit selection highlight
         /// </summary>
         private void InitializeSelectionFlashTimer()
         {
             _selectionFlashTimer = new System.Windows.Forms.Timer();
-            _selectionFlashTimer.Interval = 500; // Flash every 500ms
+            _selectionFlashTimer.Interval = 100; // Update every 100ms for smooth animation
             _selectionFlashTimer.Tick += (s, e) =>
             {
-                _selectionHighlightVisible = !_selectionHighlightVisible;
+                _marchingAntsOffset += 2f;
+                if (_marchingAntsOffset > 8f) _marchingAntsOffset = 0f;
                 if (_selectedOperationIndex >= 0)
                 {
                     pictureBox1.Invalidate();
                 }
             };
         }
+
 
         /// <summary>
         /// Handles selection change in the edits listbox to show selection highlight
@@ -91,8 +93,8 @@ namespace BetterStepsRecorder
             _selectedOperationIndex = index;
             UpdateSelectionHighlightBounds(selectedEvent, index);
 
-            // Start the flash timer
-            _selectionHighlightVisible = true;
+            // Start the marching ants animation
+            _marchingAntsOffset = 0f;
             _selectionFlashTimer?.Start();
             pictureBox1.Invalidate();
         }
@@ -193,6 +195,7 @@ namespace BetterStepsRecorder
             _selectedOperationIndex = -1;
             _selectedOperationBounds = Rectangle.Empty;
             _selectedOperationPoints = null;
+            _marchingAntsOffset = 0f;
             _selectionFlashTimer?.Stop();
             pictureBox1.Invalidate();
         }
@@ -537,18 +540,21 @@ namespace BetterStepsRecorder
                 }
 
                 /// <summary>
-                /// Paint handler for drawing selection highlight on selected operation
+                /// Paint handler for drawing marching ants selection highlight on selected operation
                 /// </summary>
                 private void SelectionHighlight_Paint(object sender, PaintEventArgs e)
                 {
-                    if (_selectedOperationIndex < 0 || !_selectionHighlightVisible) return;
+                    if (_selectedOperationIndex < 0) return;
 
                     e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                    // Create a flashing dotted pen (cyan color for visibility)
-                    using var pen = new Pen(Color.Cyan, 2.5f)
+                    // Classic marching ants: black background line + white dashed line with animated offset
+                    using var blackPen = new Pen(Color.Black, 1f);
+                    using var whitePen = new Pen(Color.White, 1f)
                     {
-                        DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+                        DashStyle = System.Drawing.Drawing2D.DashStyle.Dash,
+                        DashPattern = new float[] { 4f, 4f },
+                        DashOffset = _marchingAntsOffset
                     };
 
                     // Draw bounds for rectangle-based operations
@@ -558,8 +564,10 @@ namespace BetterStepsRecorder
                         if (controlRect.Width > 0 && controlRect.Height > 0)
                         {
                             // Inflate slightly to make the border visible outside the operation
-                            controlRect.Inflate(3, 3);
-                            e.Graphics.DrawRectangle(pen, controlRect);
+                            controlRect.Inflate(2, 2);
+                            // Draw black line first (background), then white dashed line (marching ants)
+                            e.Graphics.DrawRectangle(blackPen, controlRect);
+                            e.Graphics.DrawRectangle(whitePen, controlRect);
                         }
                     }
 
@@ -574,13 +582,20 @@ namespace BetterStepsRecorder
                         int minY = Math.Min(start.Y, end.Y) - 10;
                         int maxX = Math.Max(start.X, end.X) + 10;
                         int maxY = Math.Max(start.Y, end.Y) + 10;
+                        var lineRect = new Rectangle(minX, minY, maxX - minX, maxY - minY);
 
-                        e.Graphics.DrawRectangle(pen, minX, minY, maxX - minX, maxY - minY);
+                        e.Graphics.DrawRectangle(blackPen, lineRect);
+                        e.Graphics.DrawRectangle(whitePen, lineRect);
 
                         // Also draw circles at the endpoints for clarity
                         int circleRadius = 8;
-                        e.Graphics.DrawEllipse(pen, start.X - circleRadius, start.Y - circleRadius, circleRadius * 2, circleRadius * 2);
-                        e.Graphics.DrawEllipse(pen, end.X - circleRadius, end.Y - circleRadius, circleRadius * 2, circleRadius * 2);
+                        var startCircle = new Rectangle(start.X - circleRadius, start.Y - circleRadius, circleRadius * 2, circleRadius * 2);
+                        var endCircle = new Rectangle(end.X - circleRadius, end.Y - circleRadius, circleRadius * 2, circleRadius * 2);
+
+                        e.Graphics.DrawEllipse(blackPen, startCircle);
+                        e.Graphics.DrawEllipse(whitePen, startCircle);
+                        e.Graphics.DrawEllipse(blackPen, endCircle);
+                        e.Graphics.DrawEllipse(whitePen, endCircle);
                     }
                 }
 
