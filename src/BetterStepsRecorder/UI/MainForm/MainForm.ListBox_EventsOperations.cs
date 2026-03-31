@@ -27,6 +27,7 @@ namespace BetterStepsRecorder
         private void Listbox_Events_SelectedIndexChanged(object sender, EventArgs e)
         {
             ResetImageTools();
+            ClearSelectionHighlight(); // Clear edit selection highlight when changing events
 
             if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
             {

@@ -85,6 +85,11 @@ namespace BetterStepsRecorder
         private void Form1_Load(object sender, EventArgs e)
         {
             DisableRecording();
+
+            // Initialize selection highlight timer and event handlers
+            InitializeSelectionFlashTimer();
+            listBox_Edits.SelectedIndexChanged += listBox_Edits_SelectedIndexChanged;
+            pictureBox1.Paint += SelectionHighlight_Paint;
         }
 
 

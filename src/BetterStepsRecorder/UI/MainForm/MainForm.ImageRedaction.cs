@@ -22,6 +22,13 @@ namespace BetterStepsRecorder
         private Point   _toolCurrent;
         private Rectangle _toolRect;
 
+        // Selection highlight state
+        private int _selectedOperationIndex = -1;
+        private Rectangle _selectedOperationBounds = Rectangle.Empty;
+        private Point[] _selectedOperationPoints = null;
+        private bool _selectionHighlightVisible = true;
+        private System.Windows.Forms.Timer _selectionFlashTimer;
+
         // Arrow tool: two endpoints
         private Point _arrowStart;
         private Point _arrowEnd;
@@ -42,6 +49,192 @@ namespace BetterStepsRecorder
         {
             public string Description { get; set; } = "";
             public string ImageState { get; set; } = "";
+        }
+
+        /// <summary>
+        /// Initializes the selection flash timer for the edit selection highlight
+        /// </summary>
+        private void InitializeSelectionFlashTimer()
+        {
+            _selectionFlashTimer = new System.Windows.Forms.Timer();
+            _selectionFlashTimer.Interval = 500; // Flash every 500ms
+            _selectionFlashTimer.Tick += (s, e) =>
+            {
+                _selectionHighlightVisible = !_selectionHighlightVisible;
+                if (_selectedOperationIndex >= 0)
+                {
+                    pictureBox1.Invalidate();
+                }
+            };
+        }
+
+        /// <summary>
+        /// Handles selection change in the edits listbox to show selection highlight
+        /// </summary>
+        private void listBox_Edits_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0)
+            {
+                ClearSelectionHighlight();
+                return;
+            }
+
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int index = listBox_Edits.SelectedIndex;
+            if (index >= selectedEvent.ImageOperations.Count)
+            {
+                ClearSelectionHighlight();
+                return;
+            }
+
+            _selectedOperationIndex = index;
+            UpdateSelectionHighlightBounds(selectedEvent, index);
+
+            // Start the flash timer
+            _selectionHighlightVisible = true;
+            _selectionFlashTimer?.Start();
+            pictureBox1.Invalidate();
+        }
+
+        /// <summary>
+        /// Updates the selection highlight bounds based on the selected operation
+        /// </summary>
+        private void UpdateSelectionHighlightBounds(RecordEvent selectedEvent, int operationIndex)
+        {
+            _selectedOperationBounds = Rectangle.Empty;
+            _selectedOperationPoints = null;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // Get the bounds based on operation type
+            switch (operation)
+            {
+                case BlurOperation blur:
+                    _selectedOperationBounds = GetAdjustedBounds(blur.Region, selectedEvent, operationIndex);
+                    break;
+                case HighlightOperation highlight:
+                    _selectedOperationBounds = GetAdjustedBounds(highlight.Region, selectedEvent, operationIndex);
+                    break;
+                case TextLabelOperation text:
+                    _selectedOperationBounds = GetAdjustedBounds(text.Region, selectedEvent, operationIndex);
+                    break;
+                case CropOperation crop:
+                    _selectedOperationBounds = GetAdjustedBounds(crop.Region, selectedEvent, operationIndex);
+                    break;
+                case ArrowOperation arrow:
+                    _selectedOperationPoints = GetAdjustedPoints(new[] { arrow.StartPoint, arrow.EndPoint }, selectedEvent, operationIndex);
+                    break;
+                case ClickIndicatorOperation click:
+                    // Create a small bounds around the click point
+                    var adjustedClick = GetAdjustedPoints(new[] { click.CursorPosition }, selectedEvent, operationIndex);
+                    if (adjustedClick != null && adjustedClick.Length > 0)
+                    {
+                        int radius = 30;
+                        _selectedOperationBounds = new Rectangle(
+                            adjustedClick[0].X - radius, adjustedClick[0].Y - radius,
+                            radius * 2, radius * 2);
+                    }
+                    break;
+                case DragIndicatorOperation drag:
+                    _selectedOperationPoints = GetAdjustedPoints(new[] { drag.StartPoint, drag.EndPoint }, selectedEvent, operationIndex);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Gets bounds adjusted for any prior crop operations
+        /// </summary>
+        private Rectangle GetAdjustedBounds(Rectangle originalBounds, RecordEvent selectedEvent, int upToIndex)
+        {
+            // Account for any crop operations that occurred before this operation
+            Rectangle adjusted = originalBounds;
+            for (int i = 0; i < upToIndex; i++)
+            {
+                if (selectedEvent.ImageOperations.Operations[i] is CropOperation cropOp)
+                {
+                    // Adjust coordinates relative to the crop origin
+                    adjusted = new Rectangle(
+                        adjusted.X - cropOp.Region.X,
+                        adjusted.Y - cropOp.Region.Y,
+                        adjusted.Width,
+                        adjusted.Height);
+                }
+            }
+            return adjusted;
+        }
+
+        /// <summary>
+        /// Gets points adjusted for any prior crop operations
+        /// </summary>
+        private Point[] GetAdjustedPoints(Point[] originalPoints, RecordEvent selectedEvent, int upToIndex)
+        {
+            Point[] adjusted = (Point[])originalPoints.Clone();
+            for (int i = 0; i < upToIndex; i++)
+            {
+                if (selectedEvent.ImageOperations.Operations[i] is CropOperation cropOp)
+                {
+                    for (int j = 0; j < adjusted.Length; j++)
+                    {
+                        adjusted[j] = new Point(
+                            adjusted[j].X - cropOp.Region.X,
+                            adjusted[j].Y - cropOp.Region.Y);
+                    }
+                }
+            }
+            return adjusted;
+        }
+
+        /// <summary>
+        /// Clears the selection highlight
+        /// </summary>
+        private void ClearSelectionHighlight()
+        {
+            _selectedOperationIndex = -1;
+            _selectedOperationBounds = Rectangle.Empty;
+            _selectedOperationPoints = null;
+            _selectionFlashTimer?.Stop();
+            pictureBox1.Invalidate();
+        }
+
+        /// <summary>
+        /// Converts an image-space rectangle to control-space rectangle for the PictureBox
+        /// </summary>
+        private Rectangle ImageRectToControlRect(Rectangle imageRect)
+        {
+            if (pictureBox1.Image == null) return Rectangle.Empty;
+
+            Rectangle imageDrawRect = GetImageRectInZoomMode(pictureBox1);
+            if (imageDrawRect.Width == 0 || imageDrawRect.Height == 0) return Rectangle.Empty;
+
+            double scaleX = (double)imageDrawRect.Width / pictureBox1.Image.Width;
+            double scaleY = (double)imageDrawRect.Height / pictureBox1.Image.Height;
+
+            int x = (int)Math.Round(imageRect.X * scaleX + imageDrawRect.X);
+            int y = (int)Math.Round(imageRect.Y * scaleY + imageDrawRect.Y);
+            int w = (int)Math.Round(imageRect.Width * scaleX);
+            int h = (int)Math.Round(imageRect.Height * scaleY);
+
+            return new Rectangle(x, y, w, h);
+        }
+
+        /// <summary>
+        /// Converts an image-space point to control-space point for the PictureBox
+        /// </summary>
+        private Point ImagePointToControlPoint(Point imagePoint)
+        {
+            if (pictureBox1.Image == null) return imagePoint;
+
+            Rectangle imageDrawRect = GetImageRectInZoomMode(pictureBox1);
+            if (imageDrawRect.Width == 0 || imageDrawRect.Height == 0) return imagePoint;
+
+            double scaleX = (double)imageDrawRect.Width / pictureBox1.Image.Width;
+            double scaleY = (double)imageDrawRect.Height / pictureBox1.Image.Height;
+
+            int x = (int)Math.Round(imagePoint.X * scaleX + imageDrawRect.X);
+            int y = (int)Math.Round(imagePoint.Y * scaleY + imageDrawRect.Y);
+
+            return new Point(x, y);
         }
 
         private void undoToolStripButton_Click(object sender, EventArgs e)
@@ -285,63 +478,111 @@ namespace BetterStepsRecorder
 
         // ── Overlay paint ─────────────────────────────────────────────────────
 
-        private void Tool_Paint(object sender, PaintEventArgs e)
-        {
-            if (!_toolDrawing) return;
-
-            switch (_activeTool)
-            {
-                case ImageTool.Blur:
-                    if (_toolRect.Width > 0 && _toolRect.Height > 0)
-                    {
-                        using var b = new SolidBrush(Color.FromArgb(80, 30, 30, 30));
-                        e.Graphics.FillRectangle(b, _toolRect);
-                        using var p = new Pen(Color.FromArgb(200, 80, 80, 80), 1.5f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
-                        e.Graphics.DrawRectangle(p, _toolRect);
-                    }
-                    break;
-
-                case ImageTool.Highlight:
-                    if (_toolRect.Width > 0 && _toolRect.Height > 0)
-                    {
-                        using var b = new SolidBrush(HighlightColor);
-                        e.Graphics.FillRectangle(b, _toolRect);
-                        using var p = new Pen(Color.FromArgb(200, HighlightColor.R, HighlightColor.G, HighlightColor.B), 1.5f);
-                        e.Graphics.DrawRectangle(p, _toolRect);
-                    }
-                    break;
-
-                case ImageTool.Text:
-                    if (_toolRect.Width > 0 && _toolRect.Height > 0)
-                    {
-                        using var p = new Pen(Color.FromArgb(200, 0, 120, 215), 1.5f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
-                        e.Graphics.DrawRectangle(p, _toolRect);
-                    }
-                    break;
-
-                case ImageTool.Arrow:
+                private void Tool_Paint(object sender, PaintEventArgs e)
                 {
-                    using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(6, 6);
-                    using var pen = new Pen(ArrowColor, 3f);
-                    pen.CustomEndCap = arrowCap;
-                    e.Graphics.DrawLine(pen, _arrowStart, _toolCurrent);
-                    break;
+                    if (!_toolDrawing) return;
+
+                    switch (_activeTool)
+                    {
+                        case ImageTool.Blur:
+                            if (_toolRect.Width > 0 && _toolRect.Height > 0)
+                            {
+                                using var b = new SolidBrush(Color.FromArgb(80, 30, 30, 30));
+                                e.Graphics.FillRectangle(b, _toolRect);
+                                using var p = new Pen(Color.FromArgb(200, 80, 80, 80), 1.5f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
+                                e.Graphics.DrawRectangle(p, _toolRect);
+                            }
+                            break;
+
+                        case ImageTool.Highlight:
+                            if (_toolRect.Width > 0 && _toolRect.Height > 0)
+                            {
+                                using var b = new SolidBrush(HighlightColor);
+                                e.Graphics.FillRectangle(b, _toolRect);
+                                using var p = new Pen(Color.FromArgb(200, HighlightColor.R, HighlightColor.G, HighlightColor.B), 1.5f);
+                                e.Graphics.DrawRectangle(p, _toolRect);
+                            }
+                            break;
+
+                        case ImageTool.Text:
+                            if (_toolRect.Width > 0 && _toolRect.Height > 0)
+                            {
+                                using var p = new Pen(Color.FromArgb(200, 0, 120, 215), 1.5f) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash };
+                                e.Graphics.DrawRectangle(p, _toolRect);
+                            }
+                            break;
+
+                        case ImageTool.Arrow:
+                        {
+                            using var arrowCap = new System.Drawing.Drawing2D.AdjustableArrowCap(6, 6);
+                            using var pen = new Pen(ArrowColor, 3f);
+                            pen.CustomEndCap = arrowCap;
+                            e.Graphics.DrawLine(pen, _arrowStart, _toolCurrent);
+                            break;
+                        }
+
+                        case ImageTool.Crop:
+                            if (_toolRect.Width > 0 && _toolRect.Height > 0)
+                            {
+                                // Dim outside the crop rect
+                                using var dim = new SolidBrush(Color.FromArgb(120, 0, 0, 0));
+                                var outer = new Region(new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
+                                outer.Exclude(_toolRect);
+                                e.Graphics.FillRegion(dim, outer);
+                                using var p = new Pen(Color.White, 1.5f);
+                                e.Graphics.DrawRectangle(p, _toolRect);
+                            }
+                            break;
+                    }
                 }
 
-                case ImageTool.Crop:
-                    if (_toolRect.Width > 0 && _toolRect.Height > 0)
+                /// <summary>
+                /// Paint handler for drawing selection highlight on selected operation
+                /// </summary>
+                private void SelectionHighlight_Paint(object sender, PaintEventArgs e)
+                {
+                    if (_selectedOperationIndex < 0 || !_selectionHighlightVisible) return;
+
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                    // Create a flashing dotted pen (cyan color for visibility)
+                    using var pen = new Pen(Color.Cyan, 2.5f)
                     {
-                        // Dim outside the crop rect
-                        using var dim = new SolidBrush(Color.FromArgb(120, 0, 0, 0));
-                        var outer = new Region(new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
-                        outer.Exclude(_toolRect);
-                        e.Graphics.FillRegion(dim, outer);
-                        using var p = new Pen(Color.White, 1.5f);
-                        e.Graphics.DrawRectangle(p, _toolRect);
+                        DashStyle = System.Drawing.Drawing2D.DashStyle.Dot
+                    };
+
+                    // Draw bounds for rectangle-based operations
+                    if (!_selectedOperationBounds.IsEmpty)
+                    {
+                        Rectangle controlRect = ImageRectToControlRect(_selectedOperationBounds);
+                        if (controlRect.Width > 0 && controlRect.Height > 0)
+                        {
+                            // Inflate slightly to make the border visible outside the operation
+                            controlRect.Inflate(3, 3);
+                            e.Graphics.DrawRectangle(pen, controlRect);
+                        }
                     }
-                    break;
-            }
-        }
+
+                    // Draw for point-based operations (arrows, drags)
+                    if (_selectedOperationPoints != null && _selectedOperationPoints.Length >= 2)
+                    {
+                        Point start = ImagePointToControlPoint(_selectedOperationPoints[0]);
+                        Point end = ImagePointToControlPoint(_selectedOperationPoints[1]);
+
+                        // Draw a bounding box around the line
+                        int minX = Math.Min(start.X, end.X) - 10;
+                        int minY = Math.Min(start.Y, end.Y) - 10;
+                        int maxX = Math.Max(start.X, end.X) + 10;
+                        int maxY = Math.Max(start.Y, end.Y) + 10;
+
+                        e.Graphics.DrawRectangle(pen, minX, minY, maxX - minX, maxY - minY);
+
+                        // Also draw circles at the endpoints for clarity
+                        int circleRadius = 8;
+                        e.Graphics.DrawEllipse(pen, start.X - circleRadius, start.Y - circleRadius, circleRadius * 2, circleRadius * 2);
+                        e.Graphics.DrawEllipse(pen, end.X - circleRadius, end.Y - circleRadius, circleRadius * 2, circleRadius * 2);
+                    }
+                }
 
         // ── Tool implementations ──────────────────────────────────────────────
 
