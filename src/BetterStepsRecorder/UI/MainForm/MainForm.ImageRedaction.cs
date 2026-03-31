@@ -201,6 +201,154 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Finds the operation at the given control-space point (click location on pictureBox)
+        /// Returns the index of the topmost (last applied) operation at that point, or -1 if none found.
+        /// </summary>
+        private int FindOperationAtPoint(Point controlPoint, RecordEvent selectedEvent)
+        {
+            if (selectedEvent == null || pictureBox1.Image == null) return -1;
+
+            // Convert control point to image point
+            Point imagePoint = ControlPointToImagePoint(controlPoint);
+
+            // Search from last to first (topmost operation takes priority)
+            for (int i = selectedEvent.ImageOperations.Count - 1; i >= 0; i--)
+            {
+                var operation = selectedEvent.ImageOperations.Operations[i];
+                Rectangle bounds = GetOperationBoundsInImageSpace(operation, selectedEvent, i);
+
+                if (!bounds.IsEmpty && bounds.Contains(imagePoint))
+                {
+                    return i;
+                }
+
+                // For line-based operations, check proximity to the line
+                Point[]? points = GetOperationPointsInImageSpace(operation, selectedEvent, i);
+                if (points != null && points.Length >= 2)
+                {
+                    if (IsPointNearLine(imagePoint, points[0], points[1], tolerance: 15))
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Gets the bounds of an operation in image space, adjusted for prior crops
+        /// </summary>
+        private Rectangle GetOperationBoundsInImageSpace(ImageOperation operation, RecordEvent selectedEvent, int operationIndex)
+        {
+            Rectangle bounds = Rectangle.Empty;
+
+            switch (operation)
+            {
+                case BlurOperation blur:
+                    bounds = blur.Region;
+                    break;
+                case HighlightOperation highlight:
+                    bounds = highlight.Region;
+                    break;
+                case TextLabelOperation text:
+                    bounds = text.Region;
+                    break;
+                case CropOperation crop:
+                    bounds = crop.Region;
+                    break;
+                case ClickIndicatorOperation click:
+                    // Create a clickable area around the indicator
+                    int radius = 30;
+                    bounds = new Rectangle(click.CursorPosition.X - radius, click.CursorPosition.Y - radius, radius * 2, radius * 2);
+                    break;
+            }
+
+            if (!bounds.IsEmpty)
+            {
+                return GetAdjustedBounds(bounds, selectedEvent, operationIndex);
+            }
+
+            return Rectangle.Empty;
+        }
+
+        /// <summary>
+        /// Gets the points of a line-based operation in image space, adjusted for prior crops
+        /// </summary>
+        private Point[]? GetOperationPointsInImageSpace(ImageOperation operation, RecordEvent selectedEvent, int operationIndex)
+        {
+            Point[]? points = null;
+
+            switch (operation)
+            {
+                case ArrowOperation arrow:
+                    points = new[] { arrow.StartPoint, arrow.EndPoint };
+                    break;
+                case DragIndicatorOperation drag:
+                    points = new[] { drag.StartPoint, drag.EndPoint };
+                    break;
+            }
+
+            if (points != null)
+            {
+                return GetAdjustedPoints(points, selectedEvent, operationIndex);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Checks if a point is near a line segment
+        /// </summary>
+        private static bool IsPointNearLine(Point point, Point lineStart, Point lineEnd, int tolerance)
+        {
+            // Calculate distance from point to line segment
+            double dx = lineEnd.X - lineStart.X;
+            double dy = lineEnd.Y - lineStart.Y;
+            double lengthSquared = dx * dx + dy * dy;
+
+            if (lengthSquared == 0)
+            {
+                // Line is a point
+                double dist = Math.Sqrt(Math.Pow(point.X - lineStart.X, 2) + Math.Pow(point.Y - lineStart.Y, 2));
+                return dist <= tolerance;
+            }
+
+            // Project point onto line, clamped to segment
+            double t = Math.Max(0, Math.Min(1, ((point.X - lineStart.X) * dx + (point.Y - lineStart.Y) * dy) / lengthSquared));
+            double projX = lineStart.X + t * dx;
+            double projY = lineStart.Y + t * dy;
+
+            double distance = Math.Sqrt(Math.Pow(point.X - projX, 2) + Math.Pow(point.Y - projY, 2));
+            return distance <= tolerance;
+        }
+
+        /// <summary>
+        /// Handles click on pictureBox to select operations when no tool is active
+        /// </summary>
+        private void PictureBox_SelectionClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            if (_activeTool != ImageTool.None) return; // Don't interfere with tools
+            if (pictureBox1.Image == null) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+
+            if (operationIndex >= 0 && operationIndex < listBox_Edits.Items.Count)
+            {
+                listBox_Edits.SelectedIndex = operationIndex;
+                // The SelectedIndexChanged event will handle updating the highlight
+            }
+            else
+            {
+                // Clicked on empty space - deselect
+                listBox_Edits.ClearSelected();
+                ClearSelectionHighlight();
+            }
+        }
+
+        /// <summary>
         /// Converts an image-space rectangle to control-space rectangle for the PictureBox
         /// </summary>
         private Rectangle ImageRectToControlRect(Rectangle imageRect)
