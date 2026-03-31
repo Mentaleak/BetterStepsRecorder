@@ -95,7 +95,9 @@ namespace BetterStepsRecorder
             pictureBox1.MouseDown += PictureBox_SelectionMouseDown;
             pictureBox1.MouseMove += PictureBox_SelectionMouseMove;
             pictureBox1.MouseUp += PictureBox_SelectionMouseUp;
+            pictureBox1.MouseUp += PictureBox_MouseUp_ContextMenu;
             pictureBox1.MouseLeave += PictureBox_SelectionMouseLeave;
+            pictureBox1.KeyDown += PictureBox_KeyDown;
         }
 
 
@@ -106,6 +108,14 @@ namespace BetterStepsRecorder
                 undoToolStripButton_Click(this, EventArgs.Empty);
                 return true;
             }
+
+            // Handle Delete key for selected operations when pictureBox or its area is active
+            if (keyData == Keys.Delete && _selectedOperationIndex >= 0 && _activeTool == ImageTool.None)
+            {
+                DeleteSelectedEdit();
+                return true;
+            }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 

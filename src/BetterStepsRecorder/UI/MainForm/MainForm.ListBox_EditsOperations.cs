@@ -113,67 +113,130 @@ namespace BetterStepsRecorder
             if (dragData == null) return;
 
             Point point = listBox_Edits.PointToClient(new Point(e.X, e.Y));
-            int targetIndex = listBox_Edits.IndexFromPoint(point);
+            int targetVisualIndex = listBox_Edits.IndexFromPoint(point);
 
-            if (targetIndex < 0) targetIndex = listBox_Edits.Items.Count - 1;
+            if (targetVisualIndex < 0) targetVisualIndex = listBox_Edits.Items.Count - 1;
 
-            int sourceIndex = dragData.Index;
+            int sourceVisualIndex = dragData.Index;
 
-            if (sourceIndex != targetIndex && sourceIndex >= 0 && sourceIndex < selectedEvent.ImageOperations.Count && targetIndex >= 0 && targetIndex < selectedEvent.ImageOperations.Count)
+            // Convert visual indices to operation indices
+            int sourceOperationIndex = VisualIndexToOperationIndex(sourceVisualIndex, selectedEvent.ImageOperations.Count);
+            int targetOperationIndex = VisualIndexToOperationIndex(targetVisualIndex, selectedEvent.ImageOperations.Count);
+
+            if (sourceOperationIndex != targetOperationIndex && 
+                sourceOperationIndex >= 0 && sourceOperationIndex < selectedEvent.ImageOperations.Count && 
+                targetOperationIndex >= 0 && targetOperationIndex < selectedEvent.ImageOperations.Count)
             {
                 // Move the operation
-                selectedEvent.ImageOperations.MoveOperation(sourceIndex, targetIndex);
+                selectedEvent.ImageOperations.MoveOperation(sourceOperationIndex, targetOperationIndex);
 
                 // Rebuild the image with the reordered operations
                 RebuildImageFromOperations(selectedEvent);
 
                 // Refresh the listbox
                 RefreshOperationsListBox();
-                listBox_Edits.SelectedIndex = targetIndex;
+                listBox_Edits.SelectedIndex = targetVisualIndex;
             }
         }
 
         /// <summary>
-        /// Handles the move up context menu item click for edits
+        /// Handles the move up context menu item click for edits.
+        /// Since the list is displayed in reverse (front at top), "Move Up" visually 
+        /// means moving to a higher layer (later in the operations list).
         /// </summary>
         private void moveUpEditToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (listBox_Edits.SelectedIndex <= 0) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            int index = listBox_Edits.SelectedIndex;
-            if (index > 0 && index < selectedEvent.ImageOperations.Count)
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            // Move up visually = move to higher index (later in list = more on top)
+            if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count - 1)
             {
-                // Swap with the operation above
-                selectedEvent.ImageOperations.SwapOperations(index, index - 1);
+                selectedEvent.ImageOperations.SwapOperations(operationIndex, operationIndex + 1);
 
                 // Rebuild the image
                 RebuildImageFromOperations(selectedEvent);
 
                 RefreshOperationsListBox();
-                listBox_Edits.SelectedIndex = index - 1;
+                listBox_Edits.SelectedIndex = visualIndex - 1; // Visual index goes up (decreases)
             }
         }
 
         /// <summary>
-        /// Handles the move down context menu item click for edits
+        /// Handles the move down context menu item click for edits.
+        /// Since the list is displayed in reverse (front at top), "Move Down" visually 
+        /// means moving to a lower layer (earlier in the operations list).
         /// </summary>
         private void moveDownEditToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (listBox_Edits.SelectedIndex < 0) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            int index = listBox_Edits.SelectedIndex;
-            if (index >= 0 && index < selectedEvent.ImageOperations.Count - 1)
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            // Move down visually = move to lower index (earlier in list = more behind)
+            if (operationIndex > 0 && operationIndex < selectedEvent.ImageOperations.Count)
             {
-                // Swap with the operation below
-                selectedEvent.ImageOperations.SwapOperations(index, index + 1);
+                selectedEvent.ImageOperations.SwapOperations(operationIndex, operationIndex - 1);
 
                 // Rebuild the image
                 RebuildImageFromOperations(selectedEvent);
 
                 RefreshOperationsListBox();
-                listBox_Edits.SelectedIndex = index + 1;
+                listBox_Edits.SelectedIndex = visualIndex + 1; // Visual index goes down (increases)
+            }
+        }
+
+        /// <summary>
+        /// Handles the move to front context menu item click for edits (move to end of operations list = top layer = top of visual list)
+        /// </summary>
+        private void moveToFrontEditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+            int lastIndex = selectedEvent.ImageOperations.Count - 1;
+
+            if (operationIndex >= 0 && operationIndex < lastIndex)
+            {
+                // Move the operation to the end (front/top layer)
+                selectedEvent.ImageOperations.MoveOperation(operationIndex, lastIndex);
+
+                // Rebuild the image
+                RebuildImageFromOperations(selectedEvent);
+
+                RefreshOperationsListBox();
+                listBox_Edits.SelectedIndex = 0; // Top of visual list
+            }
+        }
+
+        /// <summary>
+        /// Handles the send to back context menu item click for edits (move to start of operations list = bottom layer = bottom of visual list)
+        /// </summary>
+        private void sendToBackEditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            if (operationIndex > 0 && operationIndex < selectedEvent.ImageOperations.Count)
+            {
+                // Move the operation to the start (back/bottom layer)
+                selectedEvent.ImageOperations.MoveOperation(operationIndex, 0);
+
+                // Rebuild the image
+                RebuildImageFromOperations(selectedEvent);
+
+                RefreshOperationsListBox();
+                listBox_Edits.SelectedIndex = listBox_Edits.Items.Count - 1; // Bottom of visual list
             }
         }
 
@@ -193,23 +256,28 @@ namespace BetterStepsRecorder
             if (listBox_Edits.SelectedIndex < 0) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            int index = listBox_Edits.SelectedIndex;
-            if (index >= 0 && index < selectedEvent.ImageOperations.Count)
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
             {
                 // Remove only this operation
-                selectedEvent.ImageOperations.RemoveOperationAt(index);
+                selectedEvent.ImageOperations.RemoveOperationAt(operationIndex);
+
+                // Clear selection highlight since operation is deleted
+                ClearSelectionHighlight();
 
                 // Rebuild the image with the remaining operations
                 RebuildImageFromOperations(selectedEvent);
                 RefreshOperationsListBox();
 
-                // Select the next item or previous if at end
+                // Select the same visual position or adjust if at end
                 if (listBox_Edits.Items.Count > 0)
                 {
-                    if (index >= listBox_Edits.Items.Count)
+                    if (visualIndex >= listBox_Edits.Items.Count)
                         listBox_Edits.SelectedIndex = listBox_Edits.Items.Count - 1;
                     else
-                        listBox_Edits.SelectedIndex = index;
+                        listBox_Edits.SelectedIndex = visualIndex;
                 }
 
                 // Update undo button state

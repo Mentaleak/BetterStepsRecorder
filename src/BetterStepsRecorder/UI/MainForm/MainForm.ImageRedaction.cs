@@ -89,15 +89,16 @@ namespace BetterStepsRecorder
 
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            int index = listBox_Edits.SelectedIndex;
-            if (index >= selectedEvent.ImageOperations.Count)
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count)
             {
                 ClearSelectionHighlight();
                 return;
             }
 
-            _selectedOperationIndex = index;
-            UpdateSelectionHighlightBounds(selectedEvent, index);
+            _selectedOperationIndex = operationIndex;
+            UpdateSelectionHighlightBounds(selectedEvent, operationIndex);
 
             // Start the marching ants animation
             _marchingAntsOffset = 0f;
@@ -341,10 +342,14 @@ namespace BetterStepsRecorder
 
             int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
 
-            if (operationIndex >= 0 && operationIndex < listBox_Edits.Items.Count)
+            if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
             {
-                // Select the operation
-                listBox_Edits.SelectedIndex = operationIndex;
+                // Convert operation index to visual index for listbox selection
+                int visualIndex = OperationIndexToVisualIndex(operationIndex, selectedEvent.ImageOperations.Count);
+                if (visualIndex >= 0 && visualIndex < listBox_Edits.Items.Count)
+                {
+                    listBox_Edits.SelectedIndex = visualIndex;
+                }
 
                 // Start dragging
                 _isDraggingOperation = true;
@@ -404,46 +409,89 @@ namespace BetterStepsRecorder
 
             _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
 
-            // Finalize the position (already updated during drag)
-            // The operation position was already modified in MouseMove
+                        // Finalize the position (already updated during drag)
+                        // The operation position was already modified in MouseMove
 
-            // Reset drag state
-            _isDraggingOperation = false;
-            _dragOperationIndex = -1;
-            _dragStartImagePoint = Point.Empty;
-            _dragCurrentImagePoint = Point.Empty;
+                        // Reset drag state
+                        _isDraggingOperation = false;
+                        _dragOperationIndex = -1;
+                        _dragStartImagePoint = Point.Empty;
+                        _dragCurrentImagePoint = Point.Empty;
 
-            // Update cursor
-            int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
-            pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+                        // Update cursor
+                        int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                        pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
 
-            // Refresh UI
-            RefreshOperationsListBox();
-            if (listBox_Edits.SelectedIndex >= 0)
-            {
-                UpdateSelectionHighlightBounds(selectedEvent, listBox_Edits.SelectedIndex);
-            }
-            pictureBox1.Invalidate();
+                        // Refresh UI
+                        RefreshOperationsListBox();
+                        if (listBox_Edits.SelectedIndex >= 0)
+                        {
+                            int opIndex = VisualIndexToOperationIndex(listBox_Edits.SelectedIndex, selectedEvent.ImageOperations.Count);
+                            if (opIndex >= 0)
+                            {
+                                UpdateSelectionHighlightBounds(selectedEvent, opIndex);
+                            }
+                        }
+                        pictureBox1.Invalidate();
 
-            activityTimer.Stop();
-            activityTimer.Start();
-        }
+                        activityTimer.Stop();
+                        activityTimer.Start();
+                    }
 
-        /// <summary>
-        /// Handles mouse leave to reset cursor
-        /// </summary>
-        private void PictureBox_SelectionMouseLeave(object sender, EventArgs e)
-        {
-            if (_activeTool == ImageTool.None && !_isDraggingOperation)
-            {
-                pictureBox1.Cursor = Cursors.Default;
-            }
-        }
+                    /// <summary>
+                    /// Handles mouse leave to reset cursor
+                    /// </summary>
+                    private void PictureBox_SelectionMouseLeave(object sender, EventArgs e)
+                    {
+                        if (_activeTool == ImageTool.None && !_isDraggingOperation)
+                        {
+                            pictureBox1.Cursor = Cursors.Default;
+                        }
+                    }
 
-        /// <summary>
-        /// Updates an operation's position during drag
-        /// </summary>
-        private void UpdateOperationPositionDuringDrag(RecordEvent selectedEvent, int operationIndex, Point startImagePoint, Point currentImagePoint)
+                    /// <summary>
+                    /// Handles right-click on pictureBox to show context menu for selected operation
+                    /// </summary>
+                    private void PictureBox_MouseUp_ContextMenu(object sender, MouseEventArgs e)
+                    {
+                        if (e.Button != MouseButtons.Right) return;
+                        if (_activeTool != ImageTool.None) return;
+                        if (pictureBox1.Image == null) return;
+                        if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+                                    // Find operation at click point
+                                    int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+
+                                    if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
+                                    {
+                                        // Convert operation index to visual index for listbox selection
+                                        int visualIndex = OperationIndexToVisualIndex(operationIndex, selectedEvent.ImageOperations.Count);
+                                        if (visualIndex >= 0 && visualIndex < listBox_Edits.Items.Count)
+                                        {
+                                            listBox_Edits.SelectedIndex = visualIndex;
+                                        }
+
+                                        // Show context menu
+                                        contextMenu_PictureBox.Show(pictureBox1, e.Location);
+                                    }
+                                }
+
+                                /// <summary>
+                                /// Handles key down on pictureBox to delete selected operation
+                                /// </summary>
+                                private void PictureBox_KeyDown(object sender, KeyEventArgs e)
+                                {
+                                    if (e.KeyCode == Keys.Delete && _selectedOperationIndex >= 0)
+                                    {
+                                        DeleteSelectedEdit();
+                                        e.Handled = true;
+                                    }
+                                }
+
+                                /// <summary>
+                                /// Updates an operation's position during drag
+                                /// </summary>
+                                private void UpdateOperationPositionDuringDrag(RecordEvent selectedEvent, int operationIndex, Point startImagePoint, Point currentImagePoint)
         {
             if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
 
@@ -1211,21 +1259,43 @@ namespace BetterStepsRecorder
 
         // ── Undo ListBox Management ──────────────────────────────────────────
 
-        /// <summary>
-        /// Refreshes the operations listbox with the current event's operations.
-        /// </summary>
-        private void RefreshOperationsListBox()
-        {
-            listBox_Edits.Items.Clear();
+                /// <summary>
+                /// Refreshes the operations listbox with the current event's operations.
+                /// Operations are displayed in reverse order (topmost/front at top of list).
+                /// </summary>
+                private void RefreshOperationsListBox()
+                {
+                    listBox_Edits.Items.Clear();
 
-            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
-            if (selectedEvent.ImageOperations.Count == 0) return;
+                    if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+                    if (selectedEvent.ImageOperations.Count == 0) return;
 
-            foreach (var operation in selectedEvent.ImageOperations.Operations)
-            {
-                listBox_Edits.Items.Add(operation.Description);
-            }
-        }
+                    // Add items in reverse order so the topmost (last applied) appears at the top
+                    for (int i = selectedEvent.ImageOperations.Count - 1; i >= 0; i--)
+                    {
+                        listBox_Edits.Items.Add(selectedEvent.ImageOperations.Operations[i].Description);
+                    }
+                }
+
+                /// <summary>
+                /// Converts a visual listbox index to the actual operation index.
+                /// Since the list is displayed in reverse, we need to convert.
+                /// </summary>
+                private int VisualIndexToOperationIndex(int visualIndex, int operationCount)
+                {
+                    if (visualIndex < 0 || operationCount <= 0) return -1;
+                    return operationCount - 1 - visualIndex;
+                }
+
+                /// <summary>
+                /// Converts an operation index to a visual listbox index.
+                /// Since the list is displayed in reverse, we need to convert.
+                /// </summary>
+                private int OperationIndexToVisualIndex(int operationIndex, int operationCount)
+                {
+                    if (operationIndex < 0 || operationCount <= 0) return -1;
+                    return operationCount - 1 - operationIndex;
+                }
 
         /// <summary>
         /// Refreshes the undo listbox with the current event's edit history.
@@ -1239,17 +1309,19 @@ namespace BetterStepsRecorder
 
         /// <summary>
         /// Handles double-click on operations listbox to restore to that specific state.
+        /// Double-clicking removes all operations ABOVE the selected one (newer operations).
         /// </summary>
         private void listBox_Edits_DoubleClick(object sender, EventArgs e)
         {
             if (listBox_Edits.SelectedIndex < 0) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            int selectedIndex = listBox_Edits.SelectedIndex;
-            if (selectedIndex >= selectedEvent.ImageOperations.Count) return;
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
 
-            // Remove all operations after the selected one
-            int operationsToRemove = selectedEvent.ImageOperations.Count - selectedIndex;
+            // Remove all operations after the selected one (visually above = newer = higher index)
+            int operationsToRemove = selectedEvent.ImageOperations.Count - 1 - operationIndex;
             for (int i = 0; i < operationsToRemove; i++)
             {
                 selectedEvent.ImageOperations.RemoveOperationAt(selectedEvent.ImageOperations.Count - 1);
@@ -1259,10 +1331,10 @@ namespace BetterStepsRecorder
             RebuildImageFromOperations(selectedEvent);
             RefreshOperationsListBox();
 
-            // Select the item that was double-clicked (if it still exists)
-            if (selectedIndex < listBox_Edits.Items.Count)
+            // Select the first item (which is now the topmost remaining operation)
+            if (listBox_Edits.Items.Count > 0)
             {
-                listBox_Edits.SelectedIndex = selectedIndex;
+                listBox_Edits.SelectedIndex = 0;
             }
 
             activityTimer.Stop();

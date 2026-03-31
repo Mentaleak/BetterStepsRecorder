@@ -38,7 +38,15 @@
             contextMenu_ListBox_Edits = new ContextMenuStrip(components);
             moveUpEditToolStripMenuItem = new ToolStripMenuItem();
             moveDownEditToolStripMenuItem = new ToolStripMenuItem();
+            moveToFrontEditToolStripMenuItem = new ToolStripMenuItem();
+            sendToBackEditToolStripMenuItem = new ToolStripMenuItem();
             deleteEditToolStripMenuItem = new ToolStripMenuItem();
+            contextMenu_PictureBox = new ContextMenuStrip(components);
+            moveUpPictureBoxMenuItem = new ToolStripMenuItem();
+            moveDownPictureBoxMenuItem = new ToolStripMenuItem();
+            moveToFrontPictureBoxMenuItem = new ToolStripMenuItem();
+            sendToBackPictureBoxMenuItem = new ToolStripMenuItem();
+            deletePictureBoxMenuItem = new ToolStripMenuItem();
             propertyGrid_RecordEvent = new PropertyGrid();
             splitContainer1 = new SplitContainer();
             splitContainer2 = new SplitContainer();
@@ -82,6 +90,7 @@
             exitToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_ListBox_Events.SuspendLayout();
             contextMenu_ListBox_Edits.SuspendLayout();
+            contextMenu_PictureBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -151,9 +160,9 @@
             // 
             // contextMenu_ListBox_Edits
             // 
-            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, deleteEditToolStripMenuItem });
+            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, moveToFrontEditToolStripMenuItem, sendToBackEditToolStripMenuItem, new ToolStripSeparator(), deleteEditToolStripMenuItem });
             contextMenu_ListBox_Edits.Name = "contextMenu_ListBox_Edits";
-            contextMenu_ListBox_Edits.Size = new Size(159, 76);
+            contextMenu_ListBox_Edits.Size = new Size(159, 136);
             // 
             // moveUpEditToolStripMenuItem
             // 
@@ -169,12 +178,67 @@
             moveDownEditToolStripMenuItem.Text = "Move Down";
             moveDownEditToolStripMenuItem.Click += moveDownEditToolStripMenuItem_Click;
             // 
+            // moveToFrontEditToolStripMenuItem
+            // 
+            moveToFrontEditToolStripMenuItem.Name = "moveToFrontEditToolStripMenuItem";
+            moveToFrontEditToolStripMenuItem.Size = new Size(158, 24);
+            moveToFrontEditToolStripMenuItem.Text = "Move to Front";
+            moveToFrontEditToolStripMenuItem.Click += moveToFrontEditToolStripMenuItem_Click;
+            // 
+            // sendToBackEditToolStripMenuItem
+            // 
+            sendToBackEditToolStripMenuItem.Name = "sendToBackEditToolStripMenuItem";
+            sendToBackEditToolStripMenuItem.Size = new Size(158, 24);
+            sendToBackEditToolStripMenuItem.Text = "Send to Back";
+            sendToBackEditToolStripMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
+            // 
             // deleteEditToolStripMenuItem
             // 
             deleteEditToolStripMenuItem.Name = "deleteEditToolStripMenuItem";
             deleteEditToolStripMenuItem.Size = new Size(158, 24);
             deleteEditToolStripMenuItem.Text = "Delete";
             deleteEditToolStripMenuItem.Click += deleteEditToolStripMenuItem_Click;
+            // 
+            // contextMenu_PictureBox
+            // 
+            contextMenu_PictureBox.Items.AddRange(new ToolStripItem[] { moveUpPictureBoxMenuItem, moveDownPictureBoxMenuItem, moveToFrontPictureBoxMenuItem, sendToBackPictureBoxMenuItem, new ToolStripSeparator(), deletePictureBoxMenuItem });
+            contextMenu_PictureBox.Name = "contextMenu_PictureBox";
+            contextMenu_PictureBox.Size = new Size(159, 136);
+            // 
+            // moveUpPictureBoxMenuItem
+            // 
+            moveUpPictureBoxMenuItem.Name = "moveUpPictureBoxMenuItem";
+            moveUpPictureBoxMenuItem.Size = new Size(158, 24);
+            moveUpPictureBoxMenuItem.Text = "Move Up";
+            moveUpPictureBoxMenuItem.Click += moveUpEditToolStripMenuItem_Click;
+            // 
+            // moveDownPictureBoxMenuItem
+            // 
+            moveDownPictureBoxMenuItem.Name = "moveDownPictureBoxMenuItem";
+            moveDownPictureBoxMenuItem.Size = new Size(158, 24);
+            moveDownPictureBoxMenuItem.Text = "Move Down";
+            moveDownPictureBoxMenuItem.Click += moveDownEditToolStripMenuItem_Click;
+            // 
+            // moveToFrontPictureBoxMenuItem
+            // 
+            moveToFrontPictureBoxMenuItem.Name = "moveToFrontPictureBoxMenuItem";
+            moveToFrontPictureBoxMenuItem.Size = new Size(158, 24);
+            moveToFrontPictureBoxMenuItem.Text = "Move to Front";
+            moveToFrontPictureBoxMenuItem.Click += moveToFrontEditToolStripMenuItem_Click;
+            // 
+            // sendToBackPictureBoxMenuItem
+            // 
+            sendToBackPictureBoxMenuItem.Name = "sendToBackPictureBoxMenuItem";
+            sendToBackPictureBoxMenuItem.Size = new Size(158, 24);
+            sendToBackPictureBoxMenuItem.Text = "Send to Back";
+            sendToBackPictureBoxMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
+            // 
+            // deletePictureBoxMenuItem
+            // 
+            deletePictureBoxMenuItem.Name = "deletePictureBoxMenuItem";
+            deletePictureBoxMenuItem.Size = new Size(158, 24);
+            deletePictureBoxMenuItem.Text = "Delete";
+            deletePictureBoxMenuItem.Click += deleteEditToolStripMenuItem_Click;
             // 
             // propertyGrid_RecordEvent
             // 
@@ -592,6 +656,7 @@
             Resize += Form_Resize;
             contextMenu_ListBox_Events.ResumeLayout(false);
             contextMenu_ListBox_Edits.ResumeLayout(false);
+            contextMenu_PictureBox.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -645,7 +710,15 @@
         private ContextMenuStrip contextMenu_ListBox_Edits;
         private ToolStripMenuItem moveUpEditToolStripMenuItem;
         private ToolStripMenuItem moveDownEditToolStripMenuItem;
+        private ToolStripMenuItem moveToFrontEditToolStripMenuItem;
+        private ToolStripMenuItem sendToBackEditToolStripMenuItem;
         private ToolStripMenuItem deleteEditToolStripMenuItem;
+        private ContextMenuStrip contextMenu_PictureBox;
+        private ToolStripMenuItem moveUpPictureBoxMenuItem;
+        private ToolStripMenuItem moveDownPictureBoxMenuItem;
+        private ToolStripMenuItem moveToFrontPictureBoxMenuItem;
+        private ToolStripMenuItem sendToBackPictureBoxMenuItem;
+        private ToolStripMenuItem deletePictureBoxMenuItem;
         private ToolStripMenuItem toolStripMenuItem1_SaveAs;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem helpToolStripMenuItem;
