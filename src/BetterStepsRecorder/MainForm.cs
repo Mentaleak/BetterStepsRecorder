@@ -90,7 +90,12 @@ namespace BetterStepsRecorder
             InitializeSelectionFlashTimer();
             listBox_Edits.SelectedIndexChanged += listBox_Edits_SelectedIndexChanged;
             pictureBox1.Paint += SelectionHighlight_Paint;
-            pictureBox1.MouseClick += PictureBox_SelectionClick;
+
+            // Wire up operation selection and drag handlers
+            pictureBox1.MouseDown += PictureBox_SelectionMouseDown;
+            pictureBox1.MouseMove += PictureBox_SelectionMouseMove;
+            pictureBox1.MouseUp += PictureBox_SelectionMouseUp;
+            pictureBox1.MouseLeave += PictureBox_SelectionMouseLeave;
         }
 
 

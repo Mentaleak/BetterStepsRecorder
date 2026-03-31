@@ -29,6 +29,12 @@ namespace BetterStepsRecorder
         private float _marchingAntsOffset = 0f;
         private System.Windows.Forms.Timer _selectionFlashTimer;
 
+        // Operation dragging state
+        private bool _isDraggingOperation = false;
+        private int _dragOperationIndex = -1;
+        private Point _dragStartImagePoint;
+        private Point _dragCurrentImagePoint;
+
         // Arrow tool: two endpoints
         private Point _arrowStart;
         private Point _arrowEnd;
@@ -324,9 +330,9 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Handles click on pictureBox to select operations when no tool is active
+        /// Handles mouse down on pictureBox to select or start dragging operations when no tool is active
         /// </summary>
-        private void PictureBox_SelectionClick(object sender, MouseEventArgs e)
+        private void PictureBox_SelectionMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left) return;
             if (_activeTool != ImageTool.None) return; // Don't interfere with tools
@@ -337,8 +343,15 @@ namespace BetterStepsRecorder
 
             if (operationIndex >= 0 && operationIndex < listBox_Edits.Items.Count)
             {
+                // Select the operation
                 listBox_Edits.SelectedIndex = operationIndex;
-                // The SelectedIndexChanged event will handle updating the highlight
+
+                // Start dragging
+                _isDraggingOperation = true;
+                _dragOperationIndex = operationIndex;
+                _dragStartImagePoint = ControlPointToImagePoint(e.Location);
+                _dragCurrentImagePoint = _dragStartImagePoint;
+                pictureBox1.Cursor = Cursors.SizeAll;
             }
             else
             {
@@ -346,6 +359,131 @@ namespace BetterStepsRecorder
                 listBox_Edits.ClearSelected();
                 ClearSelectionHighlight();
             }
+        }
+
+        /// <summary>
+        /// Handles mouse move on pictureBox for dragging operations and cursor changes
+        /// </summary>
+        private void PictureBox_SelectionMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_activeTool != ImageTool.None) return;
+            if (pictureBox1.Image == null) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            if (_isDraggingOperation && _dragOperationIndex >= 0)
+            {
+                // Update drag position
+                _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
+
+                // Update the operation position in real-time for visual feedback
+                UpdateOperationPositionDuringDrag(selectedEvent, _dragOperationIndex, _dragStartImagePoint, _dragCurrentImagePoint);
+
+                // Rebuild image to show the dragged position
+                RebuildImageFromOperations(selectedEvent);
+
+                // Update selection highlight bounds
+                UpdateSelectionHighlightBounds(selectedEvent, _dragOperationIndex);
+                pictureBox1.Invalidate();
+            }
+            else
+            {
+                // Not dragging - update cursor based on what's under the mouse
+                int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Handles mouse up on pictureBox to finish dragging operations
+        /// </summary>
+        private void PictureBox_SelectionMouseUp(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingOperation) return;
+            if (_activeTool != ImageTool.None) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
+
+            // Finalize the position (already updated during drag)
+            // The operation position was already modified in MouseMove
+
+            // Reset drag state
+            _isDraggingOperation = false;
+            _dragOperationIndex = -1;
+            _dragStartImagePoint = Point.Empty;
+            _dragCurrentImagePoint = Point.Empty;
+
+            // Update cursor
+            int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+            pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+
+            // Refresh UI
+            RefreshOperationsListBox();
+            if (listBox_Edits.SelectedIndex >= 0)
+            {
+                UpdateSelectionHighlightBounds(selectedEvent, listBox_Edits.SelectedIndex);
+            }
+            pictureBox1.Invalidate();
+
+            activityTimer.Stop();
+            activityTimer.Start();
+        }
+
+        /// <summary>
+        /// Handles mouse leave to reset cursor
+        /// </summary>
+        private void PictureBox_SelectionMouseLeave(object sender, EventArgs e)
+        {
+            if (_activeTool == ImageTool.None && !_isDraggingOperation)
+            {
+                pictureBox1.Cursor = Cursors.Default;
+            }
+        }
+
+        /// <summary>
+        /// Updates an operation's position during drag
+        /// </summary>
+        private void UpdateOperationPositionDuringDrag(RecordEvent selectedEvent, int operationIndex, Point startImagePoint, Point currentImagePoint)
+        {
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
+
+            int deltaX = currentImagePoint.X - startImagePoint.X;
+            int deltaY = currentImagePoint.Y - startImagePoint.Y;
+
+            if (deltaX == 0 && deltaY == 0) return;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // Update position based on operation type
+            switch (operation)
+            {
+                case BlurOperation blur:
+                    blur.Region = new Rectangle(blur.Region.X + deltaX, blur.Region.Y + deltaY, blur.Region.Width, blur.Region.Height);
+                    break;
+                case HighlightOperation highlight:
+                    highlight.Region = new Rectangle(highlight.Region.X + deltaX, highlight.Region.Y + deltaY, highlight.Region.Width, highlight.Region.Height);
+                    break;
+                case TextLabelOperation text:
+                    text.Region = new Rectangle(text.Region.X + deltaX, text.Region.Y + deltaY, text.Region.Width, text.Region.Height);
+                    break;
+                case CropOperation crop:
+                    crop.Region = new Rectangle(crop.Region.X + deltaX, crop.Region.Y + deltaY, crop.Region.Width, crop.Region.Height);
+                    break;
+                case ArrowOperation arrow:
+                    arrow.StartPoint = new Point(arrow.StartPoint.X + deltaX, arrow.StartPoint.Y + deltaY);
+                    arrow.EndPoint = new Point(arrow.EndPoint.X + deltaX, arrow.EndPoint.Y + deltaY);
+                    break;
+                case ClickIndicatorOperation click:
+                    click.CursorPosition = new Point(click.CursorPosition.X + deltaX, click.CursorPosition.Y + deltaY);
+                    break;
+                case DragIndicatorOperation drag:
+                    drag.StartPoint = new Point(drag.StartPoint.X + deltaX, drag.StartPoint.Y + deltaY);
+                    drag.EndPoint = new Point(drag.EndPoint.X + deltaX, drag.EndPoint.Y + deltaY);
+                    break;
+            }
+
+            // Update the start point for the next delta calculation
+            _dragStartImagePoint = currentImagePoint;
         }
 
         /// <summary>
@@ -439,36 +577,45 @@ namespace BetterStepsRecorder
 
         // ── Tool activation ───────────────────────────────────────────────────
 
-        private void ActivateTool(ImageTool tool)
-        {
-            if (tool != ImageTool.None && pictureBox1.Image == null)
-            {
-                UncheckAllToolButtons();
-                return;
-            }
+                private void ActivateTool(ImageTool tool)
+                {
+                    if (tool != ImageTool.None && pictureBox1.Image == null)
+                    {
+                        UncheckAllToolButtons();
+                        return;
+                    }
 
-            // Detach if already active
-            if (_activeTool != ImageTool.None)
-                DetachToolHandlers();
+                    // Cancel any ongoing drag operation
+                    if (_isDraggingOperation)
+                    {
+                        _isDraggingOperation = false;
+                        _dragOperationIndex = -1;
+                        _dragStartImagePoint = Point.Empty;
+                        _dragCurrentImagePoint = Point.Empty;
+                    }
 
-            _activeTool = tool;
+                    // Detach if already active
+                    if (_activeTool != ImageTool.None)
+                        DetachToolHandlers();
 
-            // Reset ALL tool state when switching tools
-            _toolDrawing = false;
-            _toolRect = Rectangle.Empty;
-            _toolStart = Point.Empty;
-            _toolCurrent = Point.Empty;
-            _arrowStart = Point.Empty;
-            _arrowEnd = Point.Empty;
+                    _activeTool = tool;
 
-            UncheckAllToolButtons();
+                    // Reset ALL tool state when switching tools
+                    _toolDrawing = false;
+                    _toolRect = Rectangle.Empty;
+                    _toolStart = Point.Empty;
+                    _toolCurrent = Point.Empty;
+                    _arrowStart = Point.Empty;
+                    _arrowEnd = Point.Empty;
 
-            if (tool == ImageTool.None)
-            {
-                pictureBox1.Cursor = Cursors.Default;
-                pictureBox1.Invalidate();
-                return;
-            }
+                    UncheckAllToolButtons();
+
+                    if (tool == ImageTool.None)
+                    {
+                        pictureBox1.Cursor = Cursors.Default;
+                        pictureBox1.Invalidate();
+                        return;
+                    }
 
             // Sync the correct button checked state
             switch (tool)
