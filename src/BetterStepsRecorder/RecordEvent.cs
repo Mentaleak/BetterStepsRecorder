@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FlaUI.Core.AutomationElements;
+using BetterStepsRecorder.Core;
 
 namespace BetterStepsRecorder
 {
@@ -54,6 +55,12 @@ namespace BetterStepsRecorder
         /// </summary>
         [JsonIgnore]
         public string? BaseScreenshotSpoolPath { get; set; }
+
+        /// <summary>
+        /// Manages the list of image operations applied to the base screenshot
+        /// </summary>
+        [JsonIgnore]
+        public ImageOperationsManager ImageOperations { get; set; } = new ImageOperationsManager();
 
         /// <summary>True when a screenshot is available either in RAM or via a spool file on disk.</summary>
         [JsonIgnore]

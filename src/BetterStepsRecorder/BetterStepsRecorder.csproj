@@ -45,4 +45,11 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Exclude the duplicate MainForm.ExportOperations.resx to prevent conflict -->
+    <EmbeddedResource Remove="UI\MainForm\MainForm.ExportOperations.resx" />
+    <!-- If you need resources from ExportOperations, include them as content or merge into MainForm.resx -->
+    <None Include="UI\MainForm\MainForm.ExportOperations.resx" />
+  </ItemGroup>
+
 </Project>

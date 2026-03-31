@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using BetterStepsRecorder.Core.ImageOperations;
 
 namespace BetterStepsRecorder
 {
@@ -33,34 +34,29 @@ namespace BetterStepsRecorder
         // Undo stack: keyed by RecordEvent.ID, stores previous Screenshotb64 values
         private readonly Dictionary<Guid, Stack<string>> _undoStacks = new();
 
+        // Undo list: keyed by RecordEvent.ID, stores list of edits for non-linear undo
+        private readonly Dictionary<Guid, List<UndoItem>> _undoLists = new();
+
+        private class UndoItem
+        {
+            public string Description { get; set; } = "";
+            public string ImageState { get; set; } = "";
+        }
+
         private void undoToolStripButton_Click(object sender, EventArgs e)
         {
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
-            if (!_undoStacks.TryGetValue(selectedEvent.ID, out var stack) || stack.Count == 0)
+
+            // Remove the last operation
+            int lastIndex = selectedEvent.ImageOperations.Count - 1;
+            if (lastIndex >= 0)
             {
-                undoToolStripButton.Enabled = false;
-                return;
+                selectedEvent.ImageOperations.RemoveOperationAt(lastIndex);
+                RebuildImageFromOperations(selectedEvent);
+                RefreshOperationsListBox();
             }
 
-            string previous = stack.Pop();
-            selectedEvent.Screenshotb64 = previous;
-
-            // Refresh picture box
-            if (!string.IsNullOrEmpty(previous))
-            {
-                byte[] bytes = Convert.FromBase64String(previous);
-                using var ms = new MemoryStream(bytes);
-                var oldImage = pictureBox1.Image;
-                pictureBox1.Image = new Bitmap(ms);
-                oldImage?.Dispose();
-            }
-            else
-            {
-                pictureBox1.Image?.Dispose();
-                pictureBox1.Image = null;
-            }
-
-            undoToolStripButton.Enabled = stack.Count > 0;
+            undoToolStripButton.Enabled = selectedEvent.ImageOperations.Count > 0;
             activityTimer.Stop();
             activityTimer.Start();
         }
@@ -174,6 +170,7 @@ namespace BetterStepsRecorder
                 UncheckAllToolButtons();
             }
             undoToolStripButton.Enabled = false;
+            RefreshUndoListBox();
         }
 
         // ── Shared mouse handlers ─────────────────────────────────────────────
@@ -210,7 +207,8 @@ namespace BetterStepsRecorder
                 case ImageTool.Blur:
                     if (_toolRect.Width >= 4 && _toolRect.Height >= 4)
                     {
-                        ApplyToImage(bmp => ApplyBoxBlur(bmp, ControlRectToImageRect(_toolRect)));
+                        var blurOp = new BlurOperation(ControlRectToImageRect(_toolRect));
+                        ApplyOperation(blurOp);
                         applied = true;
                     }
                     break;
@@ -218,7 +216,8 @@ namespace BetterStepsRecorder
                 case ImageTool.Highlight:
                     if (_toolRect.Width >= 4 && _toolRect.Height >= 4)
                     {
-                        ApplyToImage(bmp => ApplyHighlight(bmp, ControlRectToImageRect(_toolRect)));
+                        var highlightOp = new HighlightOperation(ControlRectToImageRect(_toolRect), HighlightColor);
+                        ApplyOperation(highlightOp);
                         applied = true;
                     }
                     break;
@@ -237,7 +236,8 @@ namespace BetterStepsRecorder
                     Point imgEnd   = ControlPointToImagePoint(_arrowEnd);
                     if (Math.Abs(imgEnd.X - imgStart.X) >= 4 || Math.Abs(imgEnd.Y - imgStart.Y) >= 4)
                     {
-                        ApplyToImage(bmp => DrawArrowOnBitmap(bmp, imgStart, imgEnd));
+                        var arrowOp = new ArrowOperation(imgStart, imgEnd, ArrowColor);
+                        ApplyOperation(arrowOp);
                         applied = true;
                     }
                     break;
@@ -246,7 +246,8 @@ namespace BetterStepsRecorder
                 case ImageTool.Crop:
                     if (_toolRect.Width >= 16 && _toolRect.Height >= 16)
                     {
-                        ApplyCrop(ControlRectToImageRect(_toolRect));
+                        var cropOp = new CropOperation(ControlRectToImageRect(_toolRect));
+                        ApplyOperation(cropOp);
                         applied = true;
                     }
                     break;
@@ -344,25 +345,8 @@ namespace BetterStepsRecorder
             string text = tb.Text;
             Rectangle imgRect = ControlRectToImageRect(controlRect);
 
-            ApplyToImage(bmp =>
-            {
-                using var g = Graphics.FromImage(bmp);
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-                float fontSize = Math.Max(12f, imgRect.Height * 0.45f);
-                using var font = new Font("Segoe UI", fontSize, FontStyle.Bold, GraphicsUnit.Pixel);
-
-                // Background pill
-                SizeF textSize = g.MeasureString(text, font);
-                var bgRect = new RectangleF(imgRect.X, imgRect.Y, textSize.Width + 12, textSize.Height + 6);
-                using var bgBrush = new SolidBrush(Color.FromArgb(210, 30, 30, 30));
-                using var path = RoundedRect(bgRect, 6);
-                g.FillPath(bgBrush, path);
-
-                // Text
-                using var textBrush = new SolidBrush(Color.White);
-                g.DrawString(text, font, textBrush, bgRect.X + 6, bgRect.Y + 3);
-            });
+            var textOp = new TextLabelOperation(text, imgRect);
+            ApplyOperation(textOp);
         }
 
         private static void ApplyHighlight(Bitmap bmp, Rectangle rect)
@@ -404,20 +388,20 @@ namespace BetterStepsRecorder
         /// <summary>
         /// Applies a bitmap mutation function and commits the result.
         /// </summary>
-        private void ApplyToImage(Action<Bitmap> mutate)
+        private void ApplyToImage(Action<Bitmap> mutate, string actionDescription = "Edit")
         {
             if (pictureBox1.Image == null) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
             using var bmp = new Bitmap(pictureBox1.Image);
             mutate(bmp);
-            CommitBitmap(new Bitmap(bmp), selectedEvent);
+            CommitBitmap(new Bitmap(bmp), selectedEvent, actionDescription);
         }
 
         /// <summary>
         /// Replaces pictureBox1.Image with the new bitmap and saves b64 back to the event.
         /// </summary>
-        private void CommitBitmap(Bitmap newBmp, RecordEvent evt)
+        private void CommitBitmap(Bitmap newBmp, RecordEvent evt, string actionDescription = "Edit")
         {
             // Push current state onto the undo stack before overwriting
             if (!_undoStacks.TryGetValue(evt.ID, out var stack))
@@ -431,6 +415,19 @@ namespace BetterStepsRecorder
             stack.Push(previousState);
             undoToolStripButton.Enabled = true;
 
+            // Add to undo list for non-linear undo
+            if (!_undoLists.TryGetValue(evt.ID, out var undoList))
+            {
+                undoList = new List<UndoItem>();
+                _undoLists[evt.ID] = undoList;
+            }
+            undoList.Add(new UndoItem
+            {
+                Description = actionDescription,
+                ImageState = previousState
+            });
+            RefreshUndoListBox();
+
             var oldImage = pictureBox1.Image;
             pictureBox1.Image = newBmp;
             oldImage?.Dispose();
@@ -441,6 +438,66 @@ namespace BetterStepsRecorder
 
             activityTimer.Stop();
             activityTimer.Start();
+        }
+
+        /// <summary>
+        /// Applies an operation to the current image and updates the display
+        /// </summary>
+        private void ApplyOperation(ImageOperation operation)
+        {
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            // Add the operation to the event's operations list
+            selectedEvent.ImageOperations.AddOperation(operation);
+
+            // Rebuild the image from base + all operations
+            RebuildImageFromOperations(selectedEvent);
+
+            // Refresh the undo list to show the new operation
+            RefreshOperationsListBox();
+
+            activityTimer.Stop();
+            activityTimer.Start();
+        }
+
+        /// <summary>
+        /// Rebuilds the image from the base screenshot and all operations
+        /// </summary>
+        private void RebuildImageFromOperations(RecordEvent selectedEvent)
+        {
+            // Get the base screenshot
+            byte[]? baseBytes = Program.GetBaseScreenshotBytes(selectedEvent);
+            if (baseBytes == null || baseBytes.Length == 0)
+            {
+                // If no base screenshot, try to get the current screenshot
+                baseBytes = Program.GetScreenshotBytes(selectedEvent);
+                if (baseBytes == null || baseBytes.Length == 0)
+                {
+                    pictureBox1.Image?.Dispose();
+                    pictureBox1.Image = null;
+                    return;
+                }
+            }
+
+            // Load the base image
+            using var baseMs = new MemoryStream(baseBytes);
+            using var baseImage = new Bitmap(baseMs);
+
+            // Apply all operations to create the final image
+            Bitmap finalImage = selectedEvent.ImageOperations.ApplyOperationsToImage(baseImage);
+
+            // Update the display
+            var oldImage = pictureBox1.Image;
+            pictureBox1.Image = finalImage;
+            oldImage?.Dispose();
+
+            // Save the result back to the event
+            using var resultMs = new MemoryStream();
+            finalImage.Save(resultMs, ImageFormat.Png);
+            selectedEvent.Screenshotb64 = Convert.ToBase64String(resultMs.ToArray());
+
+            // Enable undo button if there are operations
+            undoToolStripButton.Enabled = selectedEvent.ImageOperations.Count > 0;
         }
 
         /// <summary>Maps a control-space rectangle to image pixel space.</summary>
@@ -554,6 +611,66 @@ namespace BetterStepsRecorder
             path.AddArc(r.X, r.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
             path.CloseFigure();
             return path;
+        }
+
+        // ── Undo ListBox Management ──────────────────────────────────────────
+
+        /// <summary>
+        /// Refreshes the operations listbox with the current event's operations.
+        /// </summary>
+        private void RefreshOperationsListBox()
+        {
+            listBox_Edits.Items.Clear();
+
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+            if (selectedEvent.ImageOperations.Count == 0) return;
+
+            foreach (var operation in selectedEvent.ImageOperations.Operations)
+            {
+                listBox_Edits.Items.Add(operation.Description);
+            }
+        }
+
+        /// <summary>
+        /// Refreshes the undo listbox with the current event's edit history.
+        /// NOTE: This is the old system, kept for backward compatibility during transition
+        /// </summary>
+        private void RefreshUndoListBox()
+        {
+            // Use the new operations-based system instead
+            RefreshOperationsListBox();
+        }
+
+        /// <summary>
+        /// Handles double-click on operations listbox to restore to that specific state.
+        /// </summary>
+        private void listBox_Edits_DoubleClick(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int selectedIndex = listBox_Edits.SelectedIndex;
+            if (selectedIndex >= selectedEvent.ImageOperations.Count) return;
+
+            // Remove all operations after the selected one
+            int operationsToRemove = selectedEvent.ImageOperations.Count - selectedIndex;
+            for (int i = 0; i < operationsToRemove; i++)
+            {
+                selectedEvent.ImageOperations.RemoveOperationAt(selectedEvent.ImageOperations.Count - 1);
+            }
+
+            // Rebuild the image with the remaining operations
+            RebuildImageFromOperations(selectedEvent);
+            RefreshOperationsListBox();
+
+            // Select the item that was double-clicked (if it still exists)
+            if (selectedIndex < listBox_Edits.Items.Count)
+            {
+                listBox_Edits.SelectedIndex = selectedIndex;
+            }
+
+            activityTimer.Stop();
+            activityTimer.Start();
         }
     }
 }
