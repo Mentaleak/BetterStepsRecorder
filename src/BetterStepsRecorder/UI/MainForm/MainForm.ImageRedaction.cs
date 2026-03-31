@@ -17,6 +17,7 @@ namespace BetterStepsRecorder
 
         // Shared drawing state (rect-based tools)
         private bool    _toolDrawing  = false;
+        private bool    _applyingOperation = false; // Guard against re-entry during operation application
         private Point   _toolStart;
         private Point   _toolCurrent;
         private Rectangle _toolRect;
@@ -107,8 +108,14 @@ namespace BetterStepsRecorder
                 DetachToolHandlers();
 
             _activeTool = tool;
+
+            // Reset ALL tool state when switching tools
             _toolDrawing = false;
             _toolRect = Rectangle.Empty;
+            _toolStart = Point.Empty;
+            _toolCurrent = Point.Empty;
+            _arrowStart = Point.Empty;
+            _arrowEnd = Point.Empty;
 
             UncheckAllToolButtons();
 
@@ -195,37 +202,47 @@ namespace BetterStepsRecorder
 
         private void Tool_MouseUp(object sender, MouseEventArgs e)
         {
-            if (!_toolDrawing) return;
+            if (!_toolDrawing || _applyingOperation) return;
+
+            // Capture current tool before any state changes
+            var currentTool = _activeTool;
+
             _toolDrawing = false;
             _toolCurrent = e.Location;
             _arrowEnd = e.Location;
             _toolRect = RectFromPoints(_toolStart, _toolCurrent);
 
+            // Store the rect locally and clear it immediately to prevent stale state
+            var operationRect = _toolRect;
+            _toolRect = Rectangle.Empty;
+
             bool applied = false;
-            switch (_activeTool)
+            switch (currentTool)
             {
                 case ImageTool.Blur:
-                    if (_toolRect.Width >= 4 && _toolRect.Height >= 4)
+                    if (operationRect.Width >= 4 && operationRect.Height >= 4)
                     {
-                        var blurOp = new BlurOperation(ControlRectToImageRect(_toolRect));
+                        var blurOp = new BlurOperation(ControlRectToImageRect(operationRect));
                         ApplyOperation(blurOp);
                         applied = true;
                     }
                     break;
 
                 case ImageTool.Highlight:
-                    if (_toolRect.Width >= 4 && _toolRect.Height >= 4)
+                    if (operationRect.Width >= 4 && operationRect.Height >= 4)
                     {
-                        var highlightOp = new HighlightOperation(ControlRectToImageRect(_toolRect), HighlightColor);
+                        var highlightOp = new HighlightOperation(ControlRectToImageRect(operationRect), HighlightColor);
                         ApplyOperation(highlightOp);
                         applied = true;
                     }
                     break;
 
                 case ImageTool.Text:
-                    if (_toolRect.Width >= 4 || _toolRect.Height >= 4)
+                    if (operationRect.Width >= 4 || operationRect.Height >= 4)
                     {
-                        ShowTextInputDialog(_toolRect);
+                        _toolRect = operationRect; // Temporarily restore for dialog
+                        ShowTextInputDialog(operationRect);
+                        _toolRect = Rectangle.Empty;
                         // ShowTextInputDialog handles applying and saving
                     }
                     break;
@@ -244,20 +261,25 @@ namespace BetterStepsRecorder
                 }
 
                 case ImageTool.Crop:
-                    if (_toolRect.Width >= 16 && _toolRect.Height >= 16)
+                    if (operationRect.Width >= 16 && operationRect.Height >= 16)
                     {
-                        var cropOp = new CropOperation(ControlRectToImageRect(_toolRect));
+                        var cropOp = new CropOperation(ControlRectToImageRect(operationRect));
                         ApplyOperation(cropOp);
                         applied = true;
                     }
                     break;
             }
 
-            _toolRect = Rectangle.Empty;
+            // Reset all tool state
+            _toolStart = Point.Empty;
+            _toolCurrent = Point.Empty;
+            _arrowStart = Point.Empty;
+            _arrowEnd = Point.Empty;
+
             pictureBox1.Invalidate();
 
             // Stay in tool mode so the user can apply multiple times (except crop)
-            if (applied && _activeTool == ImageTool.Crop)
+            if (applied && currentTool == ImageTool.Crop)
                 ActivateTool(ImageTool.None);
         }
 
@@ -445,19 +467,28 @@ namespace BetterStepsRecorder
         /// </summary>
         private void ApplyOperation(ImageOperation operation)
         {
+            if (_applyingOperation) return; // Prevent re-entry
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            // Add the operation to the event's operations list
-            selectedEvent.ImageOperations.AddOperation(operation);
+            _applyingOperation = true;
+            try
+            {
+                // Add the operation to the event's operations list
+                selectedEvent.ImageOperations.AddOperation(operation);
 
-            // Rebuild the image from base + all operations
-            RebuildImageFromOperations(selectedEvent);
+                // Rebuild the image from base + all operations
+                RebuildImageFromOperations(selectedEvent);
 
-            // Refresh the undo list to show the new operation
-            RefreshOperationsListBox();
+                // Refresh the undo list to show the new operation
+                RefreshOperationsListBox();
 
-            activityTimer.Stop();
-            activityTimer.Start();
+                activityTimer.Stop();
+                activityTimer.Start();
+            }
+            finally
+            {
+                _applyingOperation = false;
+            }
         }
 
         /// <summary>
@@ -491,6 +522,10 @@ namespace BetterStepsRecorder
             pictureBox1.Image = finalImage;
             oldImage?.Dispose();
 
+            // Force the PictureBox to recalculate its layout immediately
+            // This ensures GetImageRectInZoomMode returns correct values for subsequent operations
+            pictureBox1.Refresh();
+
             // Save the result back to the event
             using var resultMs = new MemoryStream();
             finalImage.Save(resultMs, ImageFormat.Png);
@@ -503,38 +538,48 @@ namespace BetterStepsRecorder
         /// <summary>Maps a control-space rectangle to image pixel space.</summary>
         private Rectangle ControlRectToImageRect(Rectangle controlRect)
         {
+            if (pictureBox1.Image == null) return Rectangle.Empty;
+
             Rectangle imageDrawRect = GetImageRectInZoomMode(pictureBox1);
             if (imageDrawRect.Width == 0 || imageDrawRect.Height == 0) return Rectangle.Empty;
 
-            float scaleX = (float)pictureBox1.Image.Width  / imageDrawRect.Width;
-            float scaleY = (float)pictureBox1.Image.Height / imageDrawRect.Height;
+            // Use double precision for better accuracy
+            double scaleX = (double)pictureBox1.Image.Width / imageDrawRect.Width;
+            double scaleY = (double)pictureBox1.Image.Height / imageDrawRect.Height;
 
-            int x = (int)((controlRect.X - imageDrawRect.X) * scaleX);
-            int y = (int)((controlRect.Y - imageDrawRect.Y) * scaleY);
-            int w = (int)(controlRect.Width  * scaleX);
-            int h = (int)(controlRect.Height * scaleY);
+            int x = (int)Math.Round((controlRect.X - imageDrawRect.X) * scaleX);
+            int y = (int)Math.Round((controlRect.Y - imageDrawRect.Y) * scaleY);
+            int w = (int)Math.Round(controlRect.Width * scaleX);
+            int h = (int)Math.Round(controlRect.Height * scaleY);
 
-            // Clamp
-            x = Math.Max(0, x);
-            y = Math.Max(0, y);
-            w = Math.Min(w, pictureBox1.Image.Width  - x);
-            h = Math.Min(h, pictureBox1.Image.Height - y);
+            // Clamp to image bounds
+            x = Math.Max(0, Math.Min(x, pictureBox1.Image.Width - 1));
+            y = Math.Max(0, Math.Min(y, pictureBox1.Image.Height - 1));
+            w = Math.Max(1, Math.Min(w, pictureBox1.Image.Width - x));
+            h = Math.Max(1, Math.Min(h, pictureBox1.Image.Height - y));
 
-            return new Rectangle(x, y, Math.Max(1, w), Math.Max(1, h));
+            return new Rectangle(x, y, w, h);
         }
 
         /// <summary>Maps a single control-space point to image pixel space.</summary>
         private Point ControlPointToImagePoint(Point controlPt)
         {
+            if (pictureBox1.Image == null) return controlPt;
+
             Rectangle imageDrawRect = GetImageRectInZoomMode(pictureBox1);
             if (imageDrawRect.Width == 0 || imageDrawRect.Height == 0) return controlPt;
 
-            float scaleX = (float)pictureBox1.Image.Width  / imageDrawRect.Width;
-            float scaleY = (float)pictureBox1.Image.Height / imageDrawRect.Height;
+            double scaleX = (double)pictureBox1.Image.Width / imageDrawRect.Width;
+            double scaleY = (double)pictureBox1.Image.Height / imageDrawRect.Height;
 
-            return new Point(
-                (int)((controlPt.X - imageDrawRect.X) * scaleX),
-                (int)((controlPt.Y - imageDrawRect.Y) * scaleY));
+            int x = (int)Math.Round((controlPt.X - imageDrawRect.X) * scaleX);
+            int y = (int)Math.Round((controlPt.Y - imageDrawRect.Y) * scaleY);
+
+            // Clamp to image bounds
+            x = Math.Max(0, Math.Min(x, pictureBox1.Image.Width - 1));
+            y = Math.Max(0, Math.Min(y, pictureBox1.Image.Height - 1));
+
+            return new Point(x, y);
         }
 
         private static void ApplyBoxBlur(Bitmap bmp, Rectangle rect)

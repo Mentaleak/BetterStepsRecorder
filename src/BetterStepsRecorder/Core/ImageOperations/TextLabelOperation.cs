@@ -32,6 +32,10 @@ namespace BetterStepsRecorder.Core.ImageOperations
         {
             if (string.IsNullOrWhiteSpace(Text) || Region.Width <= 0 || Region.Height <= 0) return;
 
+            // Clamp region to bitmap bounds
+            var clampedRegion = Rectangle.Intersect(Region, new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+            if (clampedRegion.Width <= 0 || clampedRegion.Height <= 0) return;
+
             using var g = Graphics.FromImage(bitmap);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
@@ -39,13 +43,14 @@ namespace BetterStepsRecorder.Core.ImageOperations
             // Draw background
             using (var bgBrush = new SolidBrush(BackgroundColor))
             {
-                g.FillRectangle(bgBrush, Region);
+                g.FillRectangle(bgBrush, clampedRegion);
             }
 
-            // Draw text
+            // Draw text (use original region for positioning as it was intended)
             using (var font = new Font(FontFamily, FontSize, FontStyle.Regular))
             using (var textBrush = new SolidBrush(TextColor))
             {
+                g.SetClip(new Rectangle(0, 0, bitmap.Width, bitmap.Height));
                 g.DrawString(Text, font, textBrush, Region.X + 6, Region.Y + 3);
             }
         }

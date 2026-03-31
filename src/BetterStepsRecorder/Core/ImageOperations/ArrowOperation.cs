@@ -31,6 +31,8 @@ namespace BetterStepsRecorder.Core.ImageOperations
         {
             using var g = Graphics.FromImage(bitmap);
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            // Set clip to bitmap bounds to prevent drawing outside
+            g.SetClip(new Rectangle(0, 0, bitmap.Width, bitmap.Height));
             using var arrowCap = new AdjustableArrowCap(7, 7);
             using var pen = new Pen(Color, Width);
             pen.CustomEndCap = arrowCap;

@@ -26,9 +26,13 @@ namespace BetterStepsRecorder.Core.ImageOperations
         {
             if (Region.Width <= 0 || Region.Height <= 0) return;
 
+            // Clamp region to bitmap bounds to prevent drawing outside
+            var clampedRegion = Rectangle.Intersect(Region, new Rectangle(0, 0, bitmap.Width, bitmap.Height));
+            if (clampedRegion.Width <= 0 || clampedRegion.Height <= 0) return;
+
             using var g = Graphics.FromImage(bitmap);
             using var brush = new SolidBrush(Color);
-            g.FillRectangle(brush, Region);
+            g.FillRectangle(brush, clampedRegion);
         }
 
         public override ImageOperation Clone()
