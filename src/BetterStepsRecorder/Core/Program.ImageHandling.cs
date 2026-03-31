@@ -54,6 +54,52 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Captures a screenshot of a specific region of the screen without any indicators.
+        /// Returns both base bytes and annotated bytes via out parameters.
+        /// </summary>
+        public static void CaptureScreenshotWithSeparateBase(
+            int x, int y, int width, int height, POINT cursorPos,
+            out byte[]? baseBytes, out byte[]? annotatedBytes)
+        {
+            baseBytes = null;
+            annotatedBytes = null;
+
+            try
+            {
+                using (Bitmap bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb))
+                {
+                    using (Graphics gfx = Graphics.FromImage(bmp))
+                    {
+                        gfx.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height), CopyPixelOperation.SourceCopy);
+                    }
+
+                    // Save the base screenshot first (without indicators)
+                    using (var msBase = new MemoryStream())
+                    {
+                        bmp.Save(msBase, ImageFormat.Png);
+                        baseBytes = msBase.ToArray();
+                    }
+
+                    // Now draw the indicator and save the annotated version
+                    using (Graphics gfx = Graphics.FromImage(bmp))
+                    {
+                        DrawArrowAtCursor(gfx, width, height, x, y, cursorPos);
+                    }
+
+                    using (var ms = new MemoryStream())
+                    {
+                        bmp.Save(ms, ImageFormat.Png);
+                        annotatedBytes = ms.ToArray();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to capture screenshot: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Draws an arrow pointing to the current cursor position on the given graphics object
         /// </summary>
         /// <param name="gfx">Graphics object to draw on</param>

@@ -61,6 +61,12 @@ namespace BetterStepsRecorder
                 // Set the step text
                 richTextBox_stepText.Text = selectedEvent._StepText;
 
+                // Refresh the operations/edits list to show any existing operations
+                RefreshOperationsListBox();
+
+                // Update undo button state based on operations
+                undoToolStripButton.Enabled = selectedEvent.ImageOperations.Count > 0;
+
                 // Initialize undo stack with base screenshot if available and not yet initialized
                 if (!_undoStacks.ContainsKey(selectedEvent.ID))
                 {
@@ -70,19 +76,13 @@ namespace BetterStepsRecorder
                         var stack = new Stack<string>();
                         stack.Push(Convert.ToBase64String(baseBytes));
                         _undoStacks[selectedEvent.ID] = stack;
-                        undoToolStripButton.Enabled = true;
                     }
-                }
-                else
-                {
-                    // Re-enable undo if this step has history
-                    if (_undoStacks.TryGetValue(selectedEvent.ID, out var existingStack) && existingStack.Count > 0)
-                        undoToolStripButton.Enabled = true;
                 }
             }
             else
             {
-                // if not a record event
+                // Clear the edits list when no event is selected
+                listBox_Edits.Items.Clear();
             }
         }
 

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using FlaUI.Core.AutomationElements;
+using BetterStepsRecorder.Core.ImageOperations;
 using static BetterStepsRecorder.WindowHelper;
 using Size = BetterStepsRecorder.WindowHelper.Size;
 
@@ -287,7 +288,18 @@ namespace BetterStepsRecorder
                                             baseBytes = msBase.ToArray();
                                         }
 
-                                        // Then draw the drag arrow and save annotated version
+                                        // Add drag indicator as an operation instead of drawing directly
+                                        int startX = ds.X - cLeft;
+                                        int startY = ds.Y - cTop;
+                                        int endX = arrowEnd.X - cLeft;
+                                        int endY = arrowEnd.Y - cTop;
+                                        var dragIndicatorOp = new DragIndicatorOperation(
+                                            new Point(startX, startY),
+                                            new Point(endX, endY),
+                                            Color.FromArgb(BSRSettings.Current.Indicator.Color));
+                                        recordEvent.ImageOperations.AddOperation(dragIndicatorOp);
+
+                                        // Draw the drag arrow and save annotated version for backwards compatibility
                                         using (Graphics gfx = Graphics.FromImage(dragBmp))
                                             DrawDragArrow(gfx, cW, cH, cLeft, cTop, ds, arrowEnd);
                                         using (var ms = new System.IO.MemoryStream())
@@ -447,7 +459,16 @@ namespace BetterStepsRecorder
                                             baseBytes = msBase.ToArray();
                                         }
 
-                                        // Then draw the indicator and save annotated version
+                                        // Add click indicator as an operation instead of drawing directly
+                                        int cursorX = cp.X - capLeft;
+                                        int cursorY = cp.Y - capTop;
+                                        var indicatorOp = new ClickIndicatorOperation(
+                                            new Point(cursorX, cursorY),
+                                            Color.FromArgb(BSRSettings.Current.Indicator.Color),
+                                            BSRSettings.Current.Indicator.Style);
+                                        recordEvent.ImageOperations.AddOperation(indicatorOp);
+
+                                        // Draw the indicator and save annotated version for backwards compatibility
                                         using (Graphics gfx = Graphics.FromImage(preBitmap))
                                             DrawArrowAtCursor(gfx, winW, winH, capLeft, capTop, cp);
                                         using (var ms = new System.IO.MemoryStream())
@@ -459,8 +480,18 @@ namespace BetterStepsRecorder
                                     }
                                     else
                                     {
-                                        string? b64 = SaveScreenRegionScreenshot(capLeft, capTop, winW, winH, recordEvent.ID, cp);
-                                        if (b64 != null) annotatedBytes = Convert.FromBase64String(b64);
+                                        // Capture both base and annotated screenshots using the new method
+                                        CaptureScreenshotWithSeparateBase(capLeft, capTop, winW, winH, cp,
+                                            out baseBytes, out annotatedBytes);
+
+                                        // Add click indicator as an operation for fallback path
+                                        int cursorX = cp.X - capLeft;
+                                        int cursorY = cp.Y - capTop;
+                                        var indicatorOp = new ClickIndicatorOperation(
+                                            new Point(cursorX, cursorY),
+                                            Color.FromArgb(BSRSettings.Current.Indicator.Color),
+                                            BSRSettings.Current.Indicator.Style);
+                                        recordEvent.ImageOperations.AddOperation(indicatorOp);
                                     }
 
                                     // Store base screenshot for undo
@@ -589,7 +620,16 @@ namespace BetterStepsRecorder
                                         baseBytes = msBase.ToArray();
                                     }
 
-                                    // Then draw the indicator and save annotated version
+                                    // Add click indicator as an operation instead of drawing directly
+                                    int cursorX = cp.X - winRect.Left;
+                                    int cursorY = cp.Y - winRect.Top;
+                                    var indicatorOp = new ClickIndicatorOperation(
+                                        new Point(cursorX, cursorY),
+                                        Color.FromArgb(BSRSettings.Current.Indicator.Color),
+                                        BSRSettings.Current.Indicator.Style);
+                                    recordEvent.ImageOperations.AddOperation(indicatorOp);
+
+                                    // Draw the indicator and save annotated version for backwards compatibility
                                     using (Graphics gfx = Graphics.FromImage(preBitmap))
                                         DrawArrowAtCursor(gfx, winW, winH, winRect.Left, winRect.Top, cp);
                                     using (var ms = new System.IO.MemoryStream())
@@ -601,8 +641,18 @@ namespace BetterStepsRecorder
                                 }
                                 else
                                 {
-                                    string? b64 = SaveScreenRegionScreenshot(winRect.Left, winRect.Top, winW, winH, recordEvent.ID, cp);
-                                    if (b64 != null) annotatedBytes = Convert.FromBase64String(b64);
+                                    // Capture both base and annotated screenshots using the new method
+                                    CaptureScreenshotWithSeparateBase(winRect.Left, winRect.Top, winW, winH, cp,
+                                        out baseBytes, out annotatedBytes);
+
+                                    // Add click indicator as an operation for fallback path
+                                    int cursorX = cp.X - winRect.Left;
+                                    int cursorY = cp.Y - winRect.Top;
+                                    var indicatorOp = new ClickIndicatorOperation(
+                                        new Point(cursorX, cursorY),
+                                        Color.FromArgb(BSRSettings.Current.Indicator.Color),
+                                        BSRSettings.Current.Indicator.Style);
+                                    recordEvent.ImageOperations.AddOperation(indicatorOp);
                                 }
 
                                 // Store base screenshot for undo
