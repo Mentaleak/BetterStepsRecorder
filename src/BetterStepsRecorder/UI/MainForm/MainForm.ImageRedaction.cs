@@ -81,6 +81,14 @@ namespace BetterStepsRecorder
         /// </summary>
         private void listBox_Edits_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Deselect any active markup tool when selecting an edit
+            if (_activeTool != ImageTool.None)
+            {
+                DetachToolHandlers();
+                _activeTool = ImageTool.None;
+                UncheckAllToolButtons();
+            }
+
             if (listBox_Edits.SelectedIndex < 0)
             {
                 ClearSelectionHighlight();
