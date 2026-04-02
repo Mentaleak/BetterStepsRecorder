@@ -1,8 +1,12 @@
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using BetterStepsRecorder.UI;
 using BetterStepsRecorder.UI.Settings;
+using static BetterStepsRecorder.WindowHelper;
 
 namespace BetterStepsRecorder
 {
@@ -147,21 +151,243 @@ namespace BetterStepsRecorder
                     break;
 
                 case HOTKEY_WINDOW_SNAP:
-                    // Capture active window (placeholder - implement when snap feature exists)
-                    StatusManager.ShowMessage("Window Snap hotkey pressed (not yet implemented)");
+                    CaptureActiveWindow();
                     break;
 
                 case HOTKEY_SCREEN_SNAP:
-                    // Capture active screen (placeholder - implement when snap feature exists)
-                    StatusManager.ShowMessage("Screen Snap hotkey pressed (not yet implemented)");
+                    CaptureActiveScreen();
                     break;
 
                 case HOTKEY_ALL_SCREENS_SNAP:
-                    // Capture all screens (placeholder - implement when snap feature exists)
-                    StatusManager.ShowMessage("All Screens Snap hotkey pressed (not yet implemented)");
+                    CaptureAllScreens();
                     break;
             }
         }
+
+        /// <summary>
+        /// Captures a screenshot of the active window and adds it as a new step
+        /// </summary>
+        private void CaptureActiveWindow()
+        {
+            try
+            {
+                // Get the foreground window
+                IntPtr foregroundWindow = GetForegroundWindow();
+                if (foregroundWindow == IntPtr.Zero)
+                {
+                    StatusManager.ShowMessage("No active window found", isError: true);
+                    return;
+                }
+
+                // Get window rectangle
+                RECT windowRect;
+                if (!GetWindowRect(foregroundWindow, out windowRect))
+                {
+                    StatusManager.ShowMessage("Failed to get window bounds", isError: true);
+                    return;
+                }
+
+                int width = windowRect.Right - windowRect.Left;
+                int height = windowRect.Bottom - windowRect.Top;
+
+                if (width <= 0 || height <= 0)
+                {
+                    StatusManager.ShowMessage("Invalid window dimensions", isError: true);
+                    return;
+                }
+
+                // Get window title
+                string? windowTitle = GetWindowText(foregroundWindow);
+
+                // Capture the screenshot
+                string? screenshotBase64 = CaptureRegionToBase64(windowRect.Left, windowRect.Top, width, height);
+                if (string.IsNullOrEmpty(screenshotBase64))
+                {
+                    StatusManager.ShowMessage("Failed to capture screenshot", isError: true);
+                    return;
+                }
+
+                // Create a new RecordEvent
+                var recordEvent = new RecordEvent
+                {
+                    Step = Listbox_Events.Items.Count + 1,
+                    EventType = "Manual Snapshot (Window)",
+                    WindowTitle = windowTitle ?? "Unknown Window",
+                    ApplicationName = GetApplicationName(foregroundWindow),
+                    WindowCoordinates = windowRect,
+                    WindowSize = new WindowHelper.Size { Width = width, Height = height },
+                    _StepText = $"Window snapshot: {windowTitle ?? "Unknown Window"}",
+                    BaseScreenshotb64 = screenshotBase64,
+                    Screenshotb64 = screenshotBase64
+                };
+
+                // Add to the list
+                Program._recordEvents.Add(recordEvent);
+                AddRecordEventToListBox(recordEvent);
+
+                // Select the new item
+                Listbox_Events.SelectedIndex = Listbox_Events.Items.Count - 1;
+
+                StatusManager.ShowSuccess("Window snapshot captured");
+
+                // Trigger auto-save
+                activityTimer.Stop();
+                activityTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                StatusManager.ShowMessage($"Failed to capture window: {ex.Message}", isError: true);
+                System.Diagnostics.Debug.WriteLine($"Window capture error: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Captures a screenshot of the screen containing the cursor and adds it as a new step
+        /// </summary>
+        private void CaptureActiveScreen()
+        {
+            try
+            {
+                // Get cursor position to determine which screen to capture
+                POINT cursorPos;
+                GetCursorPos(out cursorPos);
+
+                // Find the screen containing the cursor
+                Screen activeScreen = Screen.FromPoint(new Point(cursorPos.X, cursorPos.Y));
+                Rectangle bounds = activeScreen.Bounds;
+
+                // Capture the screenshot
+                string? screenshotBase64 = CaptureRegionToBase64(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                if (string.IsNullOrEmpty(screenshotBase64))
+                {
+                    StatusManager.ShowMessage("Failed to capture screenshot", isError: true);
+                    return;
+                }
+
+                // Create a new RecordEvent
+                var recordEvent = new RecordEvent
+                {
+                    Step = Listbox_Events.Items.Count + 1,
+                    EventType = "Manual Snapshot (Screen)",
+                    WindowTitle = $"Screen: {activeScreen.DeviceName}",
+                    WindowCoordinates = new RECT 
+                    { 
+                        Left = bounds.X, 
+                        Top = bounds.Y, 
+                        Right = bounds.Right, 
+                        Bottom = bounds.Bottom 
+                    },
+                    WindowSize = new WindowHelper.Size { Width = bounds.Width, Height = bounds.Height },
+                    _StepText = $"Screen snapshot: {activeScreen.DeviceName}",
+                    BaseScreenshotb64 = screenshotBase64,
+                    Screenshotb64 = screenshotBase64
+                };
+
+                // Add to the list
+                Program._recordEvents.Add(recordEvent);
+                AddRecordEventToListBox(recordEvent);
+
+                // Select the new item
+                Listbox_Events.SelectedIndex = Listbox_Events.Items.Count - 1;
+
+                StatusManager.ShowSuccess("Screen snapshot captured");
+
+                // Trigger auto-save
+                activityTimer.Stop();
+                activityTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                StatusManager.ShowMessage($"Failed to capture screen: {ex.Message}", isError: true);
+                System.Diagnostics.Debug.WriteLine($"Screen capture error: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Captures a screenshot of all screens (virtual screen) and adds it as a new step
+        /// </summary>
+        private void CaptureAllScreens()
+        {
+            try
+            {
+                // Get the virtual screen bounds (encompasses all monitors)
+                Rectangle virtualScreen = SystemInformation.VirtualScreen;
+
+                // Capture the screenshot
+                string? screenshotBase64 = CaptureRegionToBase64(
+                    virtualScreen.X, virtualScreen.Y, 
+                    virtualScreen.Width, virtualScreen.Height);
+
+                if (string.IsNullOrEmpty(screenshotBase64))
+                {
+                    StatusManager.ShowMessage("Failed to capture screenshot", isError: true);
+                    return;
+                }
+
+                // Create a new RecordEvent
+                var recordEvent = new RecordEvent
+                {
+                    Step = Listbox_Events.Items.Count + 1,
+                    EventType = "Manual Snapshot (All Screens)",
+                    WindowTitle = $"All Screens ({Screen.AllScreens.Length} monitors)",
+                    WindowCoordinates = new RECT 
+                    { 
+                        Left = virtualScreen.X, 
+                        Top = virtualScreen.Y, 
+                        Right = virtualScreen.Right, 
+                        Bottom = virtualScreen.Bottom 
+                    },
+                    WindowSize = new WindowHelper.Size { Width = virtualScreen.Width, Height = virtualScreen.Height },
+                    _StepText = $"All screens snapshot ({Screen.AllScreens.Length} monitors)",
+                    BaseScreenshotb64 = screenshotBase64,
+                    Screenshotb64 = screenshotBase64
+                };
+
+                // Add to the list
+                Program._recordEvents.Add(recordEvent);
+                AddRecordEventToListBox(recordEvent);
+
+                // Select the new item
+                Listbox_Events.SelectedIndex = Listbox_Events.Items.Count - 1;
+
+                StatusManager.ShowSuccess("All screens snapshot captured");
+
+                // Trigger auto-save
+                activityTimer.Stop();
+                activityTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                StatusManager.ShowMessage($"Failed to capture all screens: {ex.Message}", isError: true);
+                System.Diagnostics.Debug.WriteLine($"All screens capture error: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Captures a screen region and returns it as a Base64 string
+        /// </summary>
+        private static string? CaptureRegionToBase64(int x, int y, int width, int height)
+        {
+            try
+            {
+                using var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                using var graphics = Graphics.FromImage(bitmap);
+                graphics.CopyFromScreen(x, y, 0, 0, new System.Drawing.Size(width, height), CopyPixelOperation.SourceCopy);
+
+                using var ms = new MemoryStream();
+                bitmap.Save(ms, ImageFormat.Png);
+                return Convert.ToBase64String(ms.ToArray());
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to capture region: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Additional P/Invoke for getting foreground window
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
         /// <summary>
         /// Refreshes hotkey registrations (call after settings change)

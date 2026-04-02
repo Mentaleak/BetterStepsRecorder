@@ -33,30 +33,43 @@ namespace BetterStepsRecorder
             {
                 propertyGrid_RecordEvent.SelectedObject = selectedEvent;
 
-                // Load screenshot from RAM (Screenshotb64) or spool file (ScreenshotSpoolPath)
-                byte[]? imgBytes = Program.GetScreenshotBytes(selectedEvent);
-                if (imgBytes != null)
+                // If there are operations, we need to rebuild from base image + operations
+                // to ensure operations are properly displayed
+                if (selectedEvent.ImageOperations.Count > 0)
                 {
-                    try
+                    // Load the base (un-annotated) image first, then apply operations
+                    byte[]? baseBytes = Program.GetBaseScreenshotBytes(selectedEvent);
+                    if (baseBytes != null && baseBytes.Length > 0)
                     {
-                        using (MemoryStream ms = new MemoryStream(imgBytes))
+                        try
                         {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = new Bitmap(ms);
-                            oldImage?.Dispose();
+                            using (MemoryStream ms = new MemoryStream(baseBytes))
+                            {
+                                var oldImage = pictureBox1.Image;
+                                pictureBox1.Image = new Bitmap(ms);
+                                oldImage?.Dispose();
+                            }
+                            // Rebuild the image with all operations applied
+                            // This ensures operations are always rendered on top of the base image
+                            RebuildImageFromOperations(selectedEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Failed to load base screenshot: {ex.Message}");
+                            // Fall back to loading the edited screenshot
+                            LoadEditedScreenshot(selectedEvent);
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
-                        pictureBox1.Image?.Dispose();
-                        pictureBox1.Image = null;
+                        // No base image available, load the edited screenshot directly
+                        LoadEditedScreenshot(selectedEvent);
                     }
                 }
                 else
                 {
-                    pictureBox1.Image?.Dispose();
-                    pictureBox1.Image = null;
+                    // No operations - just load the screenshot directly
+                    LoadEditedScreenshot(selectedEvent);
                 }
 
                 // Set the step text
@@ -89,6 +102,37 @@ namespace BetterStepsRecorder
                 listBox_Edits.Items.Clear();
                 // Disable reset indicator when no event selected
                 resetIndicatorToolStripButton.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Loads the edited screenshot (Screenshotb64 or spool file) into the picture box
+        /// </summary>
+        private void LoadEditedScreenshot(RecordEvent selectedEvent)
+        {
+            byte[]? imgBytes = Program.GetScreenshotBytes(selectedEvent);
+            if (imgBytes != null)
+            {
+                try
+                {
+                    using (MemoryStream ms = new MemoryStream(imgBytes))
+                    {
+                        var oldImage = pictureBox1.Image;
+                        pictureBox1.Image = new Bitmap(ms);
+                        oldImage?.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to load screenshot: {ex.Message}");
+                    pictureBox1.Image?.Dispose();
+                    pictureBox1.Image = null;
+                }
+            }
+            else
+            {
+                pictureBox1.Image?.Dispose();
+                pictureBox1.Image = null;
             }
         }
 
