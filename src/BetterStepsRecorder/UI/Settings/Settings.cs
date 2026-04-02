@@ -60,6 +60,9 @@ namespace BetterStepsRecorder.UI.Settings
                 case "Settings_General":
                     newView = new GeneralSettings();
                     break;
+                case "Settings_KeyBinds":
+                    newView = new KeyBindsSettings();
+                    break;
                 case "Settings_IndicatorStyle":
                     newView = new IndicatorStyle();
                     break;

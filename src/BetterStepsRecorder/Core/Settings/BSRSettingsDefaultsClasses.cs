@@ -162,6 +162,48 @@ namespace BetterStepsRecorder
             public OdtSettings Odt { get; set; } = new OdtSettings();
             public ObsidianSettings Obsidian { get; set; } = new ObsidianSettings();
         }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // Key Binds Settings
+        // ══════════════════════════════════════════════════════════════════════
+
+        public class KeyBindSettings
+        {
+            /// <summary>
+            /// Key combination to start/pause recording.
+            /// Default: Ctrl+Alt+R (avoids common conflicts)
+            /// </summary>
+            public string StartRecording { get; set; } = "Ctrl+Alt+R";
+
+            /// <summary>
+            /// Key combination to pause recording (same as start by default - toggle behavior).
+            /// Default: Ctrl+Alt+R
+            /// </summary>
+            public string PauseRecording { get; set; } = "Ctrl+Alt+R";
+
+            /// <summary>
+            /// Key combination to capture the active window.
+            /// Default: Ctrl+Alt+W
+            /// </summary>
+            public string WindowSnap { get; set; } = "Ctrl+Alt+W";
+
+            /// <summary>
+            /// Key combination to capture the active screen.
+            /// Default: Ctrl+Alt+S
+            /// </summary>
+            public string ScreenSnap { get; set; } = "Ctrl+Alt+S";
+
+            /// <summary>
+            /// Key combination to capture all screens.
+            /// Default: Ctrl+Alt+A
+            /// </summary>
+            public string AllScreensSnap { get; set; } = "Ctrl+Alt+A";
+
+            /// <summary>
+            /// Whether global hotkeys are enabled.
+            /// </summary>
+            public bool EnableGlobalHotkeys { get; set; } = true;
+        }
     }
 
 

@@ -34,6 +34,7 @@
         private void InitializeComponent()
         {
             TreeNode treeNode1 = new TreeNode("General");
+            TreeNode treeNode17 = new TreeNode("Key Binds");
             TreeNode treeNode2 = new TreeNode("Style");
             TreeNode treeNode3 = new TreeNode("Color");
             TreeNode treeNode4 = new TreeNode("Indicator", new TreeNode[] { treeNode2, treeNode3 });
@@ -64,6 +65,8 @@
             treeView_Settings.Name = "treeView_Settings";
             treeNode1.Name = "Settings_General";
             treeNode1.Text = "General";
+            treeNode17.Name = "Settings_KeyBinds";
+            treeNode17.Text = "Key Binds";
             treeNode2.Name = "Settings_IndicatorStyle";
             treeNode2.Text = "Style";
             treeNode3.Name = "Settings_IndicatorColor";
@@ -94,7 +97,7 @@
             treeNode15.Text = "Obsidian";
             treeNode16.Name = "Settings_Export";
             treeNode16.Text = "Export";
-            treeView_Settings.Nodes.AddRange(new TreeNode[] { treeNode1, treeNode4, treeNode10, treeNode16 });
+            treeView_Settings.Nodes.AddRange(new TreeNode[] { treeNode1, treeNode17, treeNode4, treeNode10, treeNode16 });
             treeView_Settings.Size = new Size(244, 367);
             treeView_Settings.TabIndex = 0;
             // 

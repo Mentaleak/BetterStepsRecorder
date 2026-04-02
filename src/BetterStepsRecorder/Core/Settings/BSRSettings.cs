@@ -60,6 +60,7 @@ namespace BetterStepsRecorder
         // ══════════════════════════════════════════════════════════════════════
 
         public GeneralSettings General { get; set; } = new GeneralSettings();
+        public KeyBindSettings KeyBinds { get; set; } = new KeyBindSettings();
         public IndicatorSettings Indicator { get; set; } = new IndicatorSettings();
         public ScreenshotSettings Screenshot { get; set; } = new ScreenshotSettings();
         public ExportSettings ExportOptions { get; set; } = new ExportSettings();
@@ -72,6 +73,7 @@ namespace BetterStepsRecorder
         public void ResetToDefaults()
         {
             General = new GeneralSettings();
+            KeyBinds = new KeyBindSettings();
             Indicator = new IndicatorSettings();
             Screenshot = new ScreenshotSettings();
             ExportOptions = new ExportSettings();
@@ -116,6 +118,25 @@ namespace BetterStepsRecorder
                 case "DragCroppedPadding":
                 case "Screenshot.Drag.Cropped.Padding":
                     Screenshot.Drag.Cropped.Padding = Default.Screenshot.Drag.Cropped.Padding;
+                    break;
+                case "KeyBinds":
+                case "KeyBinds.StartRecording":
+                    KeyBinds.StartRecording = Default.KeyBinds.StartRecording;
+                    break;
+                case "KeyBinds.PauseRecording":
+                    KeyBinds.PauseRecording = Default.KeyBinds.PauseRecording;
+                    break;
+                case "KeyBinds.WindowSnap":
+                    KeyBinds.WindowSnap = Default.KeyBinds.WindowSnap;
+                    break;
+                case "KeyBinds.ScreenSnap":
+                    KeyBinds.ScreenSnap = Default.KeyBinds.ScreenSnap;
+                    break;
+                case "KeyBinds.AllScreensSnap":
+                    KeyBinds.AllScreensSnap = Default.KeyBinds.AllScreensSnap;
+                    break;
+                case "KeyBinds.EnableGlobalHotkeys":
+                    KeyBinds.EnableGlobalHotkeys = Default.KeyBinds.EnableGlobalHotkeys;
                     break;
             }
         }
