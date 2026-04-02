@@ -66,9 +66,10 @@ namespace BetterStepsRecorder.Core.ImageOperations
             if (availableWidth < 10f) availableWidth = 10f; // Minimum reasonable width
 
             // Measure text at the calculated font size and scale down if it doesn't fit
+            SizeF textSize;
             using (var testFont = new Font(FontFamily, scaledFontSize, FontStyle.Bold))
             {
-                var textSize = g.MeasureString(Text, testFont);
+                textSize = g.MeasureString(Text, testFont);
 
                 // If text is too wide, scale down the font size proportionally
                 if (textSize.Width > availableWidth)
@@ -76,7 +77,19 @@ namespace BetterStepsRecorder.Core.ImageOperations
                     float widthScaleFactor = availableWidth / textSize.Width;
                     scaledFontSize = Math.Max(4f, scaledFontSize * widthScaleFactor);
                     scaledOutlineWidth = Math.Max(1f, scaledOutlineWidth * widthScaleFactor);
+                    // Re-measure with the adjusted font size
+                    using (var adjustedFont = new Font(FontFamily, scaledFontSize, FontStyle.Bold))
+                    {
+                        textSize = g.MeasureString(Text, adjustedFont);
+                    }
                 }
+            }
+
+            // Constrain region height to not exceed actual text height + padding
+            int requiredHeight = (int)Math.Ceiling(textSize.Height + scaledOutlineWidth * 2 + 6);
+            if (Region.Height > requiredHeight)
+            {
+                Region = new Rectangle(Region.X, Region.Y, Region.Width, requiredHeight);
             }
 
             using (var font = new Font(FontFamily, scaledFontSize, FontStyle.Bold))

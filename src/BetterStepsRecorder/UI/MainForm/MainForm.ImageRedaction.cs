@@ -973,14 +973,52 @@ namespace BetterStepsRecorder
         {
             using var dlg = new ColorDialog { Color = TextInnerColor, FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
                 TextInnerColor = dlg.Color;
+
+                // Update selected text label if one is selected
+                if (_selectedOperationIndex >= 0 && Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                {
+                    if (_selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                    {
+                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                        if (operation is TextLabelOperation textOp)
+                        {
+                            textOp.InnerColor = dlg.Color;
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                            activityTimer.Stop();
+                            activityTimer.Start();
+                        }
+                    }
+                }
+            }
         }
 
         private void textOuterColourToolStripButton_Click(object sender, EventArgs e)
         {
             using var dlg = new ColorDialog { Color = TextOuterColor, FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
                 TextOuterColor = dlg.Color;
+
+                // Update selected text label if one is selected
+                if (_selectedOperationIndex >= 0 && Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                {
+                    if (_selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                    {
+                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                        if (operation is TextLabelOperation textOp)
+                        {
+                            textOp.OuterColor = dlg.Color;
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                            activityTimer.Stop();
+                            activityTimer.Start();
+                        }
+                    }
+                }
+            }
         }
 
         private void arrowToolStripButton_Click(object sender, EventArgs e)
