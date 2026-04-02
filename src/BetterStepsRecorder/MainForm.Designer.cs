@@ -62,6 +62,9 @@
             highlightColourToolStripButton = new ToolStripButton();
             toolStripSeparator3 = new ToolStripSeparator();
             textLabelToolStripButton = new ToolStripButton();
+            toolStripSeparator5 = new ToolStripSeparator();
+            textInnerColourToolStripButton = new ToolStripButton();
+            textOuterColourToolStripButton = new ToolStripButton();
             arrowToolStripButton = new ToolStripButton();
             arrowColourToolStripButton = new ToolStripButton();
             toolStripSeparator4 = new ToolStripSeparator();
@@ -161,88 +164,88 @@
             // 
             // contextMenu_ListBox_Edits
             // 
-            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, moveToFrontEditToolStripMenuItem, sendToBackEditToolStripMenuItem, new ToolStripSeparator(), deleteEditToolStripMenuItem });
+            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, moveToFrontEditToolStripMenuItem, sendToBackEditToolStripMenuItem, deleteEditToolStripMenuItem });
             contextMenu_ListBox_Edits.Name = "contextMenu_ListBox_Edits";
-            contextMenu_ListBox_Edits.Size = new Size(159, 136);
+            contextMenu_ListBox_Edits.Size = new Size(172, 130);
             // 
             // moveUpEditToolStripMenuItem
             // 
             moveUpEditToolStripMenuItem.Name = "moveUpEditToolStripMenuItem";
-            moveUpEditToolStripMenuItem.Size = new Size(158, 24);
+            moveUpEditToolStripMenuItem.Size = new Size(171, 24);
             moveUpEditToolStripMenuItem.Text = "Move Up";
             moveUpEditToolStripMenuItem.Click += moveUpEditToolStripMenuItem_Click;
             // 
             // moveDownEditToolStripMenuItem
             // 
             moveDownEditToolStripMenuItem.Name = "moveDownEditToolStripMenuItem";
-            moveDownEditToolStripMenuItem.Size = new Size(158, 24);
+            moveDownEditToolStripMenuItem.Size = new Size(171, 24);
             moveDownEditToolStripMenuItem.Text = "Move Down";
             moveDownEditToolStripMenuItem.Click += moveDownEditToolStripMenuItem_Click;
             // 
             // moveToFrontEditToolStripMenuItem
             // 
             moveToFrontEditToolStripMenuItem.Name = "moveToFrontEditToolStripMenuItem";
-            moveToFrontEditToolStripMenuItem.Size = new Size(158, 24);
+            moveToFrontEditToolStripMenuItem.Size = new Size(171, 24);
             moveToFrontEditToolStripMenuItem.Text = "Move to Front";
             moveToFrontEditToolStripMenuItem.Click += moveToFrontEditToolStripMenuItem_Click;
             // 
             // sendToBackEditToolStripMenuItem
             // 
             sendToBackEditToolStripMenuItem.Name = "sendToBackEditToolStripMenuItem";
-            sendToBackEditToolStripMenuItem.Size = new Size(158, 24);
+            sendToBackEditToolStripMenuItem.Size = new Size(171, 24);
             sendToBackEditToolStripMenuItem.Text = "Send to Back";
             sendToBackEditToolStripMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
             // 
             // deleteEditToolStripMenuItem
             // 
             deleteEditToolStripMenuItem.Name = "deleteEditToolStripMenuItem";
-            deleteEditToolStripMenuItem.Size = new Size(158, 24);
+            deleteEditToolStripMenuItem.Size = new Size(171, 24);
             deleteEditToolStripMenuItem.Text = "Delete";
             deleteEditToolStripMenuItem.Click += deleteEditToolStripMenuItem_Click;
             // 
             // contextMenu_PictureBox
             // 
-            contextMenu_PictureBox.Items.AddRange(new ToolStripItem[] { moveUpPictureBoxMenuItem, moveDownPictureBoxMenuItem, moveToFrontPictureBoxMenuItem, sendToBackPictureBoxMenuItem, new ToolStripSeparator(), deletePictureBoxMenuItem });
+            contextMenu_PictureBox.Items.AddRange(new ToolStripItem[] { moveUpPictureBoxMenuItem, moveDownPictureBoxMenuItem, moveToFrontPictureBoxMenuItem, sendToBackPictureBoxMenuItem, deletePictureBoxMenuItem });
             contextMenu_PictureBox.Name = "contextMenu_PictureBox";
-            contextMenu_PictureBox.Size = new Size(159, 136);
+            contextMenu_PictureBox.Size = new Size(172, 130);
             // 
             // moveUpPictureBoxMenuItem
             // 
             moveUpPictureBoxMenuItem.Name = "moveUpPictureBoxMenuItem";
-            moveUpPictureBoxMenuItem.Size = new Size(158, 24);
+            moveUpPictureBoxMenuItem.Size = new Size(171, 24);
             moveUpPictureBoxMenuItem.Text = "Move Up";
             moveUpPictureBoxMenuItem.Click += moveUpEditToolStripMenuItem_Click;
             // 
             // moveDownPictureBoxMenuItem
             // 
             moveDownPictureBoxMenuItem.Name = "moveDownPictureBoxMenuItem";
-            moveDownPictureBoxMenuItem.Size = new Size(158, 24);
+            moveDownPictureBoxMenuItem.Size = new Size(171, 24);
             moveDownPictureBoxMenuItem.Text = "Move Down";
             moveDownPictureBoxMenuItem.Click += moveDownEditToolStripMenuItem_Click;
             // 
             // moveToFrontPictureBoxMenuItem
             // 
             moveToFrontPictureBoxMenuItem.Name = "moveToFrontPictureBoxMenuItem";
-            moveToFrontPictureBoxMenuItem.Size = new Size(158, 24);
+            moveToFrontPictureBoxMenuItem.Size = new Size(171, 24);
             moveToFrontPictureBoxMenuItem.Text = "Move to Front";
             moveToFrontPictureBoxMenuItem.Click += moveToFrontEditToolStripMenuItem_Click;
             // 
             // sendToBackPictureBoxMenuItem
             // 
             sendToBackPictureBoxMenuItem.Name = "sendToBackPictureBoxMenuItem";
-            sendToBackPictureBoxMenuItem.Size = new Size(158, 24);
+            sendToBackPictureBoxMenuItem.Size = new Size(171, 24);
             sendToBackPictureBoxMenuItem.Text = "Send to Back";
             sendToBackPictureBoxMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
             // 
             // deletePictureBoxMenuItem
             // 
             deletePictureBoxMenuItem.Name = "deletePictureBoxMenuItem";
-            deletePictureBoxMenuItem.Size = new Size(158, 24);
+            deletePictureBoxMenuItem.Size = new Size(171, 24);
             deletePictureBoxMenuItem.Text = "Delete";
             deletePictureBoxMenuItem.Click += deleteEditToolStripMenuItem_Click;
             // 
             // propertyGrid_RecordEvent
-            //
+            // 
             propertyGrid_RecordEvent.BackColor = SystemColors.Control;
             propertyGrid_RecordEvent.Dock = DockStyle.Fill;
             propertyGrid_RecordEvent.Enabled = false;
@@ -359,7 +362,7 @@
             // 
             pictureBoxToolStrip.BackColor = SystemColors.Control;
             pictureBoxToolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, resetIndicatorToolStripButton, toolStripSeparator2, blurRegionToolStripButton, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton });
+            pictureBoxToolStrip.Items.AddRange(new ToolStripItem[] { undoToolStripButton, resetIndicatorToolStripButton, toolStripSeparator2, highlightToolStripButton, highlightColourToolStripButton, toolStripSeparator3, textLabelToolStripButton, textInnerColourToolStripButton, textOuterColourToolStripButton, toolStripSeparator5, arrowToolStripButton, arrowColourToolStripButton, toolStripSeparator4, cropToolStripButton, blurRegionToolStripButton });
             pictureBoxToolStrip.Location = new Point(0, 0);
             pictureBoxToolStrip.Name = "pictureBoxToolStrip";
             pictureBoxToolStrip.Size = new Size(902, 27);
@@ -378,7 +381,7 @@
             // 
             resetIndicatorToolStripButton.Enabled = false;
             resetIndicatorToolStripButton.Name = "resetIndicatorToolStripButton";
-            resetIndicatorToolStripButton.Size = new Size(112, 24);
+            resetIndicatorToolStripButton.Size = new Size(137, 24);
             resetIndicatorToolStripButton.Text = "🎯 Reset Indicator";
             resetIndicatorToolStripButton.ToolTipText = "Reset the click/drag indicator to its original position";
             resetIndicatorToolStripButton.Click += resetIndicatorToolStripButton_Click;
@@ -428,6 +431,29 @@
             textLabelToolStripButton.ToolTipText = "Click to place a text label on the screenshot";
             textLabelToolStripButton.Click += textLabelToolStripButton_Click;
             // 
+            // toolStripSeparator5
+            // 
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(6, 27);
+            // 
+            // textInnerColourToolStripButton
+            // 
+            textInnerColourToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            textInnerColourToolStripButton.Name = "textInnerColourToolStripButton";
+            textInnerColourToolStripButton.Size = new Size(34, 24);
+            textInnerColourToolStripButton.Text = "🎨";
+            textInnerColourToolStripButton.ToolTipText = "Pick text inner colour";
+            textInnerColourToolStripButton.Click += textInnerColourToolStripButton_Click;
+            // 
+            // textOuterColourToolStripButton
+            // 
+            textOuterColourToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            textOuterColourToolStripButton.Name = "textOuterColourToolStripButton";
+            textOuterColourToolStripButton.Size = new Size(34, 24);
+            textOuterColourToolStripButton.Text = "🖍";
+            textOuterColourToolStripButton.ToolTipText = "Pick text outer/border colour";
+            textOuterColourToolStripButton.Click += textOuterColourToolStripButton_Click;
+            // 
             // arrowToolStripButton
             // 
             arrowToolStripButton.CheckOnClick = true;
@@ -471,10 +497,10 @@
             listBox_Edits.Name = "listBox_Edits";
             listBox_Edits.Size = new Size(140, 646);
             listBox_Edits.TabIndex = 0;
-            listBox_Edits.DoubleClick += listBox_Edits_DoubleClick;
             listBox_Edits.DragDrop += listBox_Edits_DragDrop;
             listBox_Edits.DragEnter += listBox_Edits_DragEnter;
             listBox_Edits.DragOver += listBox_Edits_DragOver;
+            listBox_Edits.DoubleClick += listBox_Edits_DoubleClick;
             listBox_Edits.KeyDown += listBox_Edits_KeyDown;
             listBox_Edits.MouseDown += listBox_Edits_MouseDown;
             listBox_Edits.MouseMove += listBox_Edits_MouseMove;
@@ -743,6 +769,9 @@
         private ToolStripButton highlightColourToolStripButton;
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton textLabelToolStripButton;
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripButton textInnerColourToolStripButton;
+        private ToolStripButton textOuterColourToolStripButton;
         private ToolStripButton arrowToolStripButton;
         private ToolStripButton arrowColourToolStripButton;
         private ToolStripSeparator toolStripSeparator4;

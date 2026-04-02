@@ -92,8 +92,9 @@ namespace BetterStepsRecorder.Core.ImageOperations
                         text.Region.Height,
                         text.FontFamily,
                         text.FontSize,
-                        TextColor = text.TextColor.ToArgb(),
-                        BackgroundColor = text.BackgroundColor.ToArgb()
+                        InnerColor = text.InnerColor.ToArgb(),
+                        OuterColor = text.OuterColor.ToArgb(),
+                        text.OutlineWidth
                     });
                     break;
 
@@ -189,8 +190,19 @@ namespace BetterStepsRecorder.Core.ImageOperations
                         Parameters.Value.GetProperty("Height").GetInt32()),
                     FontFamily = Parameters.Value.GetProperty("FontFamily").GetString() ?? "Arial",
                     FontSize = Parameters.Value.GetProperty("FontSize").GetSingle(),
-                    TextColor = Color.FromArgb(Parameters.Value.GetProperty("TextColor").GetInt32()),
-                    BackgroundColor = Color.FromArgb(Parameters.Value.GetProperty("BackgroundColor").GetInt32())
+                    InnerColor = Parameters.Value.TryGetProperty("InnerColor", out var innerProp) 
+                        ? Color.FromArgb(innerProp.GetInt32()) 
+                        : (Parameters.Value.TryGetProperty("TextColor", out var textColorProp) 
+                            ? Color.FromArgb(textColorProp.GetInt32()) 
+                            : Color.White),
+                    OuterColor = Parameters.Value.TryGetProperty("OuterColor", out var outerProp) 
+                        ? Color.FromArgb(outerProp.GetInt32()) 
+                        : (Parameters.Value.TryGetProperty("BackgroundColor", out var bgColorProp) 
+                            ? Color.FromArgb(bgColorProp.GetInt32()) 
+                            : Color.Black),
+                    OutlineWidth = Parameters.Value.TryGetProperty("OutlineWidth", out var widthProp) 
+                        ? widthProp.GetSingle() 
+                        : 3f
                 },
 
                 "Crop" => new CropOperation

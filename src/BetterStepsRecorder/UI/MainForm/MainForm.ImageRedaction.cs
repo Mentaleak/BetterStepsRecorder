@@ -35,6 +35,26 @@ namespace BetterStepsRecorder
         private Point _dragStartImagePoint;
         private Point _dragCurrentImagePoint;
 
+        // Operation resizing state
+        private bool _isResizingOperation = false;
+        private int _resizeOperationIndex = -1;
+        private ResizeHandle _activeResizeHandle = ResizeHandle.None;
+        private Rectangle _resizeOriginalBounds = Rectangle.Empty;
+        private Point _resizeStartPoint = Point.Empty;
+
+        private enum ResizeHandle
+        {
+            None,
+            TopLeft,
+            TopCenter,
+            TopRight,
+            MiddleRight,
+            BottomRight,
+            BottomCenter,
+            BottomLeft,
+            MiddleLeft
+        }
+
         // Arrow tool: two endpoints
         private Point _arrowStart;
         private Point _arrowEnd;
@@ -44,6 +64,10 @@ namespace BetterStepsRecorder
 
         // Arrow colour (user-configurable via toolbar button)
         public static Color ArrowColor { get; set; } = Color.FromArgb(255, 255, 0, 255);
+
+        // Text colours (user-configurable via toolbar buttons)
+        public static Color TextInnerColor { get; set; } = Color.White;
+        public static Color TextOuterColor { get; set; } = Color.Black;
 
         // Undo stack: keyed by RecordEvent.ID, stores previous Screenshotb64 values
         private readonly Dictionary<Guid, Stack<string>> _undoStacks = new();
@@ -339,6 +363,85 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Detects which resize handle (if any) is at the given control-space point for the selected operation
+        /// </summary>
+        private ResizeHandle GetResizeHandleAtPoint(Point controlPoint, Rectangle controlBounds)
+        {
+            const int handleSize = 8;
+            const int handleTolerance = 4;
+            int totalSize = handleSize + handleTolerance;
+
+            // Get handle positions
+            var handles = GetResizeHandleRectangles(controlBounds, handleSize);
+
+            // Check each handle
+            foreach (var kvp in handles)
+            {
+                Rectangle expandedHandle = kvp.Value;
+                expandedHandle.Inflate(handleTolerance, handleTolerance);
+                if (expandedHandle.Contains(controlPoint))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            return ResizeHandle.None;
+        }
+
+        /// <summary>
+        /// Gets the rectangles for all resize handles around a control-space bounding rectangle
+        /// </summary>
+        private Dictionary<ResizeHandle, Rectangle> GetResizeHandleRectangles(Rectangle controlBounds, int handleSize)
+        {
+            int half = handleSize / 2;
+            var handles = new Dictionary<ResizeHandle, Rectangle>();
+
+            // Corner handles
+            handles[ResizeHandle.TopLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Top - half, handleSize, handleSize);
+            handles[ResizeHandle.TopRight] = new Rectangle(controlBounds.Right - half, controlBounds.Top - half, handleSize, handleSize);
+            handles[ResizeHandle.BottomLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Bottom - half, handleSize, handleSize);
+            handles[ResizeHandle.BottomRight] = new Rectangle(controlBounds.Right - half, controlBounds.Bottom - half, handleSize, handleSize);
+
+            // Edge handles
+            handles[ResizeHandle.TopCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Top - half, handleSize, handleSize);
+            handles[ResizeHandle.BottomCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Bottom - half, handleSize, handleSize);
+            handles[ResizeHandle.MiddleLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
+            handles[ResizeHandle.MiddleRight] = new Rectangle(controlBounds.Right - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
+
+            return handles;
+        }
+
+        /// <summary>
+        /// Gets the appropriate cursor for a resize handle
+        /// </summary>
+        private Cursor GetCursorForResizeHandle(ResizeHandle handle)
+        {
+            return handle switch
+            {
+                ResizeHandle.TopLeft => Cursors.SizeNWSE,
+                ResizeHandle.TopRight => Cursors.SizeNESW,
+                ResizeHandle.BottomLeft => Cursors.SizeNESW,
+                ResizeHandle.BottomRight => Cursors.SizeNWSE,
+                ResizeHandle.TopCenter => Cursors.SizeNS,
+                ResizeHandle.BottomCenter => Cursors.SizeNS,
+                ResizeHandle.MiddleLeft => Cursors.SizeWE,
+                ResizeHandle.MiddleRight => Cursors.SizeWE,
+                _ => Cursors.Default
+            };
+        }
+
+        /// <summary>
+        /// Checks if an operation supports resizing (rectangle-based operations)
+        /// </summary>
+        private bool OperationSupportsResize(ImageOperation operation)
+        {
+            return operation is BlurOperation
+                || operation is HighlightOperation
+                || operation is TextLabelOperation
+                || operation is CropOperation;
+        }
+
+        /// <summary>
         /// Handles mouse down on pictureBox to select or start dragging operations when no tool is active
         /// </summary>
         private void PictureBox_SelectionMouseDown(object sender, MouseEventArgs e)
@@ -347,6 +450,30 @@ namespace BetterStepsRecorder
             if (_activeTool != ImageTool.None) return; // Don't interfere with tools
             if (pictureBox1.Image == null) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            // First, check if clicking on a resize handle of the currently selected operation
+            if (_selectedOperationIndex >= 0 && !_selectedOperationBounds.IsEmpty)
+            {
+                Rectangle controlBounds = ImageRectToControlRect(_selectedOperationBounds);
+                controlBounds.Inflate(2, 2); // Match the selection highlight inflation
+                ResizeHandle handle = GetResizeHandleAtPoint(e.Location, controlBounds);
+
+                if (handle != ResizeHandle.None)
+                {
+                    var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                    if (OperationSupportsResize(operation))
+                    {
+                        // Start resizing
+                        _isResizingOperation = true;
+                        _resizeOperationIndex = _selectedOperationIndex;
+                        _activeResizeHandle = handle;
+                        _resizeOriginalBounds = _selectedOperationBounds;
+                        _resizeStartPoint = ControlPointToImagePoint(e.Location);
+                        pictureBox1.Cursor = GetCursorForResizeHandle(handle);
+                        return;
+                    }
+                }
+            }
 
             int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
 
@@ -383,7 +510,21 @@ namespace BetterStepsRecorder
             if (pictureBox1.Image == null) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            if (_isDraggingOperation && _dragOperationIndex >= 0)
+            if (_isResizingOperation && _resizeOperationIndex >= 0)
+            {
+                // Update resize
+                Point currentImagePoint = ControlPointToImagePoint(e.Location);
+                UpdateOperationSizeDuringResize(selectedEvent, _resizeOperationIndex, _activeResizeHandle, 
+                    _resizeOriginalBounds, _resizeStartPoint, currentImagePoint);
+
+                // Rebuild image to show the resized operation
+                RebuildImageFromOperations(selectedEvent);
+
+                // Update selection highlight bounds
+                UpdateSelectionHighlightBounds(selectedEvent, _resizeOperationIndex);
+                pictureBox1.Invalidate();
+            }
+            else if (_isDraggingOperation && _dragOperationIndex >= 0)
             {
                 // Update drag position
                 _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
@@ -400,58 +541,116 @@ namespace BetterStepsRecorder
             }
             else
             {
-                // Not dragging - update cursor based on what's under the mouse
+                // Not dragging or resizing - update cursor based on what's under the mouse
+                // First check for resize handles on selected operation
+                if (_selectedOperationIndex >= 0 && !_selectedOperationBounds.IsEmpty)
+                {
+                    var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                    if (OperationSupportsResize(operation))
+                    {
+                        Rectangle controlBounds = ImageRectToControlRect(_selectedOperationBounds);
+                        controlBounds.Inflate(2, 2);
+                        ResizeHandle handle = GetResizeHandleAtPoint(e.Location, controlBounds);
+
+                        if (handle != ResizeHandle.None)
+                        {
+                            pictureBox1.Cursor = GetCursorForResizeHandle(handle);
+                            return;
+                        }
+                    }
+                }
+
+                // Check if over an operation
                 int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
                 pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
             }
         }
 
         /// <summary>
-        /// Handles mouse up on pictureBox to finish dragging operations
+        /// Handles mouse up on pictureBox to finish dragging or resizing operations
         /// </summary>
         private void PictureBox_SelectionMouseUp(object sender, MouseEventArgs e)
         {
-            if (!_isDraggingOperation) return;
+            if (!_isDraggingOperation && !_isResizingOperation) return;
             if (_activeTool != ImageTool.None) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
-            _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
+            if (_isResizingOperation)
+            {
+                // Finalize resize
+                _isResizingOperation = false;
+                _resizeOperationIndex = -1;
+                _activeResizeHandle = ResizeHandle.None;
+                _resizeOriginalBounds = Rectangle.Empty;
+                _resizeStartPoint = Point.Empty;
+            }
+            else if (_isDraggingOperation)
+            {
+                _dragCurrentImagePoint = ControlPointToImagePoint(e.Location);
 
-                        // Finalize the position (already updated during drag)
-                        // The operation position was already modified in MouseMove
+                // Finalize the position (already updated during drag)
+                // The operation position was already modified in MouseMove
 
-                        // Reset drag state
-                        _isDraggingOperation = false;
-                        _dragOperationIndex = -1;
-                        _dragStartImagePoint = Point.Empty;
-                        _dragCurrentImagePoint = Point.Empty;
+                // Reset drag state
+                _isDraggingOperation = false;
+                _dragOperationIndex = -1;
+                _dragStartImagePoint = Point.Empty;
+                _dragCurrentImagePoint = Point.Empty;
+            }
 
-                        // Update cursor
+            // Update cursor based on what's under mouse
+            if (_selectedOperationIndex >= 0 && !_selectedOperationBounds.IsEmpty)
+            {
+                var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                if (OperationSupportsResize(operation))
+                {
+                    Rectangle controlBounds = ImageRectToControlRect(_selectedOperationBounds);
+                    controlBounds.Inflate(2, 2);
+                    ResizeHandle handle = GetResizeHandleAtPoint(e.Location, controlBounds);
+                    if (handle != ResizeHandle.None)
+                    {
+                        pictureBox1.Cursor = GetCursorForResizeHandle(handle);
+                    }
+                    else
+                    {
                         int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
                         pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
-
-                        // Refresh UI
-                        RefreshOperationsListBox();
-                        if (listBox_Edits.SelectedIndex >= 0)
-                        {
-                            int opIndex = VisualIndexToOperationIndex(listBox_Edits.SelectedIndex, selectedEvent.ImageOperations.Count);
-                            if (opIndex >= 0)
-                            {
-                                UpdateSelectionHighlightBounds(selectedEvent, opIndex);
-                            }
-                        }
-                        pictureBox1.Invalidate();
-
-                        activityTimer.Stop();
-                        activityTimer.Start();
                     }
+                }
+                else
+                {
+                    int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                    pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+                }
+            }
+            else
+            {
+                int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+            }
+
+            // Refresh UI
+            RefreshOperationsListBox();
+            if (listBox_Edits.SelectedIndex >= 0)
+            {
+                int opIndex = VisualIndexToOperationIndex(listBox_Edits.SelectedIndex, selectedEvent.ImageOperations.Count);
+                if (opIndex >= 0)
+                {
+                    UpdateSelectionHighlightBounds(selectedEvent, opIndex);
+                }
+            }
+            pictureBox1.Invalidate();
+
+            activityTimer.Stop();
+            activityTimer.Start();
+        }
 
                     /// <summary>
                     /// Handles mouse leave to reset cursor
                     /// </summary>
                     private void PictureBox_SelectionMouseLeave(object sender, EventArgs e)
                     {
-                        if (_activeTool == ImageTool.None && !_isDraggingOperation)
+                        if (_activeTool == ImageTool.None && !_isDraggingOperation && !_isResizingOperation)
                         {
                             pictureBox1.Cursor = Cursors.Default;
                         }
@@ -543,6 +742,105 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Updates an operation's size during resize
+        /// </summary>
+        private void UpdateOperationSizeDuringResize(RecordEvent selectedEvent, int operationIndex, ResizeHandle handle,
+            Rectangle originalBounds, Point startPoint, Point currentPoint)
+        {
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
+
+            int deltaX = currentPoint.X - startPoint.X;
+            int deltaY = currentPoint.Y - startPoint.Y;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // Calculate new bounds based on which handle is being dragged
+            Rectangle newBounds = originalBounds;
+            const int minSize = 10; // Minimum size for operations
+
+            switch (handle)
+            {
+                case ResizeHandle.TopLeft:
+                    newBounds.X = originalBounds.X + deltaX;
+                    newBounds.Y = originalBounds.Y + deltaY;
+                    newBounds.Width = originalBounds.Width - deltaX;
+                    newBounds.Height = originalBounds.Height - deltaY;
+                    break;
+
+                case ResizeHandle.TopCenter:
+                    newBounds.Y = originalBounds.Y + deltaY;
+                    newBounds.Height = originalBounds.Height - deltaY;
+                    break;
+
+                case ResizeHandle.TopRight:
+                    newBounds.Y = originalBounds.Y + deltaY;
+                    newBounds.Width = originalBounds.Width + deltaX;
+                    newBounds.Height = originalBounds.Height - deltaY;
+                    break;
+
+                case ResizeHandle.MiddleRight:
+                    newBounds.Width = originalBounds.Width + deltaX;
+                    break;
+
+                case ResizeHandle.BottomRight:
+                    newBounds.Width = originalBounds.Width + deltaX;
+                    newBounds.Height = originalBounds.Height + deltaY;
+                    break;
+
+                case ResizeHandle.BottomCenter:
+                    newBounds.Height = originalBounds.Height + deltaY;
+                    break;
+
+                case ResizeHandle.BottomLeft:
+                    newBounds.X = originalBounds.X + deltaX;
+                    newBounds.Width = originalBounds.Width - deltaX;
+                    newBounds.Height = originalBounds.Height + deltaY;
+                    break;
+
+                case ResizeHandle.MiddleLeft:
+                    newBounds.X = originalBounds.X + deltaX;
+                    newBounds.Width = originalBounds.Width - deltaX;
+                    break;
+            }
+
+            // Enforce minimum size
+            if (newBounds.Width < minSize)
+            {
+                if (handle == ResizeHandle.TopLeft || handle == ResizeHandle.MiddleLeft || handle == ResizeHandle.BottomLeft)
+                {
+                    newBounds.X = newBounds.Right - minSize;
+                }
+                newBounds.Width = minSize;
+            }
+
+            if (newBounds.Height < minSize)
+            {
+                if (handle == ResizeHandle.TopLeft || handle == ResizeHandle.TopCenter || handle == ResizeHandle.TopRight)
+                {
+                    newBounds.Y = newBounds.Bottom - minSize;
+                }
+                newBounds.Height = minSize;
+            }
+
+            // Update the operation's region
+            switch (operation)
+            {
+                case BlurOperation blur:
+                    blur.Region = newBounds;
+                    break;
+                case HighlightOperation highlight:
+                    highlight.Region = newBounds;
+                    break;
+                case TextLabelOperation text:
+                    text.Region = newBounds;
+                    break;
+                case CropOperation crop:
+                    crop.Region = newBounds;
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Converts an image-space rectangle to control-space rectangle for the PictureBox
         /// </summary>
         private Rectangle ImageRectToControlRect(Rectangle imageRect)
@@ -625,6 +923,20 @@ namespace BetterStepsRecorder
         private void textLabelToolStripButton_Click(object sender, EventArgs e)
             => ActivateTool(textLabelToolStripButton.Checked ? ImageTool.Text : ImageTool.None);
 
+        private void textInnerColourToolStripButton_Click(object sender, EventArgs e)
+        {
+            using var dlg = new ColorDialog { Color = TextInnerColor, FullOpen = true };
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+                TextInnerColor = dlg.Color;
+        }
+
+        private void textOuterColourToolStripButton_Click(object sender, EventArgs e)
+        {
+            using var dlg = new ColorDialog { Color = TextOuterColor, FullOpen = true };
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+                TextOuterColor = dlg.Color;
+        }
+
         private void arrowToolStripButton_Click(object sender, EventArgs e)
             => ActivateTool(arrowToolStripButton.Checked ? ImageTool.Arrow : ImageTool.None);
 
@@ -648,6 +960,16 @@ namespace BetterStepsRecorder
                         _dragOperationIndex = -1;
                         _dragStartImagePoint = Point.Empty;
                         _dragCurrentImagePoint = Point.Empty;
+                    }
+
+                    // Cancel any ongoing resize operation
+                    if (_isResizingOperation)
+                    {
+                        _isResizingOperation = false;
+                        _resizeOperationIndex = -1;
+                        _activeResizeHandle = ResizeHandle.None;
+                        _resizeOriginalBounds = Rectangle.Empty;
+                        _resizeStartPoint = Point.Empty;
                     }
 
                     // Detach if already active
@@ -919,6 +1241,16 @@ namespace BetterStepsRecorder
                             // Draw black line first (background), then white dashed line (marching ants)
                             e.Graphics.DrawRectangle(blackPen, controlRect);
                             e.Graphics.DrawRectangle(whitePen, controlRect);
+
+                            // Draw resize handles if this operation supports resizing
+                            if (_selectedOperationIndex >= 0 && _selectedOperationIndex < ((RecordEvent)Listbox_Events.SelectedItem).ImageOperations.Count)
+                            {
+                                var operation = ((RecordEvent)Listbox_Events.SelectedItem).ImageOperations.Operations[_selectedOperationIndex];
+                                if (OperationSupportsResize(operation))
+                                {
+                                    DrawResizeHandles(e.Graphics, controlRect);
+                                }
+                            }
                         }
                     }
 
@@ -950,6 +1282,24 @@ namespace BetterStepsRecorder
                     }
                 }
 
+        /// <summary>
+        /// Draws resize handles around a rectangle
+        /// </summary>
+        private void DrawResizeHandles(Graphics g, Rectangle controlBounds)
+        {
+            const int handleSize = 8;
+            var handles = GetResizeHandleRectangles(controlBounds, handleSize);
+
+            using var handleBrush = new SolidBrush(Color.White);
+            using var handlePen = new Pen(Color.Black, 1f);
+
+            foreach (var handle in handles.Values)
+            {
+                g.FillRectangle(handleBrush, handle);
+                g.DrawRectangle(handlePen, handle);
+            }
+        }
+
         // ── Tool implementations ──────────────────────────────────────────────
 
         private void ShowTextInputDialog(Rectangle controlRect)
@@ -974,7 +1324,7 @@ namespace BetterStepsRecorder
             string text = tb.Text;
             Rectangle imgRect = ControlRectToImageRect(controlRect);
 
-            var textOp = new TextLabelOperation(text, imgRect);
+            var textOp = new TextLabelOperation(text, imgRect, TextInnerColor, TextOuterColor);
             ApplyOperation(textOp);
         }
 
