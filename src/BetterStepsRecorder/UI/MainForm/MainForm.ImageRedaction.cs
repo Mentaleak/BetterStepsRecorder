@@ -682,11 +682,19 @@ namespace BetterStepsRecorder
 
                     /// <summary>
                     /// Handles right-click on pictureBox to show context menu for selected operation
+                    /// or deactivate the current tool and return to selection mode
                     /// </summary>
                     private void PictureBox_MouseUp_ContextMenu(object sender, MouseEventArgs e)
                     {
                         if (e.Button != MouseButtons.Right) return;
-                        if (_activeTool != ImageTool.None) return;
+
+                        // If a tool is active, deactivate it and return to selection mode
+                        if (_activeTool != ImageTool.None)
+                        {
+                            ActivateTool(ImageTool.None);
+                            return;
+                        }
+
                         if (pictureBox1.Image == null) return;
                         if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
@@ -1139,6 +1147,13 @@ namespace BetterStepsRecorder
                     if (_canvasTextBox != null)
                     {
                         CancelCanvasTextInput();
+                    }
+
+                    // Clear edit selection when activating a tool
+                    if (tool != ImageTool.None)
+                    {
+                        listBox_Edits.ClearSelected();
+                        ClearSelectionHighlight();
                     }
 
                     // Detach if already active
@@ -1698,6 +1713,11 @@ namespace BetterStepsRecorder
         private void CancelCanvasTextInput()
         {
             if (_canvasTextBox == null) return;
+
+            // Remove event handlers first to prevent re-entry via LostFocus
+            _canvasTextBox.KeyDown -= CanvasTextBox_KeyDown;
+            _canvasTextBox.LostFocus -= CanvasTextBox_LostFocus;
+            _canvasTextBox.TextChanged -= CanvasTextBox_TextChanged;
 
             // Remove the textbox without applying
             pictureBox1.Controls.Remove(_canvasTextBox);
