@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,6 +12,50 @@ namespace BetterStepsRecorder
     public partial class MainForm
     {
         private Point _mouseDownLocationEdits;
+
+        /// <summary>
+        /// Handles the Opening event of the edits context menu to show/hide "Edit Text" item
+        /// </summary>
+        private void contextMenu_ListBox_Edits_Opening(object sender, CancelEventArgs e)
+        {
+            // Hide "Edit Text" by default
+            editTextToolStripMenuItem.Visible = false;
+
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
+            {
+                var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+                // Show "Edit Text" only for TextLabelOperation
+                editTextToolStripMenuItem.Visible = operation is TextLabelOperation;
+            }
+        }
+
+        /// <summary>
+        /// Handles the "Edit Text" context menu item click for text label edits
+        /// </summary>
+        private void editTextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
+            {
+                var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+                if (operation is TextLabelOperation)
+                {
+                    // Use the existing on-canvas text editing functionality
+                    EditExistingTextOperation(operationIndex);
+                }
+            }
+        }
 
         /// <summary>
         /// Handles key down events on the listBox_Edits

@@ -40,6 +40,7 @@
             moveDownEditToolStripMenuItem = new ToolStripMenuItem();
             moveToFrontEditToolStripMenuItem = new ToolStripMenuItem();
             sendToBackEditToolStripMenuItem = new ToolStripMenuItem();
+            editTextToolStripMenuItem = new ToolStripMenuItem();
             deleteEditToolStripMenuItem = new ToolStripMenuItem();
             contextMenu_PictureBox = new ContextMenuStrip(components);
             moveUpPictureBoxMenuItem = new ToolStripMenuItem();
@@ -164,9 +165,10 @@
             // 
             // contextMenu_ListBox_Edits
             // 
-            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, moveToFrontEditToolStripMenuItem, sendToBackEditToolStripMenuItem, deleteEditToolStripMenuItem });
+            contextMenu_ListBox_Edits.Items.AddRange(new ToolStripItem[] { moveUpEditToolStripMenuItem, moveDownEditToolStripMenuItem, moveToFrontEditToolStripMenuItem, sendToBackEditToolStripMenuItem, editTextToolStripMenuItem, deleteEditToolStripMenuItem });
             contextMenu_ListBox_Edits.Name = "contextMenu_ListBox_Edits";
-            contextMenu_ListBox_Edits.Size = new Size(172, 130);
+            contextMenu_ListBox_Edits.Size = new Size(172, 154);
+            contextMenu_ListBox_Edits.Opening += contextMenu_ListBox_Edits_Opening;
             // 
             // moveUpEditToolStripMenuItem
             // 
@@ -195,6 +197,13 @@
             sendToBackEditToolStripMenuItem.Size = new Size(171, 24);
             sendToBackEditToolStripMenuItem.Text = "Send to Back";
             sendToBackEditToolStripMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
+            // 
+            // editTextToolStripMenuItem
+            // 
+            editTextToolStripMenuItem.Name = "editTextToolStripMenuItem";
+            editTextToolStripMenuItem.Size = new Size(171, 24);
+            editTextToolStripMenuItem.Text = "Edit Text";
+            editTextToolStripMenuItem.Click += editTextToolStripMenuItem_Click;
             // 
             // deleteEditToolStripMenuItem
             // 
@@ -748,6 +757,7 @@
         private ToolStripMenuItem moveDownEditToolStripMenuItem;
         private ToolStripMenuItem moveToFrontEditToolStripMenuItem;
         private ToolStripMenuItem sendToBackEditToolStripMenuItem;
+        private ToolStripMenuItem editTextToolStripMenuItem;
         private ToolStripMenuItem deleteEditToolStripMenuItem;
         private ContextMenuStrip contextMenu_PictureBox;
         private ToolStripMenuItem moveUpPictureBoxMenuItem;

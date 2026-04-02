@@ -1437,44 +1437,53 @@ namespace BetterStepsRecorder
 
         // ── Tool implementations ──────────────────────────────────────────────
 
-        private void ShowTextInputDialog(Rectangle controlRect)
-        {
-            // Store the rectangles for later use
-            _textInputControlRect = controlRect;
-            _textInputImageRect = ControlRectToImageRect(controlRect);
-            _editingTextOperationIndex = -1; // Creating new text
+                private void ShowTextInputDialog(Rectangle controlRect)
+                {
+                    // Complete any existing canvas text input first to avoid null reference
+                    // when the focus shift triggers LostFocus on the previous text box
+                    if (_canvasTextBox != null)
+                    {
+                        // Temporarily remove the LostFocus handler to prevent re-entry issues
+                        _canvasTextBox.LostFocus -= CanvasTextBox_LostFocus;
+                        CompleteCanvasTextInput();
+                    }
 
-            // Calculate font size based on the drawn box height
-            float estimatedFontSize = Math.Clamp(controlRect.Height * 0.3f, 10f, 72f);
+                    // Store the rectangles for later use
+                    _textInputControlRect = controlRect;
+                    _textInputImageRect = ControlRectToImageRect(controlRect);
+                    _editingTextOperationIndex = -1; // Creating new text
 
-            // Use the drawn box width as initial width (or minimum 100)
-            int initialWidth = Math.Max(controlRect.Width, 100);
+                    // Calculate font size based on the drawn box height
+                    float estimatedFontSize = Math.Clamp(controlRect.Height * 0.3f, 10f, 72f);
 
-            // Create a TextBox positioned at the drawn rectangle
-            _canvasTextBox = new TextBox
-            {
-                Location = new Point(controlRect.X, controlRect.Y),
-                Size = new Size(initialWidth, Math.Max(controlRect.Height, 30)),
-                Font = new Font("Segoe UI", estimatedFontSize, FontStyle.Bold),
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = Color.FromArgb(255, 50, 50, 50),
-                ForeColor = TextInnerColor,
-                Multiline = false,
-                Text = "",
-                Tag = "CanvasTextInput" // Tag to identify it
-            };
+                    // Use the drawn box width as initial width (or minimum 100)
+                    int initialWidth = Math.Max(controlRect.Width, 100);
 
-            // Add event handlers
-            _canvasTextBox.KeyDown += CanvasTextBox_KeyDown;
-            _canvasTextBox.LostFocus += CanvasTextBox_LostFocus;
-            _canvasTextBox.TextChanged += CanvasTextBox_TextChanged;
+                    // Create a TextBox positioned at the drawn rectangle
+                    _canvasTextBox = new TextBox
+                    {
+                        Location = new Point(controlRect.X, controlRect.Y),
+                        Size = new Size(initialWidth, Math.Max(controlRect.Height, 30)),
+                        Font = new Font("Segoe UI", estimatedFontSize, FontStyle.Bold),
+                        BorderStyle = BorderStyle.FixedSingle,
+                        BackColor = Color.FromArgb(255, 50, 50, 50),
+                        ForeColor = TextInnerColor,
+                        Multiline = false,
+                        Text = "",
+                        Tag = "CanvasTextInput" // Tag to identify it
+                    };
 
-            // Add to pictureBox and focus it
-            pictureBox1.Controls.Add(_canvasTextBox);
-            _canvasTextBox.BringToFront();
-            _canvasTextBox.Focus();
-            _canvasTextBox.SelectAll();
-        }
+                    // Add event handlers
+                    _canvasTextBox.KeyDown += CanvasTextBox_KeyDown;
+                    _canvasTextBox.LostFocus += CanvasTextBox_LostFocus;
+                    _canvasTextBox.TextChanged += CanvasTextBox_TextChanged;
+
+                    // Add to pictureBox and focus it
+                    pictureBox1.Controls.Add(_canvasTextBox);
+                    _canvasTextBox.BringToFront();
+                    _canvasTextBox.Focus();
+                    _canvasTextBox.SelectAll();
+                }
 
         /// <summary>
         /// Starts editing an existing text operation
@@ -1486,6 +1495,15 @@ namespace BetterStepsRecorder
 
             var operation = selectedEvent.ImageOperations.Operations[operationIndex];
             if (!(operation is TextLabelOperation textOp)) return;
+
+            // Complete any existing canvas text input first to avoid null reference
+            // when the focus shift triggers LostFocus on the previous text box
+            if (_canvasTextBox != null)
+            {
+                // Temporarily remove the LostFocus handler to prevent re-entry issues
+                _canvasTextBox.LostFocus -= CanvasTextBox_LostFocus;
+                CompleteCanvasTextInput();
+            }
 
             // Store the operation we're editing
             _editingTextOperationIndex = operationIndex;
