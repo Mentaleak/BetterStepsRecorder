@@ -98,6 +98,9 @@ namespace BetterStepsRecorder
             pictureBox1.MouseUp += PictureBox_MouseUp_ContextMenu;
             pictureBox1.MouseLeave += PictureBox_SelectionMouseLeave;
             pictureBox1.KeyDown += PictureBox_KeyDown;
+
+            // Register global hotkeys
+            RegisterGlobalHotkeys();
         }
 
 
@@ -121,6 +124,9 @@ namespace BetterStepsRecorder
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Unregister global hotkeys
+            UnregisterGlobalHotkeys();
+
             Program.SaveRecordEvents();
         }
 
@@ -130,6 +136,9 @@ namespace BetterStepsRecorder
             {
                 settingsForm.ShowDialog(this);
             }
+
+            // Refresh hotkeys in case they were changed
+            RefreshGlobalHotkeys();
         }
     }
 }
