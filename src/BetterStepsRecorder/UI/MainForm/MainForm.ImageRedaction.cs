@@ -956,14 +956,52 @@ namespace BetterStepsRecorder
         {
             using var dlg = new ColorDialog { Color = Color.FromArgb(255, HighlightColor), FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
                 HighlightColor = Color.FromArgb(160, dlg.Color.R, dlg.Color.G, dlg.Color.B);
+
+                // Update selected highlight if one is selected
+                if (_selectedOperationIndex >= 0 && Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                {
+                    if (_selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                    {
+                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                        if (operation is HighlightOperation highlightOp)
+                        {
+                            highlightOp.Color = Color.FromArgb(160, dlg.Color.R, dlg.Color.G, dlg.Color.B);
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                            activityTimer.Stop();
+                            activityTimer.Start();
+                        }
+                    }
+                }
+            }
         }
 
         private void arrowColourToolStripButton_Click(object sender, EventArgs e)
         {
             using var dlg = new ColorDialog { Color = ArrowColor, FullOpen = true };
             if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
                 ArrowColor = dlg.Color;
+
+                // Update selected arrow if one is selected
+                if (_selectedOperationIndex >= 0 && Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                {
+                    if (_selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                    {
+                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                        if (operation is ArrowOperation arrowOp)
+                        {
+                            arrowOp.Color = dlg.Color;
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                            activityTimer.Stop();
+                            activityTimer.Start();
+                        }
+                    }
+                }
+            }
         }
 
         private void textLabelToolStripButton_Click(object sender, EventArgs e)
