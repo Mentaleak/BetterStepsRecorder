@@ -47,6 +47,7 @@
             moveDownPictureBoxMenuItem = new ToolStripMenuItem();
             moveToFrontPictureBoxMenuItem = new ToolStripMenuItem();
             sendToBackPictureBoxMenuItem = new ToolStripMenuItem();
+            editTextPictureBoxMenuItem = new ToolStripMenuItem();
             deletePictureBoxMenuItem = new ToolStripMenuItem();
             propertyGrid_RecordEvent = new PropertyGrid();
             splitContainer1 = new SplitContainer();
@@ -214,9 +215,10 @@
             // 
             // contextMenu_PictureBox
             // 
-            contextMenu_PictureBox.Items.AddRange(new ToolStripItem[] { moveUpPictureBoxMenuItem, moveDownPictureBoxMenuItem, moveToFrontPictureBoxMenuItem, sendToBackPictureBoxMenuItem, deletePictureBoxMenuItem });
+            contextMenu_PictureBox.Items.AddRange(new ToolStripItem[] { moveUpPictureBoxMenuItem, moveDownPictureBoxMenuItem, moveToFrontPictureBoxMenuItem, sendToBackPictureBoxMenuItem, editTextPictureBoxMenuItem, deletePictureBoxMenuItem });
             contextMenu_PictureBox.Name = "contextMenu_PictureBox";
-            contextMenu_PictureBox.Size = new Size(172, 130);
+            contextMenu_PictureBox.Size = new Size(172, 154);
+            contextMenu_PictureBox.Opening += contextMenu_PictureBox_Opening;
             // 
             // moveUpPictureBoxMenuItem
             // 
@@ -245,6 +247,13 @@
             sendToBackPictureBoxMenuItem.Size = new Size(171, 24);
             sendToBackPictureBoxMenuItem.Text = "Send to Back";
             sendToBackPictureBoxMenuItem.Click += sendToBackEditToolStripMenuItem_Click;
+            // 
+            // editTextPictureBoxMenuItem
+            // 
+            editTextPictureBoxMenuItem.Name = "editTextPictureBoxMenuItem";
+            editTextPictureBoxMenuItem.Size = new Size(171, 24);
+            editTextPictureBoxMenuItem.Text = "Edit Text";
+            editTextPictureBoxMenuItem.Click += editTextPictureBoxMenuItem_Click;
             // 
             // deletePictureBoxMenuItem
             // 
@@ -764,6 +773,7 @@
         private ToolStripMenuItem moveDownPictureBoxMenuItem;
         private ToolStripMenuItem moveToFrontPictureBoxMenuItem;
         private ToolStripMenuItem sendToBackPictureBoxMenuItem;
+        private ToolStripMenuItem editTextPictureBoxMenuItem;
         private ToolStripMenuItem deletePictureBoxMenuItem;
         private ToolStripMenuItem toolStripMenuItem1_SaveAs;
         private ToolStripSeparator toolStripSeparator1;

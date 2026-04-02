@@ -705,6 +705,44 @@ namespace BetterStepsRecorder
                                 }
 
                                 /// <summary>
+                                /// Handles the Opening event of the PictureBox context menu to show/hide "Edit Text" item
+                                /// </summary>
+                                private void contextMenu_PictureBox_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+                                {
+                                    // Hide "Edit Text" by default
+                                    editTextPictureBoxMenuItem.Visible = false;
+
+                                    if (_selectedOperationIndex < 0) return;
+                                    if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+                                    if (_selectedOperationIndex >= 0 && _selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                                    {
+                                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                                        // Show "Edit Text" only for TextLabelOperation
+                                        editTextPictureBoxMenuItem.Visible = operation is TextLabelOperation;
+                                    }
+                                }
+
+                                /// <summary>
+                                /// Handles the "Edit Text" context menu item click for text label edits on the PictureBox
+                                /// </summary>
+                                private void editTextPictureBoxMenuItem_Click(object sender, EventArgs e)
+                                {
+                                    if (_selectedOperationIndex < 0) return;
+                                    if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+                                    if (_selectedOperationIndex >= 0 && _selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                                    {
+                                        var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                                        if (operation is TextLabelOperation)
+                                        {
+                                            // Use the existing on-canvas text editing functionality
+                                            EditExistingTextOperation(_selectedOperationIndex);
+                                        }
+                                    }
+                                }
+
+                                /// <summary>
                                 /// Handles key down on pictureBox to delete selected operation
                                 /// </summary>
                                 private void PictureBox_KeyDown(object sender, KeyEventArgs e)
