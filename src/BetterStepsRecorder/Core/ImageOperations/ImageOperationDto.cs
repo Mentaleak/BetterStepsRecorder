@@ -94,7 +94,8 @@ namespace BetterStepsRecorder.Core.ImageOperations
                         text.FontSize,
                         InnerColor = text.InnerColor.ToArgb(),
                         OuterColor = text.OuterColor.ToArgb(),
-                        text.OutlineWidth
+                        text.OutlineWidth,
+                        text.InitialRegionHeight
                     });
                     break;
 
@@ -202,7 +203,10 @@ namespace BetterStepsRecorder.Core.ImageOperations
                             : Color.Black),
                     OutlineWidth = Parameters.Value.TryGetProperty("OutlineWidth", out var widthProp) 
                         ? widthProp.GetSingle() 
-                        : 3f
+                        : 3f,
+                    InitialRegionHeight = Parameters.Value.TryGetProperty("InitialRegionHeight", out var initialHeightProp)
+                        ? initialHeightProp.GetInt32()
+                        : Parameters.Value.GetProperty("Height").GetInt32() // Use current height as fallback for old files
                 },
 
                 "Crop" => new CropOperation

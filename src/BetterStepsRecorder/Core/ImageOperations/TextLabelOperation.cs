@@ -18,6 +18,9 @@ namespace BetterStepsRecorder.Core.ImageOperations
         public string FontFamily { get; set; } = "Segoe UI";
         public float OutlineWidth { get; set; } = 3f;
 
+        // Store initial region height to maintain scaling ratio
+        public int InitialRegionHeight { get; set; }
+
         public override string Description => "Text Label";
 
         public TextLabelOperation() { }
@@ -26,6 +29,18 @@ namespace BetterStepsRecorder.Core.ImageOperations
         {
             Text = text;
             Region = region;
+            InitialRegionHeight = region.Height > 0 ? region.Height : 30; // Default to 30 if region height is 0
+
+            // Calculate font size to fit the initial box height
+            // Use approximately 50% of box height for font size to leave room for padding and outline
+            // Minimum font size of 8pt, maximum of 200pt for reasonable bounds
+            if (region.Height > 0)
+            {
+                FontSize = Math.Clamp(region.Height * 0.5f, 8f, 200f);
+                // Scale outline width proportionally to font size (roughly 15-20% of font size)
+                OutlineWidth = Math.Clamp(FontSize * 0.15f, 2f, 10f);
+            }
+
             if (innerColor.HasValue) InnerColor = innerColor.Value;
             if (outerColor.HasValue) OuterColor = outerColor.Value;
         }
@@ -39,15 +54,22 @@ namespace BetterStepsRecorder.Core.ImageOperations
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
 
-            using (var font = new Font(FontFamily, FontSize, FontStyle.Bold))
+            // Calculate scaled font size based on region height change
+            float scaleFactor = InitialRegionHeight > 0 ? (float)Region.Height / InitialRegionHeight : 1f;
+            float scaledFontSize = Math.Max(4f, FontSize * scaleFactor); // Minimum font size of 4
+
+            // Also scale outline width proportionally
+            float scaledOutlineWidth = Math.Max(1f, OutlineWidth * scaleFactor);
+
+            using (var font = new Font(FontFamily, scaledFontSize, FontStyle.Bold))
             using (var path = new GraphicsPath())
             {
                 path.AddString(Text, font.FontFamily, (int)FontStyle.Bold, 
-                    g.DpiY * FontSize / 72, new PointF(Region.X + 6, Region.Y + 3), 
+                    g.DpiY * scaledFontSize / 72, new PointF(Region.X + 6, Region.Y + 3), 
                     StringFormat.GenericDefault);
 
                 // Draw outer border/glow
-                using (var outlinePen = new Pen(OuterColor, OutlineWidth))
+                using (var outlinePen = new Pen(OuterColor, scaledOutlineWidth))
                 {
                     outlinePen.LineJoin = LineJoin.Round;
                     g.DrawPath(outlinePen, path);
@@ -69,7 +91,8 @@ namespace BetterStepsRecorder.Core.ImageOperations
                 CreatedAt = this.CreatedAt,
                 FontSize = this.FontSize,
                 FontFamily = this.FontFamily,
-                OutlineWidth = this.OutlineWidth
+                OutlineWidth = this.OutlineWidth,
+                InitialRegionHeight = this.InitialRegionHeight
             };
         }
     }
