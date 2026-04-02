@@ -652,13 +652,16 @@ namespace BetterStepsRecorder
 
             // Refresh UI
             RefreshOperationsListBox();
-            if (listBox_Edits.SelectedIndex >= 0)
+
+            // Restore the listbox selection using _selectedOperationIndex (which persists across refresh)
+            if (_selectedOperationIndex >= 0 && _selectedOperationIndex < selectedEvent.ImageOperations.Count)
             {
-                int opIndex = VisualIndexToOperationIndex(listBox_Edits.SelectedIndex, selectedEvent.ImageOperations.Count);
-                if (opIndex >= 0)
+                int visualIndex = OperationIndexToVisualIndex(_selectedOperationIndex, selectedEvent.ImageOperations.Count);
+                if (visualIndex >= 0 && visualIndex < listBox_Edits.Items.Count)
                 {
-                    UpdateSelectionHighlightBounds(selectedEvent, opIndex);
+                    listBox_Edits.SelectedIndex = visualIndex;
                 }
+                UpdateSelectionHighlightBounds(selectedEvent, _selectedOperationIndex);
             }
             pictureBox1.Invalidate();
 
