@@ -21,7 +21,9 @@ namespace BetterStepsRecorder.Core.ImageOperations
         // Store initial region height to maintain scaling ratio
         public int InitialRegionHeight { get; set; }
 
-        public override string Description => "Text Label";
+        public override string Description => string.IsNullOrWhiteSpace(Text) 
+            ? "Text Label" 
+            : $"Text Label ({Text})";
 
         public TextLabelOperation() { }
 
