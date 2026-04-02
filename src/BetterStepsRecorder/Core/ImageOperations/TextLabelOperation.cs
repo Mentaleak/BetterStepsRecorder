@@ -61,6 +61,24 @@ namespace BetterStepsRecorder.Core.ImageOperations
             // Also scale outline width proportionally
             float scaledOutlineWidth = Math.Max(1f, OutlineWidth * scaleFactor);
 
+            // Calculate available width (with padding for outline and margins)
+            float availableWidth = Region.Width - 12f; // 6px padding on left, 6px on right (approximate for outline)
+            if (availableWidth < 10f) availableWidth = 10f; // Minimum reasonable width
+
+            // Measure text at the calculated font size and scale down if it doesn't fit
+            using (var testFont = new Font(FontFamily, scaledFontSize, FontStyle.Bold))
+            {
+                var textSize = g.MeasureString(Text, testFont);
+
+                // If text is too wide, scale down the font size proportionally
+                if (textSize.Width > availableWidth)
+                {
+                    float widthScaleFactor = availableWidth / textSize.Width;
+                    scaledFontSize = Math.Max(4f, scaledFontSize * widthScaleFactor);
+                    scaledOutlineWidth = Math.Max(1f, scaledOutlineWidth * widthScaleFactor);
+                }
+            }
+
             using (var font = new Font(FontFamily, scaledFontSize, FontStyle.Bold))
             using (var path = new GraphicsPath())
             {

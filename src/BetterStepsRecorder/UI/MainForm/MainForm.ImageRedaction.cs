@@ -18,6 +18,7 @@ namespace BetterStepsRecorder
         // Shared drawing state (rect-based tools)
         private bool    _toolDrawing  = false;
         private bool    _applyingOperation = false; // Guard against re-entry during operation application
+        private bool    _completingTextInput = false; // Guard against re-entry during text input completion
         private Point   _toolStart;
         private Point   _toolCurrent;
         private Rectangle _toolRect;
@@ -58,6 +59,12 @@ namespace BetterStepsRecorder
         // Arrow tool: two endpoints
         private Point _arrowStart;
         private Point _arrowEnd;
+
+        // Text input state (on-canvas editing)
+        private TextBox _canvasTextBox = null;
+        private Rectangle _textInputControlRect = Rectangle.Empty;
+        private Rectangle _textInputImageRect = Rectangle.Empty;
+        private int _editingTextOperationIndex = -1; // -1 for new, >= 0 for editing existing
 
         // Highlight colour (user-configurable via toolbar button)
         public static Color HighlightColor { get; set; } = Color.FromArgb(160, 255, 255, 0);
@@ -396,17 +403,31 @@ namespace BetterStepsRecorder
             int half = handleSize / 2;
             var handles = new Dictionary<ResizeHandle, Rectangle>();
 
-            // Corner handles
+            // Corner handles (always included)
             handles[ResizeHandle.TopLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Top - half, handleSize, handleSize);
             handles[ResizeHandle.TopRight] = new Rectangle(controlBounds.Right - half, controlBounds.Top - half, handleSize, handleSize);
             handles[ResizeHandle.BottomLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Bottom - half, handleSize, handleSize);
             handles[ResizeHandle.BottomRight] = new Rectangle(controlBounds.Right - half, controlBounds.Bottom - half, handleSize, handleSize);
 
-            // Edge handles
-            handles[ResizeHandle.TopCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Top - half, handleSize, handleSize);
-            handles[ResizeHandle.BottomCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Bottom - half, handleSize, handleSize);
-            handles[ResizeHandle.MiddleLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
-            handles[ResizeHandle.MiddleRight] = new Rectangle(controlBounds.Right - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
+            // Edge handles (only for non-text operations)
+            // Check if the currently selected operation is a text operation
+            bool isTextOperation = false;
+            if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+            {
+                if (_selectedOperationIndex >= 0 && _selectedOperationIndex < selectedEvent.ImageOperations.Count)
+                {
+                    isTextOperation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex] is TextLabelOperation;
+                }
+            }
+
+            // Only add edge handles for non-text operations
+            if (!isTextOperation)
+            {
+                handles[ResizeHandle.TopCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Top - half, handleSize, handleSize);
+                handles[ResizeHandle.BottomCenter] = new Rectangle(controlBounds.Left + controlBounds.Width / 2 - half, controlBounds.Bottom - half, handleSize, handleSize);
+                handles[ResizeHandle.MiddleLeft] = new Rectangle(controlBounds.Left - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
+                handles[ResizeHandle.MiddleRight] = new Rectangle(controlBounds.Right - half, controlBounds.Top + controlBounds.Height / 2 - half, handleSize, handleSize);
+            }
 
             return handles;
         }
@@ -696,6 +717,31 @@ namespace BetterStepsRecorder
                                 }
 
                                 /// <summary>
+                                /// Handles double-click on pictureBox to edit text operations
+                                /// </summary>
+                                private void PictureBox_SelectionDoubleClick(object sender, EventArgs e)
+                                {
+                                    if (_activeTool != ImageTool.None) return;
+                                    if (pictureBox1.Image == null) return;
+                                    if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+                                    // Get mouse position from the last known location
+                                    Point mousePos = pictureBox1.PointToClient(Cursor.Position);
+                                    int operationIndex = FindOperationAtPoint(mousePos, selectedEvent);
+
+                                    if (operationIndex >= 0 && operationIndex < selectedEvent.ImageOperations.Count)
+                                    {
+                                        var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+                                        // If it's a text operation, enter edit mode
+                                        if (operation is TextLabelOperation)
+                                        {
+                                            EditExistingTextOperation(operationIndex);
+                                        }
+                                    }
+                                }
+
+                                /// <summary>
                                 /// Updates an operation's position during drag
                                 /// </summary>
                                 private void UpdateOperationPositionDuringDrag(RecordEvent selectedEvent, int operationIndex, Point startImagePoint, Point currentImagePoint)
@@ -972,6 +1018,12 @@ namespace BetterStepsRecorder
                         _resizeStartPoint = Point.Empty;
                     }
 
+                    // Cancel any ongoing canvas text input
+                    if (_canvasTextBox != null)
+                    {
+                        CancelCanvasTextInput();
+                    }
+
                     // Detach if already active
                     if (_activeTool != ImageTool.None)
                         DetachToolHandlers();
@@ -1045,6 +1097,13 @@ namespace BetterStepsRecorder
                 _activeTool = ImageTool.None;
                 UncheckAllToolButtons();
             }
+
+            // Cancel any ongoing canvas text input
+            if (_canvasTextBox != null)
+            {
+                CancelCanvasTextInput();
+            }
+
             undoToolStripButton.Enabled = false;
             RefreshUndoListBox();
         }
@@ -1304,28 +1363,219 @@ namespace BetterStepsRecorder
 
         private void ShowTextInputDialog(Rectangle controlRect)
         {
-            using var dlg = new Form
+            // Store the rectangles for later use
+            _textInputControlRect = controlRect;
+            _textInputImageRect = ControlRectToImageRect(controlRect);
+            _editingTextOperationIndex = -1; // Creating new text
+
+            // Calculate font size based on the drawn box height
+            float estimatedFontSize = Math.Clamp(controlRect.Height * 0.3f, 10f, 72f);
+
+            // Use the drawn box width as initial width (or minimum 100)
+            int initialWidth = Math.Max(controlRect.Width, 100);
+
+            // Create a TextBox positioned at the drawn rectangle
+            _canvasTextBox = new TextBox
             {
-                Text = "Add Text Label",
-                Size = new Size(340, 160),
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                StartPosition = FormStartPosition.CenterParent,
-                MaximizeBox = false, MinimizeBox = false
+                Location = new Point(controlRect.X, controlRect.Y),
+                Size = new Size(initialWidth, Math.Max(controlRect.Height, 30)),
+                Font = new Font("Segoe UI", estimatedFontSize, FontStyle.Bold),
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.FromArgb(255, 50, 50, 50),
+                ForeColor = TextInnerColor,
+                Multiline = false,
+                Text = "",
+                Tag = "CanvasTextInput" // Tag to identify it
             };
-            var tb = new TextBox { Dock = DockStyle.Top, Margin = new Padding(8), Font = new Font("Segoe UI", 11) };
-            var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, Dock = DockStyle.Bottom };
-            var cancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Dock = DockStyle.Bottom };
-            dlg.Controls.AddRange(new Control[] { ok, cancel, tb });
-            dlg.AcceptButton = ok;
-            dlg.CancelButton = cancel;
 
-            if (dlg.ShowDialog(this) != DialogResult.OK || string.IsNullOrWhiteSpace(tb.Text)) return;
+            // Add event handlers
+            _canvasTextBox.KeyDown += CanvasTextBox_KeyDown;
+            _canvasTextBox.LostFocus += CanvasTextBox_LostFocus;
+            _canvasTextBox.TextChanged += CanvasTextBox_TextChanged;
 
-            string text = tb.Text;
-            Rectangle imgRect = ControlRectToImageRect(controlRect);
+            // Add to pictureBox and focus it
+            pictureBox1.Controls.Add(_canvasTextBox);
+            _canvasTextBox.BringToFront();
+            _canvasTextBox.Focus();
+            _canvasTextBox.SelectAll();
+        }
 
-            var textOp = new TextLabelOperation(text, imgRect, TextInnerColor, TextOuterColor);
-            ApplyOperation(textOp);
+        /// <summary>
+        /// Starts editing an existing text operation
+        /// </summary>
+        private void EditExistingTextOperation(int operationIndex)
+        {
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+            if (!(operation is TextLabelOperation textOp)) return;
+
+            // Store the operation we're editing
+            _editingTextOperationIndex = operationIndex;
+
+            // Get the adjusted bounds in image space
+            Rectangle imageBounds = GetAdjustedBounds(textOp.Region, selectedEvent, operationIndex);
+
+            // Convert to control space
+            Rectangle controlBounds = ImageRectToControlRect(imageBounds);
+            _textInputControlRect = controlBounds;
+            _textInputImageRect = imageBounds;
+
+            // Calculate font size based on the control bounds height
+            float estimatedFontSize = Math.Clamp(controlBounds.Height * 0.3f, 10f, 72f);
+
+            // Use the operation's width as initial width (or minimum 100)
+            int initialWidth = Math.Max(controlBounds.Width, 100);
+
+            // Create a TextBox positioned at the operation's location
+            _canvasTextBox = new TextBox
+            {
+                Location = new Point(controlBounds.X, controlBounds.Y),
+                Size = new Size(initialWidth, Math.Max(controlBounds.Height, 30)),
+                Font = new Font("Segoe UI", estimatedFontSize, FontStyle.Bold),
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.FromArgb(255, 50, 50, 50),
+                ForeColor = TextInnerColor,
+                Multiline = false,
+                Text = textOp.Text, // Pre-populate with existing text
+                Tag = "CanvasTextInput"
+            };
+
+            // Add event handlers
+            _canvasTextBox.KeyDown += CanvasTextBox_KeyDown;
+            _canvasTextBox.LostFocus += CanvasTextBox_LostFocus;
+            _canvasTextBox.TextChanged += CanvasTextBox_TextChanged;
+
+            // Add to pictureBox and focus it
+            pictureBox1.Controls.Add(_canvasTextBox);
+            _canvasTextBox.BringToFront();
+            _canvasTextBox.Focus();
+            _canvasTextBox.SelectAll();
+
+            // Trigger TextChanged to size the box for existing text
+            CanvasTextBox_TextChanged(_canvasTextBox, EventArgs.Empty);
+        }
+
+        private void CanvasTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                CompleteCanvasTextInput();
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                CancelCanvasTextInput();
+            }
+        }
+
+        private void CanvasTextBox_LostFocus(object sender, EventArgs e)
+        {
+            // Complete input when clicking away
+            CompleteCanvasTextInput();
+        }
+
+        private void CanvasTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (_canvasTextBox == null) return;
+
+            // Keep width constrained to the originally drawn rectangle
+            // Text should fit within the drawn bounds, not expand beyond them
+            int fixedWidth = Math.Max(_textInputControlRect.Width, 100);
+            _canvasTextBox.Width = fixedWidth;
+        }
+
+        private void CompleteCanvasTextInput()
+        {
+            if (_canvasTextBox == null) return;
+            if (_completingTextInput) return; // Prevent re-entry
+
+            _completingTextInput = true;
+            try
+            {
+                string text = _canvasTextBox.Text;
+
+                // Use the original drawn rectangle (not the TextBox size)
+                // to ensure the operation region matches what was drawn
+                Rectangle finalImageRect = _textInputImageRect;
+
+                // Remove the textbox
+                pictureBox1.Controls.Remove(_canvasTextBox);
+                _canvasTextBox.Dispose();
+                _canvasTextBox = null;
+
+                // Apply the text operation if text was entered
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+                    if (_editingTextOperationIndex >= 0 && _editingTextOperationIndex < selectedEvent.ImageOperations.Count)
+                    {
+                        // Editing existing text - update text but keep the original region
+                        var operation = selectedEvent.ImageOperations.Operations[_editingTextOperationIndex];
+                        if (operation is TextLabelOperation textOp)
+                        {
+                            textOp.Text = text;
+                            // Keep the original region - don't update it
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                        }
+                    }
+                    else
+                    {
+                        // Creating new text - use the originally drawn rectangle
+                        var textOp = new TextLabelOperation(text, finalImageRect, TextInnerColor, TextOuterColor);
+                        ApplyOperation(textOp);
+                    }
+                }
+                else if (_editingTextOperationIndex >= 0)
+                {
+                    // If editing and text is empty, remove the operation
+                    if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+                    {
+                        if (_editingTextOperationIndex < selectedEvent.ImageOperations.Count)
+                        {
+                            selectedEvent.ImageOperations.RemoveOperationAt(_editingTextOperationIndex);
+                            RebuildImageFromOperations(selectedEvent);
+                            RefreshOperationsListBox();
+                        }
+                    }
+                }
+
+                // Clear state
+                _textInputControlRect = Rectangle.Empty;
+                _textInputImageRect = Rectangle.Empty;
+                _editingTextOperationIndex = -1;
+
+                // Refocus the picture box
+                pictureBox1.Focus();
+            }
+            finally
+            {
+                _completingTextInput = false;
+            }
+        }
+
+        private void CancelCanvasTextInput()
+        {
+            if (_canvasTextBox == null) return;
+
+            // Remove the textbox without applying
+            pictureBox1.Controls.Remove(_canvasTextBox);
+            _canvasTextBox.Dispose();
+            _canvasTextBox = null;
+
+            // Clear state
+            _textInputControlRect = Rectangle.Empty;
+            _textInputImageRect = Rectangle.Empty;
+            _editingTextOperationIndex = -1;
+
+            // Refocus the picture box
+            pictureBox1.Focus();
         }
 
         private static void ApplyHighlight(Bitmap bmp, Rectangle rect)
@@ -1666,8 +1916,9 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
-        /// Handles double-click on operations listbox to restore to that specific state.
-        /// Double-clicking removes all operations ABOVE the selected one (newer operations).
+        /// Handles double-click on operations listbox to restore to that specific state or edit text operations.
+        /// For text operations: opens edit mode
+        /// For other operations: removes all operations ABOVE the selected one (newer operations).
         /// </summary>
         private void listBox_Edits_DoubleClick(object sender, EventArgs e)
         {
@@ -1678,7 +1929,16 @@ namespace BetterStepsRecorder
             int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
             if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
 
-            // Remove all operations after the selected one (visually above = newer = higher index)
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // If it's a text operation, enter edit mode
+            if (operation is TextLabelOperation)
+            {
+                EditExistingTextOperation(operationIndex);
+                return;
+            }
+
+            // For non-text operations, remove all operations after the selected one (visually above = newer = higher index)
             int operationsToRemove = selectedEvent.ImageOperations.Count - 1 - operationIndex;
             for (int i = 0; i < operationsToRemove; i++)
             {
