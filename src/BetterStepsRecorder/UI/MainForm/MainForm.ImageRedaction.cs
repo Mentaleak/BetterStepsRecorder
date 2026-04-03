@@ -857,12 +857,13 @@ namespace BetterStepsRecorder
                                 }
 
                                 /// <summary>
-                                /// Handles the Opening event of the PictureBox context menu to show/hide "Edit Text" item
+                                /// Handles the Opening event of the PictureBox context menu to show/hide "Edit Text" and "Merge" items
                                 /// </summary>
                                 private void contextMenu_PictureBox_Opening(object sender, System.ComponentModel.CancelEventArgs e)
                                 {
-                                    // Hide "Edit Text" by default
+                                    // Hide conditional items by default
                                     editTextPictureBoxMenuItem.Visible = false;
+                                    mergePictureBoxMenuItem.Visible = false;
 
                                     if (_selectedOperationIndex < 0) return;
                                     if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
@@ -872,6 +873,8 @@ namespace BetterStepsRecorder
                                         var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
                                         // Show "Edit Text" only for TextLabelOperation
                                         editTextPictureBoxMenuItem.Visible = operation is TextLabelOperation;
+                                        // Show "Merge to Image" for Blur and Crop operations (to permanently apply and hide from undo)
+                                        mergePictureBoxMenuItem.Visible = operation is BlurOperation || operation is CropOperation;
                                     }
                                 }
 

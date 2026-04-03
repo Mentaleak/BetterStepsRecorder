@@ -14,12 +14,13 @@ namespace BetterStepsRecorder
         private Point _mouseDownLocationEdits;
 
         /// <summary>
-        /// Handles the Opening event of the edits context menu to show/hide "Edit Text" item
+        /// Handles the Opening event of the edits context menu to show/hide "Edit Text" and "Merge" items
         /// </summary>
         private void contextMenu_ListBox_Edits_Opening(object sender, CancelEventArgs e)
         {
-            // Hide "Edit Text" by default
+            // Hide conditional items by default
             editTextToolStripMenuItem.Visible = false;
+            mergeEditToolStripMenuItem.Visible = false;
 
             if (listBox_Edits.SelectedIndex < 0) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
@@ -32,6 +33,8 @@ namespace BetterStepsRecorder
                 var operation = selectedEvent.ImageOperations.Operations[operationIndex];
                 // Show "Edit Text" only for TextLabelOperation
                 editTextToolStripMenuItem.Visible = operation is TextLabelOperation;
+                // Show "Merge to Image" for Blur and Crop operations (to permanently apply and hide from undo)
+                mergeEditToolStripMenuItem.Visible = operation is BlurOperation || operation is CropOperation;
             }
         }
 
@@ -55,6 +58,144 @@ namespace BetterStepsRecorder
                     EditExistingTextOperation(operationIndex);
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles the "Merge to Image" context menu item click.
+        /// This permanently applies operations up to and including the selected one to the base screenshot,
+        /// making them irreversible. Useful for hiding confidential information even within save files.
+        /// </summary>
+        private void mergeEditToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (listBox_Edits.SelectedIndex < 0) return;
+            if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
+
+            int visualIndex = listBox_Edits.SelectedIndex;
+            int operationIndex = VisualIndexToOperationIndex(visualIndex, selectedEvent.ImageOperations.Count);
+
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // Only allow merge for Blur and Crop operations
+            if (!(operation is BlurOperation || operation is CropOperation)) return;
+
+            // Confirm with user since this is irreversible
+            var result = MessageBox.Show(
+                "This will permanently merge all operations up to and including this one into the base image.\n\n" +
+                "This action cannot be undone and the original image data will be lost.\n\n" +
+                "This is useful for permanently hiding confidential information.\n\n" +
+                "Continue?",
+                "Merge to Image",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (result != DialogResult.Yes) return;
+
+            MergeOperationsToBase(selectedEvent, operationIndex);
+        }
+
+        /// <summary>
+        /// Merges all operations up to and including the specified index into the base screenshot.
+        /// This permanently applies the operations and removes them from the operations list.
+        /// </summary>
+        private void MergeOperationsToBase(RecordEvent selectedEvent, int upToIndex)
+        {
+            // Get the base screenshot - check spool path first, then base64, then current screenshot
+            byte[]? baseBytes = null;
+
+            // Try spool path first (runtime)
+            if (!string.IsNullOrEmpty(selectedEvent.BaseScreenshotSpoolPath) &&
+                File.Exists(selectedEvent.BaseScreenshotSpoolPath))
+            {
+                baseBytes = File.ReadAllBytes(selectedEvent.BaseScreenshotSpoolPath);
+            }
+            // Then try base64 (from saved file)
+            else if (!string.IsNullOrEmpty(selectedEvent.BaseScreenshotb64))
+            {
+                baseBytes = Convert.FromBase64String(selectedEvent.BaseScreenshotb64);
+            }
+            // Finally fall back to current screenshot
+            else
+            {
+                baseBytes = Program.GetScreenshotBytes(selectedEvent);
+            }
+
+            if (baseBytes == null || baseBytes.Length == 0) return;
+
+            // Load the base image
+            using var baseMs = new MemoryStream(baseBytes);
+            using var baseImage = new Bitmap(baseMs);
+
+            // Apply operations 0 through upToIndex to the base image
+            Bitmap currentImage = new Bitmap(baseImage);
+            for (int i = 0; i <= upToIndex; i++)
+            {
+                var op = selectedEvent.ImageOperations.Operations[i];
+                op.Apply(currentImage);
+
+                // For crop operations, we need to extract the cropped region
+                if (op is CropOperation cropOp)
+                {
+                    var croppedImage = currentImage.Clone(cropOp.Region, currentImage.PixelFormat);
+                    currentImage.Dispose();
+                    currentImage = new Bitmap(croppedImage);
+                    croppedImage.Dispose();
+                }
+            }
+
+            // Save the merged image bytes
+            byte[] mergedBytes;
+            using (var resultMs = new MemoryStream())
+            {
+                currentImage.Save(resultMs, ImageFormat.Png);
+                mergedBytes = resultMs.ToArray();
+            }
+
+            // Update the base screenshot - both the spool file and the base64 property
+            // Update spool file if it exists
+            if (!string.IsNullOrEmpty(selectedEvent.BaseScreenshotSpoolPath))
+            {
+                try
+                {
+                    File.WriteAllBytes(selectedEvent.BaseScreenshotSpoolPath, mergedBytes);
+                }
+                catch
+                {
+                    // If spool write fails, fall back to base64 only
+                }
+            }
+            else
+            {
+                // Try to create a new spool file
+                string? newSpoolPath = Program.SpoolBaseScreenshot(mergedBytes, selectedEvent.ID);
+                if (newSpoolPath != null)
+                {
+                    selectedEvent.BaseScreenshotSpoolPath = newSpoolPath;
+                }
+            }
+
+            // Always update the base64 property (for save files)
+            selectedEvent.BaseScreenshotb64 = Convert.ToBase64String(mergedBytes);
+
+            // Remove the merged operations from the list (remove from end to start to maintain indices)
+            for (int i = upToIndex; i >= 0; i--)
+            {
+                selectedEvent.ImageOperations.RemoveOperationAt(i);
+            }
+
+            // Rebuild the image with remaining operations (if any)
+            RebuildImageFromOperations(selectedEvent);
+
+            // Refresh the UI
+            RefreshOperationsListBox();
+            ClearSelectionHighlight();
+
+            // Clean up
+            currentImage.Dispose();
+
+            activityTimer.Stop();
+            activityTimer.Start();
         }
 
         /// <summary>

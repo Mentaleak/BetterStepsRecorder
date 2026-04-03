@@ -353,13 +353,19 @@ namespace BetterStepsRecorder
 
         /// <summary>
         /// Reads raw PNG bytes for the base (un-annotated) screenshot of a RecordEvent.
+        /// Checks the spool path first (runtime), then falls back to BaseScreenshotb64 (saved file).
         /// Returns null if not available.
         /// </summary>
         public static byte[]? GetBaseScreenshotBytes(RecordEvent recordEvent)
         {
+            // Check spool path first (runtime storage)
             if (!string.IsNullOrEmpty(recordEvent.BaseScreenshotSpoolPath) &&
                 File.Exists(recordEvent.BaseScreenshotSpoolPath))
                 return File.ReadAllBytes(recordEvent.BaseScreenshotSpoolPath);
+
+            // Fall back to base64 property (from saved file)
+            if (!string.IsNullOrEmpty(recordEvent.BaseScreenshotb64))
+                return Convert.FromBase64String(recordEvent.BaseScreenshotb64);
 
             return null;
         }
