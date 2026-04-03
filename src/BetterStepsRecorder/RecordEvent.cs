@@ -61,6 +61,13 @@ namespace BetterStepsRecorder
         public string? _StepText { get; set; }
 
         /// <summary>
+        /// RTF-formatted step text for rich text editing. When set, this is used to
+        /// populate the RichTextBox. _StepText is kept in sync as the plain text version
+        /// for export and backward compatibility.
+        /// </summary>
+        public string? _StepRtf { get; set; }
+
+        /// <summary>
         /// Path to the spooled PNG on disk. When set, Screenshotb64 is null and the image
         /// is read from this path on demand instead of being held in RAM.
         /// </summary>

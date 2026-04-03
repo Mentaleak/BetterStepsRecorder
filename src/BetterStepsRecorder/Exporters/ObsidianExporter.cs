@@ -135,12 +135,27 @@ namespace BetterStepsRecorder.Exporters
                     DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
                     {
-                        string stepText = recordEvent._StepText ?? string.Empty;
+                        // Convert step text to Markdown with formatting if RTF is available
+                        string stepText;
+                        if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                        {
+                            stepText = RtfFormatConverter.ToMarkdown(recordEvent._StepRtf);
+                        }
+                        else
+                        {
+                            stepText = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                        }
 
                         // Step header
                         writer.WriteLine($"### Step {recordEvent.Step}");
                         writer.WriteLine();
-                        writer.WriteLine($"**{stepText}**");
+                        // Only wrap in bold if the text has no explicit formatting;
+                        // ToMarkdown() already includes formatting markers (underline is intentionally
+                        // dropped since Obsidian has no native underline support)
+                        if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                            writer.WriteLine(stepText);
+                        else
+                            writer.WriteLine($"**{stepText}**");
                         writer.WriteLine();
 
                         // Timestamp

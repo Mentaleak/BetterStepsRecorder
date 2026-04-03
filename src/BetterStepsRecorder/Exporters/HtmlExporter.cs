@@ -138,13 +138,22 @@ namespace BetterStepsRecorder.Exporters
                 DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
                 {
-                    string stepText = HtmlEncode(recordEvent._StepText ?? string.Empty);
+                    // Convert step text to HTML with formatting if RTF is available
+                    string stepTextHtml;
+                    if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                    {
+                        stepTextHtml = RtfFormatConverter.ToHtml(recordEvent._StepRtf);
+                    }
+                    else
+                    {
+                        stepTextHtml = HtmlEncode(RtfFormatConverter.SanitizeForExport(recordEvent._StepText)).Replace("\n", "<br>");
+                    }
 
                     html.AppendLine("        <div class=\"step-card\">");
                     html.AppendLine("            <div class=\"step-header\">");
                     html.AppendLine($"                <span class=\"step-badge\">Step {recordEvent.Step}</span>");
                     html.AppendLine("                <div class=\"step-header-text\">");
-                    html.AppendLine($"                    <div class=\"step-title\">{stepText}</div>");
+                    html.AppendLine($"                    <div class=\"step-title\">{stepTextHtml}</div>");
 
                     if (cfg.ShowStepTimestamps)
                     {

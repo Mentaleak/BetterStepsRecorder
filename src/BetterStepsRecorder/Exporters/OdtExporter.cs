@@ -167,15 +167,18 @@ namespace BetterStepsRecorder.Exporters
             string endStr = recordingEnd?.ToString("HH:mm:ss") ?? "—";
             string durationStr = totalSteps > 1 ? FormatDuration(totalDuration) : "—";
 
+            // Pre-compute unique text span styles for formatted runs
+            var textSpanStyles = PrecomputeTextSpanStyles();
+
             XmlWriterSettings settings = new XmlWriterSettings { 
                 Indent = true,
                 IndentChars = "  "
             };
-            
+
             using (XmlWriter writer = XmlWriter.Create(contentPath, settings))
             {
                 writer.WriteStartDocument();
-                
+
                 // Write document-content element with proper namespace declarations
                 writer.WriteStartElement("office", "document-content", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
                 writer.WriteAttributeString("xmlns", "office", null, "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
@@ -289,9 +292,12 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteAttributeString("margin-bottom", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.2in");
                 writer.WriteEndElement(); // style:paragraph-properties
                 writer.WriteEndElement(); // style:style
-                
+
+                // Write pre-computed text span styles for formatted step text
+                WriteTextSpanStyles(writer, textSpanStyles);
+
                 writer.WriteEndElement(); // office:automatic-styles
-                
+
                 // Document content
                 writer.WriteStartElement("body", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
                 writer.WriteStartElement("text", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
@@ -349,10 +355,23 @@ namespace BetterStepsRecorder.Exporters
                 DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
                 {
-                    // Step header
+                    // Step header (bold/14pt paragraph for the step number)
                     writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
-                    writer.WriteString($"Step {recordEvent.Step}: {recordEvent._StepText}");
+                    writer.WriteString($"Step {recordEvent.Step}");
+                    writer.WriteEndElement(); // text:p
+
+                    // Step text in Normal style so it doesn't inherit StepHeader's bold/14pt
+                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+                    if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                    {
+                        WriteFormattedRuns(writer, RtfFormatConverter.GetFormattedRuns(recordEvent._StepRtf), textSpanStyles);
+                    }
+                    else
+                    {
+                        writer.WriteString(RtfFormatConverter.SanitizeForExport(recordEvent._StepText));
+                    }
                     writer.WriteEndElement(); // text:p
 
                     // Timestamp
@@ -679,6 +698,145 @@ namespace BetterStepsRecorder.Exporters
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to get image dimensions: {ex.Message}");
                 return new Size(800, 600); // Default size if we can't determine actual size
+            }
+        }
+
+        /// <summary>
+        /// Represents a unique text formatting combination for ODF style generation.
+        /// </summary>
+        private record struct TextStyleKey(bool Bold, bool Italic, bool Underline, bool Strikeout, int ForeColorArgb, int BackColorArgb);
+
+        /// <summary>
+        /// Pre-computes unique text styles needed for formatted runs across all events.
+        /// Returns a dictionary mapping TextStyleKey to automatic style name.
+        /// </summary>
+        private static Dictionary<TextStyleKey, string> PrecomputeTextSpanStyles()
+        {
+            var styles = new Dictionary<TextStyleKey, string>();
+            int counter = 0;
+
+            foreach (var recordEvent in Program._recordEvents)
+            {
+                if (string.IsNullOrEmpty(recordEvent._StepRtf) || !RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                    continue;
+
+                var runs = RtfFormatConverter.GetFormattedRuns(recordEvent._StepRtf);
+                foreach (var run in runs)
+                {
+                    if (!RunNeedsStyle(run)) continue;
+
+                    var key = MakeStyleKey(run);
+                    if (!styles.ContainsKey(key))
+                    {
+                        styles[key] = $"T{++counter}";
+                    }
+                }
+            }
+
+            return styles;
+        }
+
+        private static bool RunNeedsStyle(FormattedRun run)
+        {
+            return run.Bold || run.Italic || run.Underline || run.Strikeout
+                || (!run.ForeColor.IsEmpty && run.ForeColor != Color.Black && run.ForeColor != SystemColors.WindowText)
+                || (!run.BackColor.IsEmpty && run.BackColor != Color.White && run.BackColor != SystemColors.Window);
+        }
+
+        private static TextStyleKey MakeStyleKey(FormattedRun run)
+        {
+            int fc = (!run.ForeColor.IsEmpty && run.ForeColor != Color.Black && run.ForeColor != SystemColors.WindowText)
+                ? run.ForeColor.ToArgb() : 0;
+            int bc = (!run.BackColor.IsEmpty && run.BackColor != Color.White && run.BackColor != SystemColors.Window)
+                ? run.BackColor.ToArgb() : 0;
+            return new TextStyleKey(run.Bold, run.Italic, run.Underline, run.Strikeout, fc, bc);
+        }
+
+        /// <summary>
+        /// Writes automatic text span style definitions into the ODF automatic-styles section.
+        /// </summary>
+        private static void WriteTextSpanStyles(XmlWriter writer, Dictionary<TextStyleKey, string> styles)
+        {
+            foreach (var (key, styleName) in styles)
+            {
+                writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", styleName);
+                writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "text");
+
+                writer.WriteStartElement("text-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+
+                if (key.Bold)
+                    writer.WriteAttributeString("font-weight", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "bold");
+                if (key.Italic)
+                    writer.WriteAttributeString("font-style", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "italic");
+                if (key.Underline)
+                {
+                    writer.WriteAttributeString("text-underline-style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "solid");
+                    writer.WriteAttributeString("text-underline-width", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "auto");
+                    writer.WriteAttributeString("text-underline-color", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "font-color");
+                }
+                if (key.Strikeout)
+                    writer.WriteAttributeString("text-line-through-style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "solid");
+                if (key.ForeColorArgb != 0)
+                {
+                    var c = Color.FromArgb(key.ForeColorArgb);
+                    writer.WriteAttributeString("color", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", $"#{c.R:X2}{c.G:X2}{c.B:X2}");
+                }
+                if (key.BackColorArgb != 0)
+                {
+                    var c = Color.FromArgb(key.BackColorArgb);
+                    writer.WriteAttributeString("background-color", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", $"#{c.R:X2}{c.G:X2}{c.B:X2}");
+                }
+
+                writer.WriteEndElement(); // style:text-properties
+                writer.WriteEndElement(); // style:style
+            }
+        }
+
+        /// <summary>
+        /// Writes formatted text runs as ODF text:span elements referencing pre-computed automatic styles.
+        /// Newlines are converted to text:line-break elements for valid ODF output.
+        /// </summary>
+        private static void WriteFormattedRuns(XmlWriter writer, FormattedRun[] runs, Dictionary<TextStyleKey, string> styles)
+        {
+            foreach (var run in runs)
+            {
+                if (RunNeedsStyle(run))
+                {
+                    var key = MakeStyleKey(run);
+                    if (styles.TryGetValue(key, out var styleName))
+                    {
+                        writer.WriteStartElement("span", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", styleName);
+                        WriteOdfText(writer, run.Text);
+                        writer.WriteEndElement(); // text:span
+                    }
+                    else
+                    {
+                        WriteOdfText(writer, run.Text);
+                    }
+                }
+                else
+                {
+                    WriteOdfText(writer, run.Text);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes text to ODF, converting newlines to text:line-break elements.
+        /// </summary>
+        private static void WriteOdfText(XmlWriter writer, string text)
+        {
+            var parts = text.Split('\n');
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (i > 0)
+                    writer.WriteStartElement("line-break", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                if (i > 0)
+                    writer.WriteEndElement(); // text:line-break
+                if (parts[i].Length > 0)
+                    writer.WriteString(parts[i]);
             }
         }
 

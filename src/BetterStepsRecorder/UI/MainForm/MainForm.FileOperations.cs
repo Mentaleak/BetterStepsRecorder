@@ -98,6 +98,7 @@ namespace BetterStepsRecorder
                     if (recordEvent._StepText != richTextBox_stepText.Text)
                     {
                         recordEvent._StepText = richTextBox_stepText.Text;
+                        recordEvent._StepRtf = richTextBox_stepText.Rtf;
                         activityTimer.Stop();
                         activityTimer.Start();
                     }

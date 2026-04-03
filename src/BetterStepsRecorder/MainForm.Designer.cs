@@ -76,6 +76,14 @@
             listBox_Edits = new ListBox();
             label_Edits = new Label();
             richTextBox_stepText = new RichTextBox();
+            stepTextToolStrip = new ToolStrip();
+            boldButton = new ToolStripButton();
+            italicButton = new ToolStripButton();
+            underlineButton = new ToolStripButton();
+            strikethroughButton = new ToolStripButton();
+            colorSeparator = new ToolStripSeparator();
+            fontColorButton = new ToolStripButton();
+            highlightColorButton = new ToolStripButton();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -356,6 +364,7 @@
             // splitContainer3.Panel2
             // 
             splitContainer3.Panel2.Controls.Add(richTextBox_stepText);
+            splitContainer3.Panel2.Controls.Add(stepTextToolStrip);
             splitContainer3.Size = new Size(1047, 799);
             splitContainer3.SplitterDistance = 670;
             splitContainer3.SplitterWidth = 5;
@@ -555,15 +564,92 @@
             // 
             // richTextBox_stepText
             // 
+            richTextBox_stepText.AcceptsTab = true;
             richTextBox_stepText.Dock = DockStyle.Fill;
-            richTextBox_stepText.Location = new Point(0, 0);
+            richTextBox_stepText.Location = new Point(0, 27);
             richTextBox_stepText.Margin = new Padding(3, 4, 3, 4);
             richTextBox_stepText.Name = "richTextBox_stepText";
-            richTextBox_stepText.Size = new Size(1047, 124);
+            richTextBox_stepText.Size = new Size(1047, 97);
             richTextBox_stepText.TabIndex = 1;
             richTextBox_stepText.Text = "";
             richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
             richTextBox_stepText.Leave += richTextBox_stepText_Leave;
+            // 
+            // stepTextToolStrip
+            // 
+            stepTextToolStrip.GripStyle = ToolStripGripStyle.Hidden;
+            stepTextToolStrip.Items.AddRange(new ToolStripItem[] { boldButton, italicButton, underlineButton, strikethroughButton, colorSeparator, fontColorButton, highlightColorButton });
+            stepTextToolStrip.Location = new Point(0, 0);
+            stepTextToolStrip.Name = "stepTextToolStrip";
+            stepTextToolStrip.Size = new Size(1047, 27);
+            stepTextToolStrip.TabIndex = 2;
+            // 
+            // boldButton
+            // 
+            boldButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            boldButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            boldButton.Name = "boldButton";
+            boldButton.Size = new Size(23, 24);
+            boldButton.Text = "B";
+            boldButton.ToolTipText = "Bold (Ctrl+B)";
+            boldButton.Click += boldButton_Click;
+            // 
+            // italicButton
+            // 
+            italicButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            italicButton.Font = new Font("Segoe UI", 9F, FontStyle.Italic);
+            italicButton.Name = "italicButton";
+            italicButton.Size = new Size(23, 24);
+            italicButton.Text = "I";
+            italicButton.ToolTipText = "Italic (Ctrl+I)";
+            italicButton.Click += italicButton_Click;
+            // 
+            // underlineButton
+            // 
+            underlineButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            underlineButton.Font = new Font("Segoe UI", 9F, FontStyle.Underline);
+            underlineButton.Name = "underlineButton";
+            underlineButton.Size = new Size(23, 24);
+            underlineButton.Text = "U";
+            underlineButton.ToolTipText = "Underline (Ctrl+U)";
+            underlineButton.Click += underlineButton_Click;
+            // 
+            // strikethroughButton
+            // 
+            strikethroughButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            strikethroughButton.Font = new Font("Segoe UI", 9F, FontStyle.Strikeout);
+            strikethroughButton.Name = "strikethroughButton";
+            strikethroughButton.Size = new Size(23, 24);
+            strikethroughButton.Text = "S";
+            strikethroughButton.ToolTipText = "Strikethrough";
+            strikethroughButton.Click += strikethroughButton_Click;
+            // 
+            // colorSeparator
+            // 
+            colorSeparator.Name = "colorSeparator";
+            colorSeparator.Size = new Size(6, 27);
+            // 
+            // fontColorButton
+            // 
+            fontColorButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            fontColorButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            fontColorButton.ForeColor = Color.Red;
+            fontColorButton.Name = "fontColorButton";
+            fontColorButton.Size = new Size(23, 24);
+            fontColorButton.Text = "A";
+            fontColorButton.ToolTipText = "Font Color";
+            fontColorButton.Click += fontColorButton_Click;
+            // 
+            // highlightColorButton
+            // 
+            highlightColorButton.BackColor = Color.Yellow;
+            highlightColorButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            highlightColorButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            highlightColorButton.Name = "highlightColorButton";
+            highlightColorButton.Size = new Size(23, 24);
+            highlightColorButton.Text = "H";
+            highlightColorButton.ToolTipText = "Highlight Color";
+            highlightColorButton.Click += highlightColorButton_Click;
             // 
             // menuStrip1
             // 
@@ -749,6 +835,7 @@
             splitContainer2.ResumeLayout(false);
             splitContainer3.Panel1.ResumeLayout(false);
             splitContainer3.Panel2.ResumeLayout(false);
+            splitContainer3.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer3).EndInit();
             splitContainer3.ResumeLayout(false);
             splitContainer4.Panel1.ResumeLayout(false);
@@ -759,6 +846,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             pictureBoxToolStrip.ResumeLayout(false);
             pictureBoxToolStrip.PerformLayout();
+            stepTextToolStrip.ResumeLayout(false);
+            stepTextToolStrip.PerformLayout();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             notifyIconContextMenu.ResumeLayout(false);
@@ -778,6 +867,14 @@
         private ToolStripMenuItem newToolStripMenuItem;
         private ToolStripMenuItem openToolStripMenuItem;
         private RichTextBox richTextBox_stepText;
+        private ToolStrip stepTextToolStrip;
+        private ToolStripButton boldButton;
+        private ToolStripButton italicButton;
+        private ToolStripButton underlineButton;
+        private ToolStripButton strikethroughButton;
+        private ToolStripSeparator colorSeparator;
+        private ToolStripButton fontColorButton;
+        private ToolStripButton highlightColorButton;
         private SplitContainer splitContainer3;
         private ToolStripMenuItem exportToolStripMenuItem;
         private ToolStripMenuItem exportToFileToolStripMenuItem;

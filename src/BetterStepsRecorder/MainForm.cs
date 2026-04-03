@@ -101,6 +101,9 @@ namespace BetterStepsRecorder
 
             // Register global hotkeys
             RegisterGlobalHotkeys();
+
+            // Initialize the step text WYSIWYG formatting toolbar
+            InitializeStepTextToolbar();
         }
 
 

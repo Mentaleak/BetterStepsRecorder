@@ -100,12 +100,26 @@ namespace BetterStepsRecorder.Exporters
                 DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
                 {
-                    string stepText = recordEvent._StepText ?? string.Empty;
+                    // Convert step text to Markdown with formatting if RTF is available
+                    string stepText;
+                    if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                    {
+                        stepText = RtfFormatConverter.ToMarkdown(recordEvent._StepRtf);
+                    }
+                    else
+                    {
+                        stepText = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                    }
 
                     // Step header
                     md.AppendLine($"### Step {recordEvent.Step}");
                     md.AppendLine();
-                    md.AppendLine($"**{stepText}**");
+                    // Only wrap in bold if the text has no explicit formatting from the WYSIWYG editor;
+                    // otherwise the outer ** markers conflict with inner formatting markers
+                    if (!string.IsNullOrEmpty(recordEvent._StepRtf) && RtfFormatConverter.HasFormatting(recordEvent._StepRtf))
+                        md.AppendLine(stepText);
+                    else
+                        md.AppendLine($"**{stepText}**");
                     md.AppendLine();
 
                     // Timestamp

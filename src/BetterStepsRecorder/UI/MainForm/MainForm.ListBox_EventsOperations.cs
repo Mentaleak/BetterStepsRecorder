@@ -72,8 +72,15 @@ namespace BetterStepsRecorder
                     LoadEditedScreenshot(selectedEvent);
                 }
 
-                // Set the step text
-                richTextBox_stepText.Text = selectedEvent._StepText;
+                // Set the step text - use RTF if available for formatted text
+                if (!string.IsNullOrEmpty(selectedEvent._StepRtf))
+                {
+                    richTextBox_stepText.Rtf = selectedEvent._StepRtf;
+                }
+                else
+                {
+                    richTextBox_stepText.Text = selectedEvent._StepText;
+                }
 
                 // Refresh the operations/edits list to show any existing operations
                 RefreshOperationsListBox();

@@ -104,9 +104,20 @@ namespace BetterStepsRecorder.Exporters
                     DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
                     {
-                        // Add step header
+                        // Add step header with step number
                         rtfBox.SelectionFont = fontStep;
-                        rtfBox.AppendText($"Step {recordEvent.Step}: {recordEvent._StepText}\n");
+                        rtfBox.AppendText($"Step {recordEvent.Step}: ");
+
+                        // Insert formatted step text if available, otherwise plain text
+                        if (!string.IsNullOrEmpty(recordEvent._StepRtf))
+                        {
+                            InsertRtfContent(rtfBox, recordEvent._StepRtf);
+                        }
+                        else
+                        {
+                            rtfBox.AppendText(recordEvent._StepText ?? string.Empty);
+                        }
+                        rtfBox.AppendText("\n");
 
                         // Add timestamp
                         if (cfg.ShowStepTimestamps)
@@ -185,8 +196,9 @@ namespace BetterStepsRecorder.Exporters
                             {
                                 if (img != null)
                                 {
-                                    Clipboard.SetImage(img);
-                                    rtfBox.Paste();
+                                    // Embed image directly via RTF to avoid clipboard errors
+                                    rtfBox.Select(rtfBox.TextLength, 0);
+                                    rtfBox.SelectedRtf = ImageToRtf(img);
                                     rtfBox.AppendText("\n");
                                 }
                             }
@@ -250,6 +262,39 @@ namespace BetterStepsRecorder.Exporters
                 System.Diagnostics.Debug.WriteLine($"GetRtfImage failed: {ex.Message}");
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Converts an Image to an RTF string with an embedded PNG picture,
+        /// avoiding clipboard operations entirely.
+        /// </summary>
+        private static string ImageToRtf(Image img)
+        {
+            using var ms = new MemoryStream();
+            img.Save(ms, ImageFormat.Png);
+            byte[] bytes = ms.ToArray();
+
+            var hex = new StringBuilder(bytes.Length * 2);
+            foreach (byte b in bytes)
+                hex.AppendFormat("{0:X2}", b);
+
+            int widthTwips = (int)(img.Width * 1440.0 / img.HorizontalResolution);
+            int heightTwips = (int)(img.Height * 1440.0 / img.VerticalResolution);
+
+            return $@"{{\rtf1\ansi{{\pict\pngblip\picw{img.Width}\pich{img.Height}\picwgoal{widthTwips}\pichgoal{heightTwips} {hex}}}}}";
+        }
+
+        /// <summary>
+        /// Inserts RTF-formatted content from a source RTF string into the target RichTextBox
+        /// at the current cursor position, preserving all formatting including colors.
+        /// Uses SelectedRtf instead of clipboard operations to avoid "Requested Clipboard operation did not succeed" errors.
+        /// </summary>
+        private static void InsertRtfContent(RichTextBox target, string sourceRtf)
+        {
+            // Insert at end of target using the original RTF directly;
+            // the RichTextBox control handles color/font table merging automatically
+            target.Select(target.TextLength, 0);
+            target.SelectedRtf = sourceRtf;
         }
     }
 }
