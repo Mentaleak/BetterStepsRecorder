@@ -56,9 +56,23 @@ namespace BetterStepsRecorder
             MiddleLeft
         }
 
+        // Arrow endpoint handle for dragging arrow endpoints
+        private enum ArrowEndpointHandle
+        {
+            None,
+            Start,
+            End
+        }
+
         // Arrow tool: two endpoints
         private Point _arrowStart;
         private Point _arrowEnd;
+
+        // Arrow endpoint dragging state
+        private bool _isDraggingArrowEndpoint = false;
+        private int _arrowEndpointOperationIndex = -1;
+        private ArrowEndpointHandle _activeArrowEndpoint = ArrowEndpointHandle.None;
+        private Point[] _arrowEndpointOriginalPoints = null;
 
         // Text input state (on-canvas editing)
         private TextBox _canvasTextBox = null;
@@ -452,6 +466,36 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Detects which arrow endpoint handle (if any) is at the given control-space point
+        /// </summary>
+        private ArrowEndpointHandle GetArrowEndpointAtPoint(Point controlPoint, Point[] controlSpacePoints)
+        {
+            if (controlSpacePoints == null || controlSpacePoints.Length < 2) return ArrowEndpointHandle.None;
+
+            const int handleRadius = 10;
+
+            // Check if near start point
+            double distToStart = Math.Sqrt(Math.Pow(controlPoint.X - controlSpacePoints[0].X, 2) + 
+                                           Math.Pow(controlPoint.Y - controlSpacePoints[0].Y, 2));
+            if (distToStart <= handleRadius) return ArrowEndpointHandle.Start;
+
+            // Check if near end point
+            double distToEnd = Math.Sqrt(Math.Pow(controlPoint.X - controlSpacePoints[1].X, 2) + 
+                                         Math.Pow(controlPoint.Y - controlSpacePoints[1].Y, 2));
+            if (distToEnd <= handleRadius) return ArrowEndpointHandle.End;
+
+            return ArrowEndpointHandle.None;
+        }
+
+        /// <summary>
+        /// Checks if an operation supports endpoint dragging (line-based operations)
+        /// </summary>
+        private bool OperationSupportsEndpointDrag(ImageOperation operation)
+        {
+            return operation is ArrowOperation || operation is DragIndicatorOperation;
+        }
+
+        /// <summary>
         /// Checks if an operation supports resizing (rectangle-based operations)
         /// </summary>
         private bool OperationSupportsResize(ImageOperation operation)
@@ -491,6 +535,32 @@ namespace BetterStepsRecorder
                         _resizeOriginalBounds = _selectedOperationBounds;
                         _resizeStartPoint = ControlPointToImagePoint(e.Location);
                         pictureBox1.Cursor = GetCursorForResizeHandle(handle);
+                        return;
+                    }
+                }
+            }
+
+            // Check if clicking on an arrow endpoint handle of the currently selected operation
+            if (_selectedOperationIndex >= 0 && _selectedOperationPoints != null && _selectedOperationPoints.Length >= 2)
+            {
+                var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                if (OperationSupportsEndpointDrag(operation))
+                {
+                    Point[] controlSpacePoints = new Point[]
+                    {
+                        ImagePointToControlPoint(_selectedOperationPoints[0]),
+                        ImagePointToControlPoint(_selectedOperationPoints[1])
+                    };
+
+                    ArrowEndpointHandle endpointHandle = GetArrowEndpointAtPoint(e.Location, controlSpacePoints);
+                    if (endpointHandle != ArrowEndpointHandle.None)
+                    {
+                        // Start endpoint dragging
+                        _isDraggingArrowEndpoint = true;
+                        _arrowEndpointOperationIndex = _selectedOperationIndex;
+                        _activeArrowEndpoint = endpointHandle;
+                        _arrowEndpointOriginalPoints = (Point[])_selectedOperationPoints.Clone();
+                        pictureBox1.Cursor = Cursors.SizeAll;
                         return;
                     }
                 }
@@ -545,6 +615,19 @@ namespace BetterStepsRecorder
                 UpdateSelectionHighlightBounds(selectedEvent, _resizeOperationIndex);
                 pictureBox1.Invalidate();
             }
+            else if (_isDraggingArrowEndpoint && _arrowEndpointOperationIndex >= 0)
+            {
+                // Update arrow endpoint position
+                Point currentImagePoint = ControlPointToImagePoint(e.Location);
+                UpdateArrowEndpointDuringDrag(selectedEvent, _arrowEndpointOperationIndex, _activeArrowEndpoint, currentImagePoint);
+
+                // Rebuild image to show the updated arrow
+                RebuildImageFromOperations(selectedEvent);
+
+                // Update selection highlight bounds
+                UpdateSelectionHighlightBounds(selectedEvent, _arrowEndpointOperationIndex);
+                pictureBox1.Invalidate();
+            }
             else if (_isDraggingOperation && _dragOperationIndex >= 0)
             {
                 // Update drag position
@@ -581,6 +664,27 @@ namespace BetterStepsRecorder
                     }
                 }
 
+                // Check for arrow endpoint handles on selected operation
+                if (_selectedOperationIndex >= 0 && _selectedOperationPoints != null && _selectedOperationPoints.Length >= 2)
+                {
+                    var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                    if (OperationSupportsEndpointDrag(operation))
+                    {
+                        Point[] controlSpacePoints = new Point[]
+                        {
+                            ImagePointToControlPoint(_selectedOperationPoints[0]),
+                            ImagePointToControlPoint(_selectedOperationPoints[1])
+                        };
+
+                        ArrowEndpointHandle endpointHandle = GetArrowEndpointAtPoint(e.Location, controlSpacePoints);
+                        if (endpointHandle != ArrowEndpointHandle.None)
+                        {
+                            pictureBox1.Cursor = Cursors.SizeAll;
+                            return;
+                        }
+                    }
+                }
+
                 // Check if over an operation
                 int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
                 pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
@@ -592,7 +696,7 @@ namespace BetterStepsRecorder
         /// </summary>
         private void PictureBox_SelectionMouseUp(object sender, MouseEventArgs e)
         {
-            if (!_isDraggingOperation && !_isResizingOperation) return;
+            if (!_isDraggingOperation && !_isResizingOperation && !_isDraggingArrowEndpoint) return;
             if (_activeTool != ImageTool.None) return;
             if (!(Listbox_Events.SelectedItem is RecordEvent selectedEvent)) return;
 
@@ -604,6 +708,14 @@ namespace BetterStepsRecorder
                 _activeResizeHandle = ResizeHandle.None;
                 _resizeOriginalBounds = Rectangle.Empty;
                 _resizeStartPoint = Point.Empty;
+            }
+            else if (_isDraggingArrowEndpoint)
+            {
+                // Finalize arrow endpoint drag
+                _isDraggingArrowEndpoint = false;
+                _arrowEndpointOperationIndex = -1;
+                _activeArrowEndpoint = ArrowEndpointHandle.None;
+                _arrowEndpointOriginalPoints = null;
             }
             else if (_isDraggingOperation)
             {
@@ -631,6 +743,35 @@ namespace BetterStepsRecorder
                     if (handle != ResizeHandle.None)
                     {
                         pictureBox1.Cursor = GetCursorForResizeHandle(handle);
+                    }
+                    else
+                    {
+                        int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                        pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+                    }
+                }
+                else
+                {
+                    int operationIndex = FindOperationAtPoint(e.Location, selectedEvent);
+                    pictureBox1.Cursor = operationIndex >= 0 ? Cursors.SizeAll : Cursors.Default;
+                }
+            }
+            else if (_selectedOperationIndex >= 0 && _selectedOperationPoints != null && _selectedOperationPoints.Length >= 2)
+            {
+                // Check for arrow endpoint handles
+                var operation = selectedEvent.ImageOperations.Operations[_selectedOperationIndex];
+                if (OperationSupportsEndpointDrag(operation))
+                {
+                    Point[] controlSpacePoints = new Point[]
+                    {
+                        ImagePointToControlPoint(_selectedOperationPoints[0]),
+                        ImagePointToControlPoint(_selectedOperationPoints[1])
+                    };
+
+                    ArrowEndpointHandle endpointHandle = GetArrowEndpointAtPoint(e.Location, controlSpacePoints);
+                    if (endpointHandle != ArrowEndpointHandle.None)
+                    {
+                        pictureBox1.Cursor = Cursors.SizeAll;
                     }
                     else
                     {
@@ -674,7 +815,7 @@ namespace BetterStepsRecorder
                     /// </summary>
                     private void PictureBox_SelectionMouseLeave(object sender, EventArgs e)
                     {
-                        if (_activeTool == ImageTool.None && !_isDraggingOperation && !_isResizingOperation)
+                        if (_activeTool == ImageTool.None && !_isDraggingOperation && !_isResizingOperation && !_isDraggingArrowEndpoint)
                         {
                             pictureBox1.Cursor = Cursors.Default;
                         }
@@ -834,6 +975,34 @@ namespace BetterStepsRecorder
 
             // Update the start point for the next delta calculation
             _dragStartImagePoint = currentImagePoint;
+        }
+
+        /// <summary>
+        /// Updates an arrow or drag indicator operation's endpoint during drag
+        /// </summary>
+        private void UpdateArrowEndpointDuringDrag(RecordEvent selectedEvent, int operationIndex, ArrowEndpointHandle handle, Point currentImagePoint)
+        {
+            if (operationIndex < 0 || operationIndex >= selectedEvent.ImageOperations.Count) return;
+            if (handle == ArrowEndpointHandle.None) return;
+
+            var operation = selectedEvent.ImageOperations.Operations[operationIndex];
+
+            // Update the specific endpoint based on operation type
+            switch (operation)
+            {
+                case ArrowOperation arrow:
+                    if (handle == ArrowEndpointHandle.Start)
+                        arrow.StartPoint = currentImagePoint;
+                    else if (handle == ArrowEndpointHandle.End)
+                        arrow.EndPoint = currentImagePoint;
+                    break;
+                case DragIndicatorOperation drag:
+                    if (handle == ArrowEndpointHandle.Start)
+                        drag.StartPoint = currentImagePoint;
+                    else if (handle == ArrowEndpointHandle.End)
+                        drag.EndPoint = currentImagePoint;
+                    break;
+            }
         }
 
         /// <summary>
@@ -1141,6 +1310,15 @@ namespace BetterStepsRecorder
                         _activeResizeHandle = ResizeHandle.None;
                         _resizeOriginalBounds = Rectangle.Empty;
                         _resizeStartPoint = Point.Empty;
+                    }
+
+                    // Cancel any ongoing arrow endpoint drag operation
+                    if (_isDraggingArrowEndpoint)
+                    {
+                        _isDraggingArrowEndpoint = false;
+                        _arrowEndpointOperationIndex = -1;
+                        _activeArrowEndpoint = ArrowEndpointHandle.None;
+                        _arrowEndpointOriginalPoints = null;
                     }
 
                     // Cancel any ongoing canvas text input
@@ -1466,10 +1644,17 @@ namespace BetterStepsRecorder
                         var startCircle = new Rectangle(start.X - circleRadius, start.Y - circleRadius, circleRadius * 2, circleRadius * 2);
                         var endCircle = new Rectangle(end.X - circleRadius, end.Y - circleRadius, circleRadius * 2, circleRadius * 2);
 
-                        e.Graphics.DrawEllipse(blackPen, startCircle);
-                        e.Graphics.DrawEllipse(whitePen, startCircle);
-                        e.Graphics.DrawEllipse(blackPen, endCircle);
-                        e.Graphics.DrawEllipse(whitePen, endCircle);
+                        // Draw filled handles at the endpoints that look draggable
+                        using var handleBrush = new SolidBrush(Color.White);
+                        using var handlePen = new Pen(Color.Black, 1f);
+
+                        // Draw start endpoint handle (filled circle)
+                        e.Graphics.FillEllipse(handleBrush, startCircle);
+                        e.Graphics.DrawEllipse(handlePen, startCircle);
+
+                        // Draw end endpoint handle (filled circle)
+                        e.Graphics.FillEllipse(handleBrush, endCircle);
+                        e.Graphics.DrawEllipse(handlePen, endCircle);
                     }
                 }
 
