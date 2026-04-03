@@ -56,6 +56,7 @@ namespace BetterStepsRecorder
                 newStyle = font.Style | style;
 
             richTextBox_stepText.SelectionFont = new Font(font.FontFamily, font.Size, newStyle);
+            SaveStepFormatting();
             richTextBox_stepText.Focus();
         }
 
@@ -73,6 +74,7 @@ namespace BetterStepsRecorder
             {
                 richTextBox_stepText.SelectionColor = dlg.Color;
                 fontColorButton.ForeColor = dlg.Color;
+                SaveStepFormatting();
             }
             richTextBox_stepText.Focus();
         }
@@ -86,8 +88,29 @@ namespace BetterStepsRecorder
             {
                 richTextBox_stepText.SelectionBackColor = dlg.Color;
                 highlightColorButton.BackColor = dlg.Color;
+                SaveStepFormatting();
             }
             richTextBox_stepText.Focus();
+        }
+
+        /// <summary>
+        /// Saves the current step text and RTF to the model after formatting changes.
+        /// Unlike TextChanged (which only fires for text edits), this must be called
+        /// explicitly after formatting operations like bold, italic, color, highlight.
+        /// </summary>
+        private void SaveStepFormatting()
+        {
+            if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+            {
+                var recordEvent = Program._recordEvents.Find(ev => ev.ID == selectedEvent.ID);
+                if (recordEvent != null)
+                {
+                    recordEvent._StepText = richTextBox_stepText.Text;
+                    recordEvent._StepRtf = richTextBox_stepText.Rtf;
+                    activityTimer.Stop();
+                    activityTimer.Start();
+                }
+            }
         }
     }
 }

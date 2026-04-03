@@ -99,8 +99,15 @@ namespace BetterStepsRecorder
 
         public override string ToString()
         {
-            // Customize the string representation for display in the ListBox
-            return $"{Step}: {_StepText}";
+            // Use only the first line of step text for display in the ListBox
+            string? displayText = _StepText;
+            if (!string.IsNullOrEmpty(displayText))
+            {
+                int breakIndex = displayText.IndexOfAny(['\r', '\n', '\v']);
+                if (breakIndex >= 0)
+                    displayText = displayText[..breakIndex];
+            }
+            return $"{Step}: {displayText}";
         }
 
         public string? ElementName { get; set; }
