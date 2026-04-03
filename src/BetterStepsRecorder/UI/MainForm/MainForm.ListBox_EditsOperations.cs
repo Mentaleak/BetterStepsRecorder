@@ -132,15 +132,31 @@ namespace BetterStepsRecorder
             for (int i = 0; i <= upToIndex; i++)
             {
                 var op = selectedEvent.ImageOperations.Operations[i];
-                op.Apply(currentImage);
 
-                // For crop operations, we need to extract the cropped region
+                // Crop operations need special handling - they change the image dimensions
                 if (op is CropOperation cropOp)
                 {
-                    var croppedImage = currentImage.Clone(cropOp.Region, currentImage.PixelFormat);
+                    // Clamp the crop region to valid bounds within the current image
+                    int x = Math.Max(0, Math.Min(cropOp.Region.X, currentImage.Width - 1));
+                    int y = Math.Max(0, Math.Min(cropOp.Region.Y, currentImage.Height - 1));
+                    int width = Math.Min(cropOp.Region.Width, currentImage.Width - x);
+                    int height = Math.Min(cropOp.Region.Height, currentImage.Height - y);
+
+                    // Ensure minimum size
+                    width = Math.Max(1, width);
+                    height = Math.Max(1, height);
+
+                    var validRegion = new Rectangle(x, y, width, height);
+
+                    var croppedImage = currentImage.Clone(validRegion, currentImage.PixelFormat);
                     currentImage.Dispose();
                     currentImage = new Bitmap(croppedImage);
                     croppedImage.Dispose();
+                }
+                else
+                {
+                    // Apply other operations normally
+                    op.Apply(currentImage);
                 }
             }
 
