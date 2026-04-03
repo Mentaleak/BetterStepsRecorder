@@ -63,6 +63,24 @@ namespace BetterStepsRecorder
         /// </summary>
         private void toolStripMenuItem1_SaveAs_Click(object sender, EventArgs e)
         {
+            // Check for unmerged blur/crop operations that may contain sensitive data
+            if (HasUnmergedSecurityOperations())
+            {
+                var result = MessageBox.Show(
+                    "Some screenshots have Blur or Crop operations that have not been merged.\n\n" +
+                    "Unmerged operations can be undone, which means the original image data is still accessible in the saved file.\n\n" +
+                    "For security, consider merging these operations before saving.\n\n" +
+                    "Do you want to save anyway?",
+                    "Unmerged Security Operations",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+
             Program.SaveRecordEvents();
             FileDialogHelper.SaveAs();
         }

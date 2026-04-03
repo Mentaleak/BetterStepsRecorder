@@ -124,10 +124,50 @@ namespace BetterStepsRecorder
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // Check for unmerged blur/crop operations that may contain sensitive data
+            if (HasUnmergedSecurityOperations())
+            {
+                var result = MessageBox.Show(
+                    "Some screenshots have Blur or Crop operations that have not been merged.\n\n" +
+                    "Unmerged operations can be undone, which means the original image data is still accessible.\n\n" +
+                    "For security, consider merging these operations before saving or sharing.\n\n" +
+                    "Do you want to close anyway?",
+                    "Unmerged Security Operations",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
             // Unregister global hotkeys
             UnregisterGlobalHotkeys();
 
             Program.SaveRecordEvents();
+        }
+
+        /// <summary>
+        /// Checks if any record events have unmerged Blur or Crop operations
+        /// </summary>
+        private bool HasUnmergedSecurityOperations()
+        {
+            foreach (var item in Listbox_Events.Items)
+            {
+                if (item is RecordEvent evt)
+                {
+                    foreach (var op in evt.ImageOperations.Operations)
+                    {
+                        if (op is Core.ImageOperations.BlurOperation || op is Core.ImageOperations.CropOperation)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
