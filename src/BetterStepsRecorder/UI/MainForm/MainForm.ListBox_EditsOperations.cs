@@ -90,7 +90,7 @@ namespace BetterStepsRecorder
 
             // Confirm with user since this is irreversible
             var result = MessageBox.Show(
-                "This will permanently merge the following operations into the base image:\n\n" +
+                "This will permanently merge this layer and all layers below it into the base image:\n\n" +
                 operationsToMerge.ToString() + "\n" +
                 "This action cannot be undone and the original image data will be lost.\n\n" +
                 "This is useful for permanently hiding confidential information.\n\n" +
