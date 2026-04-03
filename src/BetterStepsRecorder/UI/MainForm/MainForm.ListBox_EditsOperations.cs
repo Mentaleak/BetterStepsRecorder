@@ -80,9 +80,18 @@ namespace BetterStepsRecorder
             // Only allow merge for Blur and Crop operations
             if (!(operation is BlurOperation || operation is CropOperation)) return;
 
+            // Build list of operations that will be merged
+            var operationsToMerge = new System.Text.StringBuilder();
+            for (int i = 0; i <= operationIndex; i++)
+            {
+                var op = selectedEvent.ImageOperations.Operations[i];
+                operationsToMerge.AppendLine($"  • {op.Description}");
+            }
+
             // Confirm with user since this is irreversible
             var result = MessageBox.Show(
-                "This will permanently merge all operations up to and including this one into the base image.\n\n" +
+                "This will permanently merge the following operations into the base image:\n\n" +
+                operationsToMerge.ToString() + "\n" +
                 "This action cannot be undone and the original image data will be lost.\n\n" +
                 "This is useful for permanently hiding confidential information.\n\n" +
                 "Continue?",
