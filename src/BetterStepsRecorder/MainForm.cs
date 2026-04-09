@@ -42,7 +42,7 @@ namespace BetterStepsRecorder
 
         private void InitializeTrayIcon()
         {
-            notifyIcon.Text = "Better Steps Recorder";
+            trayIcon.Text = "Better Steps Recorder";
         }
 
         private void Form_Resize(object sender, EventArgs e)
@@ -53,13 +53,13 @@ namespace BetterStepsRecorder
                 if (minimizeBehavior == MinimizeBehavior.MinimizeToSystemTray && Program.IsRecording)
                 {
                     Hide();
-                    notifyIcon.Visible = true;
+                    trayIcon.Visible = true;
                     StatusManager.ShowMessage("Minimized to system tray");
                 }
             }
         }
 
-        private void notifyIcon_DoubleClick(object sender, EventArgs e)
+        private void trayIcon_DoubleClick(object sender, EventArgs e)
         {
             RestoreFromTray();
         }
@@ -78,7 +78,7 @@ namespace BetterStepsRecorder
         {
             Show();
             WindowState = FormWindowState.Normal;
-            notifyIcon.Visible = false;
+            trayIcon.Visible = false;
             Activate();
         }
 

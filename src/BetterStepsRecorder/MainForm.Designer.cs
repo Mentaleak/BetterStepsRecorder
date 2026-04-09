@@ -100,8 +100,8 @@
             ToolStripMenuItem_Recording = new ToolStripMenuItem();
             settingsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
-            notifyIcon = new NotifyIcon(components);
-            notifyIconContextMenu = new ContextMenuStrip(components);
+            trayIcon = new NotifyIcon(components);
+            trayIconContextMenu = new ContextMenuStrip(components);
             restoreToolStripMenuItem = new ToolStripMenuItem();
             exitToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator6 = new ToolStripSeparator();
@@ -128,7 +128,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             pictureBoxToolStrip.SuspendLayout();
             menuStrip1.SuspendLayout();
-            notifyIconContextMenu.SuspendLayout();
+            trayIconContextMenu.SuspendLayout();
             SuspendLayout();
             // 
             // Listbox_Events
@@ -770,18 +770,18 @@
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
             // 
-            // notifyIcon
+            // trayIcon
             // 
-            notifyIcon.ContextMenuStrip = notifyIconContextMenu;
-            notifyIcon.Icon = (Icon)resources.GetObject("notifyIcon.Icon");
-            notifyIcon.Text = "Better Steps Recorder";
-            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
+            trayIcon.ContextMenuStrip = trayIconContextMenu;
+            trayIcon.Icon = Properties.Resources.TrayIcon;
+            trayIcon.Text = "Better Steps Recorder";
+            trayIcon.DoubleClick += trayIcon_DoubleClick;
             // 
-            // notifyIconContextMenu
+            // trayIconContextMenu
             // 
-            notifyIconContextMenu.Items.AddRange(new ToolStripItem[] { restoreToolStripMenuItem, exitToolStripMenuItem });
-            notifyIconContextMenu.Name = "notifyIconContextMenu";
-            notifyIconContextMenu.Size = new Size(129, 52);
+            trayIconContextMenu.Items.AddRange(new ToolStripItem[] { restoreToolStripMenuItem, exitToolStripMenuItem });
+            trayIconContextMenu.Name = "trayIconContextMenu";
+            trayIconContextMenu.Size = new Size(129, 52);
             // 
             // restoreToolStripMenuItem
             // 
@@ -850,7 +850,7 @@
             stepTextToolStrip.PerformLayout();
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
-            notifyIconContextMenu.ResumeLayout(false);
+            trayIconContextMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -923,8 +923,8 @@
         private ToolStripButton arrowColourToolStripButton;
         private ToolStripSeparator toolStripSeparator4;
         private ToolStripButton cropToolStripButton;
-        private NotifyIcon notifyIcon;
-        private ContextMenuStrip notifyIconContextMenu;
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayIconContextMenu;
         private ToolStripMenuItem restoreToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
         private SplitContainer splitContainer4;
