@@ -13,6 +13,9 @@ namespace BetterStepsRecorder
         {
             // Update toolbar state when selection changes
             richTextBox_stepText.SelectionChanged += richTextBox_stepText_SelectionChanged;
+
+            // Default hotkeys (common editor conventions)
+            richTextBox_stepText.KeyDown += richTextBox_stepText_KeyDown;
         }
 
         /// <summary>
@@ -64,6 +67,30 @@ namespace BetterStepsRecorder
         private void italicButton_Click(object sender, EventArgs e) => ToggleSelectionStyle(FontStyle.Italic);
         private void underlineButton_Click(object sender, EventArgs e) => ToggleSelectionStyle(FontStyle.Underline);
         private void strikethroughButton_Click(object sender, EventArgs e) => ToggleSelectionStyle(FontStyle.Strikeout);
+
+        private void richTextBox_stepText_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (!e.Control)
+                return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.B:
+                    ToggleSelectionStyle(FontStyle.Bold);
+                    e.SuppressKeyPress = true;
+                    break;
+
+                case Keys.I:
+                    ToggleSelectionStyle(FontStyle.Italic);
+                    e.SuppressKeyPress = true;
+                    break;
+
+                case Keys.U:
+                    ToggleSelectionStyle(FontStyle.Underline);
+                    e.SuppressKeyPress = true;
+                    break;
+            }
+        }
 
         private void fontColorButton_Click(object sender, EventArgs e)
         {

@@ -14,6 +14,9 @@ namespace BetterStepsRecorder
 {
     internal static partial class Program
     {
+        private static string EscapeRtfText(string value) =>
+            value.Replace("\\", "\\\\").Replace("{", "\\{").Replace("}", "\\}").Replace("\r\n", "\\line ").Replace("\n", "\\line ").Replace("\r", "\\line ");
+
         private static IntPtr _hookID = IntPtr.Zero;
         private static LowLevelMouseProc _proc = HookCallback;
         public static bool IsRecording = false;
@@ -271,6 +274,13 @@ namespace BetterStepsRecorder
                                             DragEndCoordinates   = new POINT { X = de.X, Y = de.Y },
                                             EventType         = "Drag",
                                             _StepText         = stepText,
+                                            _StepRtf          = "{\\rtf1\\ansi " +
+                                                                "In " + EscapeRtfText(app ?? string.Empty) + ", " +
+                                                                "\\b Drag\\b0 " +
+                                                                (string.IsNullOrEmpty(elementName)
+                                                                    ? $" from ({ds.X},{ds.Y}) to ({de.X},{de.Y})"
+                                                                    : "to " + EscapeRtfText(elementType ?? string.Empty) + " \\b " + EscapeRtfText(elementName) + "\\b0") +
+                                                                "}",
                                             Step              = _recordEvents.Count + 1
                                         };
                                         _recordEvents.Add(recordEvent);
@@ -442,6 +452,12 @@ namespace BetterStepsRecorder
                                             MouseCoordinates   = new POINT { X = cp.X, Y = cp.Y },
                                             EventType          = ct,
                                             _StepText          = $"In {appName}, {ct} on {elementType} {elementName}",
+                                            _StepRtf           = "{\\rtf1\\ansi " +
+                                                                "In " + EscapeRtfText(appName ?? string.Empty) + ", " +
+                                                                "\\b " + EscapeRtfText(ct ?? string.Empty) + "\\b0 " +
+                                                                " on " + EscapeRtfText(elementType ?? string.Empty) + " " +
+                                                                "\\b " + EscapeRtfText(elementName ?? string.Empty) + "\\b0" +
+                                                                "}",
                                             Step               = _recordEvents.Count + 1
                                         };
                                         _recordEvents.Add(recordEvent);
@@ -603,6 +619,12 @@ namespace BetterStepsRecorder
                                         MouseCoordinates   = new POINT { X = cp.X, Y = cp.Y },
                                         EventType          = ct,
                                         _StepText          = $"In {appName}, {ct} on {elementType} {elementName}",
+                                        _StepRtf           = "{\\rtf1\\ansi " +
+                                                            "In " + EscapeRtfText(appName ?? string.Empty) + ", " +
+                                                            "\\b " + EscapeRtfText(ct ?? string.Empty) + "\\b0 " +
+                                                            " on " + EscapeRtfText(elementType ?? string.Empty) + " " +
+                                                            "\\b " + EscapeRtfText(elementName ?? string.Empty) + "\\b0" +
+                                                            "}",
                                         Step               = _recordEvents.Count + 1
                                     };
                                     _recordEvents.Add(recordEvent);

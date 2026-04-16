@@ -41,16 +41,17 @@ namespace BetterStepsRecorder.Exporters
             {
                 EnsureDirectoryExists(filePath);
 
-                // Create images folder
+                // Get the filename without extension to use as title
+                string title = Path.GetFileNameWithoutExtension(filePath);
+
+                // Create images folder (match the HTML file name)
                 string folderPath = Path.GetDirectoryName(filePath);
-                string imagesFolder = Path.Combine(folderPath, "images");
+                string imagesFolderName = $"{title}_images";
+                string imagesFolder = Path.Combine(folderPath, imagesFolderName);
                 if (!Directory.Exists(imagesFolder))
                 {
                     Directory.CreateDirectory(imagesFolder);
                 }
-
-                // Get the filename without extension to use as title
-                string title = Path.GetFileNameWithoutExtension(filePath);
 
                 int totalSteps = Program._recordEvents.Count;
                 string generated = DateTime.Now.ToString("dd MMM yyyy, HH:mm");
@@ -198,7 +199,7 @@ namespace BetterStepsRecorder.Exporters
 
                         if (SaveImageFromEvent(recordEvent, imageFilePath))
                         {
-                            html.AppendLine($"                <img src=\"images/{imageFileName}\" alt=\"Screenshot for Step {recordEvent.Step}\" onclick=\"openLb(this)\">");
+                            html.AppendLine($"                <img src=\"{imagesFolderName}/{imageFileName}\" alt=\"Screenshot for Step {recordEvent.Step}\" onclick=\"openLb(this)\">");
                         }
                     }
                     else
