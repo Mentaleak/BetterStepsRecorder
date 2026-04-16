@@ -91,17 +91,8 @@ namespace BetterStepsRecorder
                 // Enable reset indicator button - we can always recreate from stored coordinates
                 resetIndicatorToolStripButton.Enabled = true;
 
-                // Initialize undo stack with base screenshot if available and not yet initialized
-                if (!_undoStacks.ContainsKey(selectedEvent.ID))
-                {
-                    byte[]? baseBytes = Program.GetBaseScreenshotBytes(selectedEvent);
-                    if (baseBytes != null)
-                    {
-                        var stack = new Stack<string>();
-                        stack.Push(Convert.ToBase64String(baseBytes));
-                        _undoStacks[selectedEvent.ID] = stack;
-                    }
-                }
+                // Note: Undo stack is initialized lazily in CommitBitmap when an edit is made,
+                // not here on selection, to avoid loading large images into memory unnecessarily.
             }
             else
             {

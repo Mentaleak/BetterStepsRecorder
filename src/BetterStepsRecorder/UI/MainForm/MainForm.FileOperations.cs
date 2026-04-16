@@ -32,6 +32,10 @@ namespace BetterStepsRecorder
                 pictureBox1.Image?.Dispose();
                 pictureBox1.Image = null;
                 richTextBox_stepText.Text = null;
+
+                // Clear undo stacks to free memory from previous session
+                _undoStacks.Clear();
+                _undoLists.Clear();
             }
         }
 
@@ -51,6 +55,11 @@ namespace BetterStepsRecorder
                 pictureBox1.Image?.Dispose();
                 pictureBox1.Image = null;
                 richTextBox_stepText.Text = null;
+
+                // Clear undo stacks to free memory from previous session
+                _undoStacks.Clear();
+                _undoLists.Clear();
+
                 EnableRecording();
                 Program.zip = new ZipFileHandler(zipFilePath);
                 Program.LoadRecordEventsFromFile(zipFilePath);
