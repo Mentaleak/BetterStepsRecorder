@@ -68,6 +68,12 @@ namespace BetterStepsRecorder
         public string? _StepRtf { get; set; }
 
         /// <summary>
+        /// Alt text for the screenshot image, used for accessibility in exports.
+        /// This provides a text description of the image for screen readers.
+        /// </summary>
+        public string? AltText { get; set; }
+
+        /// <summary>
         /// Path to the spooled PNG on disk. When set, Screenshotb64 is null and the image
         /// is read from this path on demand instead of being held in RAM.
         /// </summary>

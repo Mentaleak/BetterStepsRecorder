@@ -130,6 +130,24 @@ namespace BetterStepsRecorder
         }
 
         /// <summary>
+        /// Handles text changes in the alt text box
+        /// </summary>
+        private void textBoxAltText_TextChanged(object sender, EventArgs e)
+        {
+            if (Listbox_Events.SelectedItem is RecordEvent selectedEvent)
+            {
+                var recordEvent = Program._recordEvents.Find(ev => ev.ID == selectedEvent.ID);
+                if (recordEvent != null)
+                {
+                    if (recordEvent.AltText != textBoxAltText.Text)
+                    {
+                        recordEvent.AltText = textBoxAltText.Text;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Opens a colour picker to change the annotation arrow colour
         /// </summary>
         private void arrowColourToolStripMenuItem_Click(object sender, EventArgs e)

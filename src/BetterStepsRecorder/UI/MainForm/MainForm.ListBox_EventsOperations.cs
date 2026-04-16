@@ -82,6 +82,9 @@ namespace BetterStepsRecorder
                     richTextBox_stepText.Text = selectedEvent._StepText;
                 }
 
+                // Set the alt text
+                textBoxAltText.Text = selectedEvent.AltText ?? string.Empty;
+
                 // Refresh the operations/edits list to show any existing operations
                 RefreshOperationsListBox();
 

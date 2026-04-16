@@ -84,6 +84,10 @@
             colorSeparator = new ToolStripSeparator();
             fontColorButton = new ToolStripButton();
             highlightColorButton = new ToolStripButton();
+            tabControlStepText = new TabControl();
+            tabPageStepText = new TabPage();
+            tabPageAltText = new TabPage();
+            textBoxAltText = new TextBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -363,8 +367,7 @@
             // 
             // splitContainer3.Panel2
             // 
-            splitContainer3.Panel2.Controls.Add(richTextBox_stepText);
-            splitContainer3.Panel2.Controls.Add(stepTextToolStrip);
+            splitContainer3.Panel2.Controls.Add(tabControlStepText);
             splitContainer3.Size = new Size(1047, 799);
             splitContainer3.SplitterDistance = 670;
             splitContainer3.SplitterWidth = 5;
@@ -566,10 +569,10 @@
             // 
             richTextBox_stepText.AcceptsTab = true;
             richTextBox_stepText.Dock = DockStyle.Fill;
-            richTextBox_stepText.Location = new Point(0, 27);
+            richTextBox_stepText.Location = new Point(3, 30);
             richTextBox_stepText.Margin = new Padding(3, 4, 3, 4);
             richTextBox_stepText.Name = "richTextBox_stepText";
-            richTextBox_stepText.Size = new Size(1047, 97);
+            richTextBox_stepText.Size = new Size(1033, 58);
             richTextBox_stepText.TabIndex = 1;
             richTextBox_stepText.Text = "";
             richTextBox_stepText.TextChanged += richTextBox_stepText_TextChanged;
@@ -579,9 +582,9 @@
             // 
             stepTextToolStrip.GripStyle = ToolStripGripStyle.Hidden;
             stepTextToolStrip.Items.AddRange(new ToolStripItem[] { boldButton, italicButton, underlineButton, strikethroughButton, colorSeparator, fontColorButton, highlightColorButton });
-            stepTextToolStrip.Location = new Point(0, 0);
+            stepTextToolStrip.Location = new Point(3, 3);
             stepTextToolStrip.Name = "stepTextToolStrip";
-            stepTextToolStrip.Size = new Size(1047, 27);
+            stepTextToolStrip.Size = new Size(1033, 27);
             stepTextToolStrip.TabIndex = 2;
             // 
             // boldButton
@@ -650,6 +653,51 @@
             highlightColorButton.Text = "H";
             highlightColorButton.ToolTipText = "Highlight Color";
             highlightColorButton.Click += highlightColorButton_Click;
+            // 
+            // tabControlStepText
+            // 
+            tabControlStepText.Controls.Add(tabPageStepText);
+            tabControlStepText.Controls.Add(tabPageAltText);
+            tabControlStepText.Dock = DockStyle.Fill;
+            tabControlStepText.Location = new Point(0, 0);
+            tabControlStepText.Name = "tabControlStepText";
+            tabControlStepText.SelectedIndex = 0;
+            tabControlStepText.Size = new Size(1047, 124);
+            tabControlStepText.TabIndex = 3;
+            // 
+            // tabPageStepText
+            // 
+            tabPageStepText.Controls.Add(richTextBox_stepText);
+            tabPageStepText.Controls.Add(stepTextToolStrip);
+            tabPageStepText.Location = new Point(4, 29);
+            tabPageStepText.Name = "tabPageStepText";
+            tabPageStepText.Padding = new Padding(3);
+            tabPageStepText.Size = new Size(1039, 91);
+            tabPageStepText.TabIndex = 0;
+            tabPageStepText.Text = "Step Text";
+            tabPageStepText.UseVisualStyleBackColor = true;
+            // 
+            // tabPageAltText
+            // 
+            tabPageAltText.Controls.Add(textBoxAltText);
+            tabPageAltText.Location = new Point(4, 29);
+            tabPageAltText.Name = "tabPageAltText";
+            tabPageAltText.Padding = new Padding(3);
+            tabPageAltText.Size = new Size(1039, 91);
+            tabPageAltText.TabIndex = 1;
+            tabPageAltText.Text = "Alt Text";
+            tabPageAltText.UseVisualStyleBackColor = true;
+            // 
+            // textBoxAltText
+            // 
+            textBoxAltText.Dock = DockStyle.Fill;
+            textBoxAltText.Location = new Point(3, 3);
+            textBoxAltText.Multiline = true;
+            textBoxAltText.Name = "textBoxAltText";
+            textBoxAltText.ScrollBars = ScrollBars.Vertical;
+            textBoxAltText.Size = new Size(1033, 85);
+            textBoxAltText.TabIndex = 0;
+            textBoxAltText.TextChanged += textBoxAltText_TextChanged;
             // 
             // menuStrip1
             // 
@@ -932,5 +980,9 @@
         private Label label_Edits;
         private ToolStripSeparator toolStripSeparator6;
         private ToolStripSeparator toolStripSeparator7;
+        private TabControl tabControlStepText;
+        private TabPage tabPageStepText;
+        private TabPage tabPageAltText;
+        private TextBox textBoxAltText;
     }
 }
