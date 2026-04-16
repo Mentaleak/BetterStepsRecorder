@@ -184,7 +184,11 @@ namespace BetterStepsRecorder.Exporters
 
                         if (SaveImageFromEvent(recordEvent, imageFilePath))
                         {
-                            md.AppendLine($"![Step {recordEvent.Step} Screenshot]({imagesFolderName}/{imageFileName})");
+                            // Use AltText if available, otherwise generate a default
+                            string altText = !string.IsNullOrWhiteSpace(recordEvent.AltText) 
+                                ? recordEvent.AltText 
+                                : $"Step {recordEvent.Step} Screenshot";
+                            md.AppendLine($"![{altText}]({imagesFolderName}/{imageFileName})");
                             md.AppendLine();
                         }
                     }

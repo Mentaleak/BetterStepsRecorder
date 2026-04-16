@@ -229,8 +229,16 @@ namespace BetterStepsRecorder.Exporters
                             // Get the relative path for the image link
                             string relativeImagePath = GetRelativeImagePath(vaultPath, imageFolderPath, imageFileName);
 
-                            // Add the image link to the markdown
-                            writer.WriteLine($"![[{relativeImagePath}]]");
+                            // Use AltText if available for accessibility
+                            // Obsidian format: ![[image|alt text]]
+                            if (!string.IsNullOrWhiteSpace(recordEvent.AltText))
+                            {
+                                writer.WriteLine($"![[{relativeImagePath}|{recordEvent.AltText}]]");
+                            }
+                            else
+                            {
+                                writer.WriteLine($"![[{relativeImagePath}]]");
+                            }
                             writer.WriteLine();
                         }
 

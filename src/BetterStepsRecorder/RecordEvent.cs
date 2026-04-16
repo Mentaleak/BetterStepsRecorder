@@ -253,6 +253,126 @@ namespace BetterStepsRecorder
                 ? element.Properties.HelpText.Value 
                 : null;
         }
+
+        /// <summary>
+        /// Gets the verbal position of a point within a rectangular region using a 3x3 grid.
+        /// Returns positions like "top-left", "middle-center", "bottom-right", etc.
+        /// </summary>
+        /// <param name="pointX">X coordinate of the point</param>
+        /// <param name="pointY">Y coordinate of the point</param>
+        /// <param name="regionLeft">Left edge of the region</param>
+        /// <param name="regionTop">Top edge of the region</param>
+        /// <param name="regionWidth">Width of the region</param>
+        /// <param name="regionHeight">Height of the region</param>
+        /// <returns>A verbal description of the position (e.g., "top-left", "middle-center", "bottom-right")</returns>
+        public static string GetVerbalPosition(int pointX, int pointY, int regionLeft, int regionTop, int regionWidth, int regionHeight)
+        {
+            // Calculate relative position within the region (0.0 to 1.0)
+            double relativeX = regionWidth > 0 ? (double)(pointX - regionLeft) / regionWidth : 0.5;
+            double relativeY = regionHeight > 0 ? (double)(pointY - regionTop) / regionHeight : 0.5;
+
+            // Clamp to valid range
+            relativeX = Math.Max(0.0, Math.Min(1.0, relativeX));
+            relativeY = Math.Max(0.0, Math.Min(1.0, relativeY));
+
+            // Determine vertical position (3 zones: top, middle, bottom)
+            string vertical;
+            if (relativeY < 0.333)
+                vertical = "top";
+            else if (relativeY < 0.667)
+                vertical = "middle";
+            else
+                vertical = "bottom";
+
+            // Determine horizontal position (3 zones: left, center, right)
+            string horizontal;
+            if (relativeX < 0.333)
+                horizontal = "left";
+            else if (relativeX < 0.667)
+                horizontal = "center";
+            else
+                horizontal = "right";
+
+            // Always use combined format: vertical-horizontal
+            return $"{vertical}-{horizontal}";
+        }
+
+        /// <summary>
+        /// Gets the verbal position of the click/interaction indicator within the screenshot.
+        /// </summary>
+        /// <returns>A verbal description of where the indicator appears in the screenshot</returns>
+        public string GetIndicatorVerbalPosition()
+        {
+            // Use WindowCoordinates as the reference region (the captured window area)
+            int regionLeft = WindowCoordinates.Left;
+            int regionTop = WindowCoordinates.Top;
+            int regionWidth = WindowSize.Width;
+            int regionHeight = WindowSize.Height;
+
+            // Use MouseCoordinates as the point of interest
+            int pointX = MouseCoordinates.X;
+            int pointY = MouseCoordinates.Y;
+
+            return GetVerbalPosition(pointX, pointY, regionLeft, regionTop, regionWidth, regionHeight);
+        }
+
+        /// <summary>
+        /// Gets the verbal position of the drag start point within the screenshot.
+        /// </summary>
+        /// <returns>A verbal description of where the drag started, or null if not a drag event</returns>
+        public string? GetDragStartVerbalPosition()
+        {
+            if (DragStartCoordinates == null) return null;
+
+            int regionLeft = WindowCoordinates.Left;
+            int regionTop = WindowCoordinates.Top;
+            int regionWidth = WindowSize.Width;
+            int regionHeight = WindowSize.Height;
+
+            return GetVerbalPosition(DragStartCoordinates.Value.X, DragStartCoordinates.Value.Y, 
+                regionLeft, regionTop, regionWidth, regionHeight);
+        }
+
+        /// <summary>
+        /// Gets the verbal position of the drag end point within the screenshot.
+        /// </summary>
+        /// <returns>A verbal description of where the drag ended, or null if not a drag event</returns>
+        public string? GetDragEndVerbalPosition()
+        {
+            if (DragEndCoordinates == null) return null;
+
+            int regionLeft = WindowCoordinates.Left;
+            int regionTop = WindowCoordinates.Top;
+            int regionWidth = WindowSize.Width;
+            int regionHeight = WindowSize.Height;
+
+            return GetVerbalPosition(DragEndCoordinates.Value.X, DragEndCoordinates.Value.Y, 
+                regionLeft, regionTop, regionWidth, regionHeight);
+        }
+
+        /// <summary>
+        /// Generates automatic alt text for the screenshot based on event type and indicator position.
+        /// Format for clicks: "Screenshot indicating a {event type} occurring in the {verbal position} of the application"
+        /// Format for drags: "Screenshot indicating a drag from the {start position} to the {end position} of the application"
+        /// </summary>
+        /// <returns>Auto-generated alt text describing the screenshot</returns>
+        public string GenerateAutoAltText()
+        {
+            string eventDescription = EventType ?? "action";
+
+            // Handle drag events with start and end positions
+            if (EventType == "Drag" && DragStartCoordinates != null && DragEndCoordinates != null)
+            {
+                string? startPosition = GetDragStartVerbalPosition();
+                string? endPosition = GetDragEndVerbalPosition();
+
+                return $"Screenshot indicating a drag from the {startPosition} to the {endPosition} of the application";
+            }
+
+            // Handle click events
+            string verbalPosition = GetIndicatorVerbalPosition();
+            return $"Screenshot indicating a {eventDescription.ToLower()} occurring in the {verbalPosition} of the application";
+        }
     }
 
     public class DateTimeWithSecondsConverter : DateTimeConverter

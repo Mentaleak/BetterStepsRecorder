@@ -557,7 +557,15 @@ namespace BetterStepsRecorder.Exporters
                         writer.WriteAttributeString("show", "http://www.w3.org/1999/xlink", "embed");
                         writer.WriteAttributeString("actuate", "http://www.w3.org/1999/xlink", "onLoad");
                         writer.WriteEndElement(); // draw:image
-                        
+
+                        // Add alt text description using svg:title element (ODF accessibility standard)
+                        if (!string.IsNullOrWhiteSpace(recordEvent.AltText))
+                        {
+                            writer.WriteStartElement("title", "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0");
+                            writer.WriteString(recordEvent.AltText);
+                            writer.WriteEndElement(); // svg:title
+                        }
+
                         writer.WriteEndElement(); // draw:frame
                         writer.WriteEndElement(); // text:p
                     }

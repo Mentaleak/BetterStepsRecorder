@@ -283,6 +283,8 @@ namespace BetterStepsRecorder
                                                                 "}",
                                             Step              = _recordEvents.Count + 1
                                         };
+                                        // Generate automatic alt text
+                                        recordEvent.AltText = recordEvent.GenerateAutoAltText();
                                         _recordEvents.Add(recordEvent);
                                     }
 
@@ -460,6 +462,8 @@ namespace BetterStepsRecorder
                                                                 "}",
                                             Step               = _recordEvents.Count + 1
                                         };
+                                        // Generate automatic alt text
+                                        recordEvent.AltText = recordEvent.GenerateAutoAltText();
                                         _recordEvents.Add(recordEvent);
                                     }
 
@@ -627,6 +631,8 @@ namespace BetterStepsRecorder
                                                             "}",
                                         Step               = _recordEvents.Count + 1
                                     };
+                                    // Generate automatic alt text
+                                    recordEvent.AltText = recordEvent.GenerateAutoAltText();
                                     _recordEvents.Add(recordEvent);
                                 }
 

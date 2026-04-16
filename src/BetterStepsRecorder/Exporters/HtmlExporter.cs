@@ -216,7 +216,11 @@ namespace BetterStepsRecorder.Exporters
 
                         if (SaveImageFromEvent(recordEvent, imageFilePath))
                         {
-                            html.AppendLine($"                <img src=\"{imagesFolderName}/{imageFileName}\" alt=\"Screenshot for Step {recordEvent.Step}\" onclick=\"openLb(this)\">");
+                            // Use AltText if available, otherwise generate a default
+                            string altText = !string.IsNullOrWhiteSpace(recordEvent.AltText) 
+                                ? HtmlEncode(recordEvent.AltText) 
+                                : $"Screenshot for Step {recordEvent.Step}";
+                            html.AppendLine($"                <img src=\"{imagesFolderName}/{imageFileName}\" alt=\"{altText}\" onclick=\"openLb(this)\">");
                         }
                     }
                     else
