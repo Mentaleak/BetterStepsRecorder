@@ -193,7 +193,15 @@ namespace BetterStepsRecorder.Exporters
                 // Automatic styles
                 writer.WriteStartElement("automatic-styles", "urn:oasis:names:tc:opendocument:xmlns:office:1.0");
                 
-                // Define paragraph styles
+                // Define section/paragraph styles
+                writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "StepKeepTogether");
+                writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "section");
+                writer.WriteStartElement("section-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("keep-together", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "always");
+                writer.WriteEndElement(); // style:section-properties
+                writer.WriteEndElement(); // style:style
+
                 writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
                 writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "Title");
                 writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "paragraph");
@@ -238,6 +246,15 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteAttributeString("padding-bottom", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.05in");
                 writer.WriteAttributeString("margin-top", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.2in");
                 writer.WriteAttributeString("margin-bottom", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.2in");
+                writer.WriteEndElement(); // style:paragraph-properties
+                writer.WriteEndElement(); // style:style
+
+                // Page break style - hard break before the paragraph
+                writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "PageBreak");
+                writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "paragraph");
+                writer.WriteStartElement("paragraph-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("break-before", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "page");
                 writer.WriteEndElement(); // style:paragraph-properties
                 writer.WriteEndElement(); // style:style
                 
@@ -355,6 +372,11 @@ namespace BetterStepsRecorder.Exporters
                 DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
                 {
+                    // Wrap the whole step in a keep-together section (layout engine may still override)
+                    writer.WriteStartElement("section", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", $"StepSection{recordEvent.Step}");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepKeepTogether");
+
                     // Step header (bold/14pt paragraph for the step number)
                     writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
@@ -482,13 +504,14 @@ namespace BetterStepsRecorder.Exporters
                         writer.WriteEndElement(); // text:p
                     }
                     
-                    // Separator between steps
-                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
-                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Separator");
-                    writer.WriteString(" ");
-                    writer.WriteEndElement(); // text:p
+                    writer.WriteEndElement(); // text:section
+
+                                        // Page break after each step (empty paragraph with break-before style)
+                                        writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "PageBreak");
+                                        writer.WriteEndElement(); // text:p
                 }
-                
+
                 // Footer with hyperlink
                 writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
                 writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Footer");

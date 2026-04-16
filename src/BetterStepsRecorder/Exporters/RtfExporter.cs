@@ -104,9 +104,15 @@ namespace BetterStepsRecorder.Exporters
                     DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
                     {
+                        // Keep this step together where the renderer supports it
+                        // (Word honors \keep/\keepn; other viewers may ignore)
+                        InsertRtfContent(rtfBox, @"{\rtf1\ansi\pard\keepn } ");
+
                         // Add step header with step number
                         rtfBox.SelectionFont = fontStep;
                         rtfBox.AppendText($"Step {recordEvent.Step}: ");
+
+                        InsertRtfContent(rtfBox, @"{\rtf1\ansi\pard\keep } ");
 
                         // Insert formatted step text if available, otherwise plain text
                         if (!string.IsNullOrEmpty(recordEvent._StepRtf))
@@ -204,9 +210,9 @@ namespace BetterStepsRecorder.Exporters
                             }
                         }
 
-                        // Add separator between steps
-                        rtfBox.SelectionFont = fontSep;
-                        rtfBox.AppendText("\n----------------------------\n\n");
+                        // Page break after each step (avoids step content spanning multiple pages)
+                        rtfBox.AppendText("\n");
+                        InsertRtfContent(rtfBox, @"{\rtf1\ansi \page }");
                     }
 
                     // Add footer with link to GitHub
