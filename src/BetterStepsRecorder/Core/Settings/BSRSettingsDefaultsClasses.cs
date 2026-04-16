@@ -68,6 +68,7 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowTableOfContents { get; set; } = false;
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -86,6 +87,7 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowTableOfContents { get; set; } = false;
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -104,6 +106,7 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowTableOfContents { get; set; } = false;
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -122,6 +125,7 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowTableOfContents { get; set; } = false;
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;
@@ -140,6 +144,7 @@ namespace BetterStepsRecorder
         {
             public bool ShowSummary { get; set; } = true;
             public bool ShowGeneratedDate { get; set; } = true;
+            public bool ShowTableOfContents { get; set; } = false;
             public bool ShowStepTimestamps { get; set; } = false;
             public bool ShowAction { get; set; } = false;
             public bool ShowApplication { get; set; } = false;

@@ -18,6 +18,7 @@ namespace BetterStepsRecorder.UI.Settings
             // Auto-save when any checkbox changes
             chkSummary.CheckedChanged += Checkbox_CheckedChanged;
             chkGeneratedDate.CheckedChanged += Checkbox_CheckedChanged;
+            chkTableOfContents.CheckedChanged += Checkbox_CheckedChanged;
             chkStepTimestamps.CheckedChanged += Checkbox_CheckedChanged;
             chkAction.CheckedChanged += Checkbox_CheckedChanged;
             chkApplication.CheckedChanged += Checkbox_CheckedChanged;
@@ -33,6 +34,7 @@ namespace BetterStepsRecorder.UI.Settings
 
             chkSummary.Checked = htmlSettings.ShowSummary;
             chkGeneratedDate.Checked = htmlSettings.ShowGeneratedDate;
+            chkTableOfContents.Checked = htmlSettings.ShowTableOfContents;
             chkStepTimestamps.Checked = htmlSettings.ShowStepTimestamps;
             chkAction.Checked = htmlSettings.ShowAction;
             chkApplication.Checked = htmlSettings.ShowApplication;
@@ -53,6 +55,7 @@ namespace BetterStepsRecorder.UI.Settings
 
             htmlSettings.ShowSummary = chkSummary.Checked;
             htmlSettings.ShowGeneratedDate = chkGeneratedDate.Checked;
+            htmlSettings.ShowTableOfContents = chkTableOfContents.Checked;
             htmlSettings.ShowStepTimestamps = chkStepTimestamps.Checked;
             htmlSettings.ShowAction = chkAction.Checked;
             htmlSettings.ShowApplication = chkApplication.Checked;

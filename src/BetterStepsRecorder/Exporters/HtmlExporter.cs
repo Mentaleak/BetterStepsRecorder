@@ -133,6 +133,23 @@ namespace BetterStepsRecorder.Exporters
 
                 html.AppendLine("    </div>");
 
+                // Table of Contents
+                if (cfg.ShowTableOfContents && Program._recordEvents.Count > 0)
+                {
+                    html.AppendLine("    <div class=\"toc\" style=\"background:#f8f9fa; border-radius:12px; padding:20px 24px; margin:20px auto; max-width:900px;\">");
+                    html.AppendLine("        <h2 style=\"margin:0 0 12px 0; font-size:1.1rem; color:#1a1a2e;\">Table of Contents</h2>");
+                    html.AppendLine("        <ul style=\"margin:0; padding-left:20px; list-style:none;\">");
+                    foreach (var recordEvent in Program._recordEvents)
+                    {
+                        string stepDesc = HtmlEncode(RtfFormatConverter.SanitizeForExport(recordEvent._StepText));
+                        if (stepDesc.Length > 80)
+                            stepDesc = stepDesc.Substring(0, 77) + "...";
+                        html.AppendLine($"            <li style=\"margin:6px 0;\"><a href=\"#step{recordEvent.Step}\" style=\"color:#0f3460; text-decoration:none;\">Step {recordEvent.Step}: {stepDesc}</a></li>");
+                    }
+                    html.AppendLine("        </ul>");
+                    html.AppendLine("    </div>");
+                }
+
                 html.AppendLine("    <div class=\"container\">");
 
                 // Add each step
@@ -150,7 +167,7 @@ namespace BetterStepsRecorder.Exporters
                         stepTextHtml = HtmlEncode(RtfFormatConverter.SanitizeForExport(recordEvent._StepText)).Replace("\n", "<br>");
                     }
 
-                    html.AppendLine("        <div class=\"step-card\">");
+                    html.AppendLine($"        <div class=\"step-card\" id=\"step{recordEvent.Step}\">");
                     html.AppendLine("            <div class=\"step-header\">");
                     html.AppendLine($"                <span class=\"step-badge\">Step {recordEvent.Step}</span>");
                     html.AppendLine("                <div class=\"step-header-text\">");

@@ -92,6 +92,22 @@ namespace BetterStepsRecorder.Exporters
                     md.AppendLine();
                 }
 
+                // Table of Contents
+                if (cfg.ShowTableOfContents && Program._recordEvents.Count > 0)
+                {
+                    md.AppendLine("## Table of Contents");
+                    md.AppendLine();
+                    foreach (var recordEvent in Program._recordEvents)
+                    {
+                        string stepDesc = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                        if (stepDesc.Length > 60)
+                            stepDesc = stepDesc.Substring(0, 57) + "...";
+                        // Markdown anchor links use lowercase and replace spaces with hyphens
+                        md.AppendLine($"- [Step {recordEvent.Step}: {stepDesc}](#step-{recordEvent.Step})");
+                    }
+                    md.AppendLine();
+                }
+
                 // Steps section
                 md.AppendLine("## Steps");
                 md.AppendLine();

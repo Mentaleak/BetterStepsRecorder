@@ -127,6 +127,22 @@ namespace BetterStepsRecorder.Exporters
                         writer.WriteLine();
                     }
 
+                    // Table of Contents
+                    if (cfg.ShowTableOfContents && Program._recordEvents.Count > 0)
+                    {
+                        writer.WriteLine("## Table of Contents");
+                        writer.WriteLine();
+                        foreach (var recordEvent in Program._recordEvents)
+                        {
+                            string stepDesc = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                            if (stepDesc.Length > 60)
+                                stepDesc = stepDesc.Substring(0, 57) + "...";
+                            // Obsidian uses standard Markdown anchor links
+                            writer.WriteLine($"- [[#Step {recordEvent.Step}|Step {recordEvent.Step}: {stepDesc}]]");
+                        }
+                        writer.WriteLine();
+                    }
+
                     // Steps section
                     writer.WriteLine("## Steps");
                     writer.WriteLine();

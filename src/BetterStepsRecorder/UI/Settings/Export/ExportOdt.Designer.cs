@@ -32,6 +32,7 @@ namespace BetterStepsRecorder.UI.Settings
             lblHeader = new Label();
             chkSummary = new CheckBox();
             chkGeneratedDate = new CheckBox();
+            chkTableOfContents = new CheckBox();
             lblPerStep = new Label();
             chkStepTimestamps = new CheckBox();
             lblDetailTable = new Label();
@@ -82,23 +83,33 @@ namespace BetterStepsRecorder.UI.Settings
             chkGeneratedDate.Text = "Generated date";
             chkGeneratedDate.UseVisualStyleBackColor = true;
             // 
+            // chkTableOfContents
+            // 
+            chkTableOfContents.AutoSize = true;
+            chkTableOfContents.Location = new Point(20, 143);
+            chkTableOfContents.Name = "chkTableOfContents";
+            chkTableOfContents.Size = new Size(149, 24);
+            chkTableOfContents.TabIndex = 4;
+            chkTableOfContents.Text = "Table of Contents";
+            chkTableOfContents.UseVisualStyleBackColor = true;
+            // 
             // lblPerStep
             // 
             lblPerStep.AutoSize = true;
             lblPerStep.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
-            lblPerStep.Location = new Point(3, 155);
+            lblPerStep.Location = new Point(3, 179);
             lblPerStep.Name = "lblPerStep";
             lblPerStep.Size = new Size(65, 19);
-            lblPerStep.TabIndex = 4;
+            lblPerStep.TabIndex = 5;
             lblPerStep.Text = "Per-Step";
             // 
             // chkStepTimestamps
             // 
             chkStepTimestamps.AutoSize = true;
-            chkStepTimestamps.Location = new Point(20, 180);
+            chkStepTimestamps.Location = new Point(20, 204);
             chkStepTimestamps.Name = "chkStepTimestamps";
             chkStepTimestamps.Size = new Size(147, 24);
-            chkStepTimestamps.TabIndex = 5;
+            chkStepTimestamps.TabIndex = 6;
             chkStepTimestamps.Text = "Step timestamps";
             chkStepTimestamps.UseVisualStyleBackColor = true;
             // 
@@ -106,69 +117,69 @@ namespace BetterStepsRecorder.UI.Settings
             // 
             lblDetailTable.AutoSize = true;
             lblDetailTable.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
-            lblDetailTable.Location = new Point(3, 216);
+            lblDetailTable.Location = new Point(3, 240);
             lblDetailTable.Name = "lblDetailTable";
             lblDetailTable.Size = new Size(88, 19);
-            lblDetailTable.TabIndex = 6;
+            lblDetailTable.TabIndex = 7;
             lblDetailTable.Text = "Detail Table";
             // 
             // chkAction
             // 
             chkAction.AutoSize = true;
-            chkAction.Location = new Point(20, 241);
+            chkAction.Location = new Point(20, 265);
             chkAction.Name = "chkAction";
             chkAction.Size = new Size(75, 24);
-            chkAction.TabIndex = 7;
+            chkAction.TabIndex = 8;
             chkAction.Text = "Action";
             chkAction.UseVisualStyleBackColor = true;
             // 
             // chkApplication
             // 
             chkApplication.AutoSize = true;
-            chkApplication.Location = new Point(20, 265);
+            chkApplication.Location = new Point(20, 289);
             chkApplication.Name = "chkApplication";
             chkApplication.Size = new Size(110, 24);
-            chkApplication.TabIndex = 8;
+            chkApplication.TabIndex = 9;
             chkApplication.Text = "Application";
             chkApplication.UseVisualStyleBackColor = true;
             // 
             // chkWindow
             // 
             chkWindow.AutoSize = true;
-            chkWindow.Location = new Point(20, 289);
+            chkWindow.Location = new Point(20, 313);
             chkWindow.Name = "chkWindow";
             chkWindow.Size = new Size(87, 24);
-            chkWindow.TabIndex = 9;
+            chkWindow.TabIndex = 10;
             chkWindow.Text = "Window";
             chkWindow.UseVisualStyleBackColor = true;
             // 
             // chkElement
             // 
             chkElement.AutoSize = true;
-            chkElement.Location = new Point(20, 313);
+            chkElement.Location = new Point(20, 337);
             chkElement.Name = "chkElement";
             chkElement.Size = new Size(86, 24);
-            chkElement.TabIndex = 10;
+            chkElement.TabIndex = 11;
             chkElement.Text = "Element";
             chkElement.UseVisualStyleBackColor = true;
             // 
             // chkElementType
             // 
             chkElementType.AutoSize = true;
-            chkElementType.Location = new Point(20, 337);
+            chkElementType.Location = new Point(20, 361);
             chkElementType.Name = "chkElementType";
             chkElementType.Size = new Size(121, 24);
-            chkElementType.TabIndex = 11;
+            chkElementType.TabIndex = 12;
             chkElementType.Text = "Element Type";
             chkElementType.UseVisualStyleBackColor = true;
             // 
             // chkMousePosition
             // 
             chkMousePosition.AutoSize = true;
-            chkMousePosition.Location = new Point(20, 361);
+            chkMousePosition.Location = new Point(20, 385);
             chkMousePosition.Name = "chkMousePosition";
             chkMousePosition.Size = new Size(133, 24);
-            chkMousePosition.TabIndex = 12;
+            chkMousePosition.TabIndex = 13;
             chkMousePosition.Text = "Mouse Position";
             chkMousePosition.UseVisualStyleBackColor = true;
             // 
@@ -185,12 +196,13 @@ namespace BetterStepsRecorder.UI.Settings
             Controls.Add(lblDetailTable);
             Controls.Add(chkStepTimestamps);
             Controls.Add(lblPerStep);
+            Controls.Add(chkTableOfContents);
             Controls.Add(chkGeneratedDate);
             Controls.Add(chkSummary);
             Controls.Add(lblHeader);
             Controls.Add(lblNote);
             Name = "ExportOdt";
-            Size = new Size(472, 400);
+            Size = new Size(472, 420);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -201,6 +213,7 @@ namespace BetterStepsRecorder.UI.Settings
         private Label lblHeader;
         private CheckBox chkSummary;
         private CheckBox chkGeneratedDate;
+        private CheckBox chkTableOfContents;
         private Label lblPerStep;
         private CheckBox chkStepTimestamps;
         private Label lblDetailTable;

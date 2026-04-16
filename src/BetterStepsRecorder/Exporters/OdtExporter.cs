@@ -226,7 +226,23 @@ namespace BetterStepsRecorder.Exporters
                 writer.WriteAttributeString("font-weight", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "bold");
                 writer.WriteEndElement(); // style:text-properties
                 writer.WriteEndElement(); // style:style
-                
+
+                // Heading 1 style for step headers (for TOC navigation)
+                writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "Heading1");
+                writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "paragraph");
+                writer.WriteAttributeString("parent-style-name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "Heading");
+                writer.WriteAttributeString("default-outline-level", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "1");
+                writer.WriteStartElement("paragraph-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("margin-top", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.2in");
+                writer.WriteAttributeString("margin-bottom", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "0.1in");
+                writer.WriteEndElement(); // style:paragraph-properties
+                writer.WriteStartElement("text-properties", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
+                writer.WriteAttributeString("font-size", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "14pt");
+                writer.WriteAttributeString("font-weight", "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0", "bold");
+                writer.WriteEndElement(); // style:text-properties
+                writer.WriteEndElement(); // style:style
+
                 writer.WriteStartElement("style", "urn:oasis:names:tc:opendocument:xmlns:style:1.0");
                 writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "Normal");
                 writer.WriteAttributeString("family", "urn:oasis:names:tc:opendocument:xmlns:style:1.0", "paragraph");
@@ -368,6 +384,42 @@ namespace BetterStepsRecorder.Exporters
                     writer.WriteEndElement(); // text:p
                 }
 
+                // Table of Contents (if enabled)
+                if (cfg.ShowTableOfContents && Program._recordEvents.Count > 0)
+                {
+                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
+                    writer.WriteString("Table of Contents");
+                    writer.WriteEndElement(); // text:p
+
+                    // Generate TOC entries as linked paragraphs
+                    foreach (var recordEvent in Program._recordEvents)
+                    {
+                        writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Normal");
+
+                        // Create hyperlink to the step heading bookmark
+                        writer.WriteStartElement("a", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                        writer.WriteAttributeString("href", "http://www.w3.org/1999/xlink", $"#Step{recordEvent.Step}");
+                        writer.WriteAttributeString("type", "http://www.w3.org/1999/xlink", "simple");
+                        writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Hyperlink");
+
+                        // Get short description from step text for TOC entry
+                        string stepDesc = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                        if (stepDesc.Length > 60)
+                            stepDesc = stepDesc.Substring(0, 57) + "...";
+                        writer.WriteString($"Step {recordEvent.Step}: {stepDesc}");
+
+                        writer.WriteEndElement(); // text:a
+                        writer.WriteEndElement(); // text:p
+                    }
+
+                    // Page break after TOC
+                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "PageBreak");
+                    writer.WriteEndElement(); // text:p
+                }
+
                 // Add each step
                 DateTime? prevTime = null;
                 foreach (var recordEvent in Program._recordEvents)
@@ -377,11 +429,17 @@ namespace BetterStepsRecorder.Exporters
                     writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", $"StepSection{recordEvent.Step}");
                     writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepKeepTogether");
 
-                    // Step header (bold/14pt paragraph for the step number)
-                    writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
-                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "StepHeader");
+                    // Step header as heading element (makes it TOC-navigable in all viewers)
+                    // Using text:h with outline-level for Navigator/TOC compatibility
+                    writer.WriteStartElement("h", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("style-name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "Heading1");
+                    writer.WriteAttributeString("outline-level", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", "1");
+                    // Add bookmark inside heading for internal linking from TOC
+                    writer.WriteStartElement("bookmark", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");
+                    writer.WriteAttributeString("name", "urn:oasis:names:tc:opendocument:xmlns:text:1.0", $"Step{recordEvent.Step}");
+                    writer.WriteEndElement(); // text:bookmark (empty/point bookmark)
                     writer.WriteString($"Step {recordEvent.Step}");
-                    writer.WriteEndElement(); // text:p
+                    writer.WriteEndElement(); // text:h
 
                     // Step text in Normal style so it doesn't inherit StepHeader's bold/14pt
                     writer.WriteStartElement("p", "urn:oasis:names:tc:opendocument:xmlns:text:1.0");

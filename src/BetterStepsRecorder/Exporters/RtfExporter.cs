@@ -100,6 +100,22 @@ namespace BetterStepsRecorder.Exporters
                         rtfBox.AppendText("\n");
                     }
 
+                    // Table of Contents (plain text - RTF hyperlinks have limited support)
+                    if (cfg.ShowTableOfContents && Program._recordEvents.Count > 0)
+                    {
+                        rtfBox.SelectionFont = fontDetailLabel;
+                        rtfBox.AppendText("Table of Contents\n");
+                        rtfBox.SelectionFont = fontDetail;
+                        foreach (var recordEvent in Program._recordEvents)
+                        {
+                            string stepDesc = RtfFormatConverter.SanitizeForExport(recordEvent._StepText);
+                            if (stepDesc.Length > 60)
+                                stepDesc = stepDesc.Substring(0, 57) + "...";
+                            rtfBox.AppendText($"Step {recordEvent.Step}: {stepDesc}\n");
+                        }
+                        rtfBox.AppendText("\n");
+                    }
+
                     // Add each step
                     DateTime? prevTime = null;
                     foreach (var recordEvent in Program._recordEvents)
